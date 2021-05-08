@@ -1,0 +1,50 @@
+name: Publish
+
+on:
+  push:
+    # tags:
+    #   - 'v*'
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            command: yarn run pack:linux
+            binFileName: "europa_linux_amd64"
+            appName: "Europa-UI-1.0.0.AppImage"
+          # - os: windows-latest
+          #   command: yarn run pack:win
+          #   binFileName: "europa_win.exe"
+          #   appName: "Europa-UI Setup 1.0.0.exe"
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - run: yarn
+      - uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "patractlabs/europa"
+          version: "tags/test-ci"
+          file: ${{ matrix.binFileName }}
+          target: build/${{ matrix.binFileName }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      # - run: ${{ matrix.command }}
+      - name: Upload applications to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/${{ matrix.appName }}
+          asset_name: ${{ matrix.appName }}
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "Hello Electron"
