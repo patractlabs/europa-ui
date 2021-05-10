@@ -15,12 +15,19 @@ import type { EventRecord } from '@polkadot/types/interfaces/system';
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
 `;
+const BlockHolder = styled.div`
+  margin-bottom: 0px;
+`;
 const BlockInfoWrapper = styled.div`
   background-color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 78px;
+  height: 50px;
+
+  > p {
+    padding: 0px 40px;
+  }
 `;
 const Left = styled.div`
   display: flex;
@@ -61,7 +68,6 @@ const Extrinsics = styled.div`
   }
 `;
 const Navigation = styled.div`
-  height: 78px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -99,16 +105,20 @@ const ShowMore = styled.div`
     margin-right: 4px;
   }
 `;
-const FixedBottom = styled.div`
-  padding: 14px 53px 14px 18px;
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-`;
-const BlockHighlight = styled.div`
+const BlockInfoHolder = styled.div`
+  background: white;
+  z-index: 1;
+  top: 0px;
+  padding: 14px 18px;
   display: flex;
-  padding: 0px 20px;
   justify-content: space-between;
+`;
+const NavigationHighlight = styled.div`
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 78px;
+  justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.08);
@@ -143,10 +153,34 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
     </BlockInfoWrapper>
   );
 };
+
 export const Blocks: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
-  const [ currentBlock, setCurrentBlock ] = useState<Block>();
+  // const [ currentBlock, setCurrentBlock ] = useState<Block>();
+  const [ latestBlocks, setLatestBlocks ] = useState<Block[]>([]);
   const [ currentBlockNumber, setCurrentBlockNumber ] = useState<number>(0);
+  const [ atTop,  setAtTop ] = useState<boolean>(true);
+  const [ viewingBlock, setViewingBlock ] = useState<string>('');
+
+  useEffect(() => {
+    setAtTop(window.scrollY < 146);
+    const toggleNavigation = () => {
+      setAtTop(window.scrollY < 146);
+      const _viewingBlock =  latestBlocks.find(block => {
+        const bounding = document.getElementById(block.hash.toString())?.getBoundingClientRect();
+        if (!bounding) {
+          return false;
+        }
+        return bounding.top <=0 && bounding.top > -1 * bounding.height;
+      }
+      )?.hash.toString();
+
+      setViewingBlock(_viewingBlock || '');
+    };
+    document.addEventListener('scroll', toggleNavigation, false);
+    
+    return () => document.removeEventListener('scroll', toggleNavigation);
+  }, [latestBlocks]);
 
   useEffect(() => {
     const sub = api.derive.chain.subscribeNewHeads().subscribe(
@@ -175,8 +209,6 @@ export const Blocks: FC = (): ReactElement => {
     return () => sub.unsubscribe();
   }, [api, currentBlockNumber]);
 
-
-
   useEffect(() => {
     const sub = api.rpc.chain.getBlockHash(currentBlockNumber)
       .pipe(
@@ -198,71 +230,99 @@ export const Blocks: FC = (): ReactElement => {
             return extrinsic;
           });
 
-          setCurrentBlock({
+          const current: Block = {
             hash: block.hash,
             number: blockBase?.number,
             extrinsics,
-          })
+          };
+
+          // setCurrentBlock(current);
           console.log('events', events, 'blocks', block);
           console.log('extrinsics',  extrinsics, extrinsics.map(e => e.toHuman()));
+           
+          if (!latestBlocks.find(block => block.hash.toString() === current.hash.toString())) {
+            setLatestBlocks([
+              current,
+              ...latestBlocks,
+            ]);
+          }
+          console.log('latest blocks', [
+            ...latestBlocks,
+            current,
+          ]);
         },
         () => console.log('nothing got'),
       );
 
     return () => sub.unsubscribe();
-  }, [currentBlockNumber, api]);
+  }, [currentBlockNumber, api, latestBlocks]);
+
   return (
     <Wrapper>
-      <BlockHighlight>
-        <BlockInfo currentBlock={currentBlock} />
-       
+      <NavigationHighlight>
         <Navigation>
           <ForwardButton onClick={forward}>Go to Block</ForwardButton>
           <BackButton onClick={backward}>Back to Block</BackButton>
         </Navigation>
-      </BlockHighlight>
-      <Table
-        rowKey={record => record.hash.toString()}
-        locale={{emptyText: 'No Data'}}
-        pagination={false}
-        dataSource={currentBlock ? currentBlock.extrinsics : []}
-        columns={[
-          {
-            title: <span>Hash</span>,
-            dataIndex: 'hash',
-            key: 'hash',
-            render: (_, record) => <span>{record.hash?.toString()}</span>,
-          },
-          {
-            title: <span>from</span>,
-            dataIndex: 'from',
-            key: 'from',
-            render: (_, record) => <span>{formatAddress(record.signer?.hash.toString())}</span>,
-          },
-          {
-            title: <span>to</span>,
-            dataIndex: 'to',
-            key: 'to',
-            render: (_, record) => <span>{formatAddress(record.method.method === 'transferKeepAlive' ? record.args[0]?.toString() : '-')}</span>,
-          },
-          {
-            title: <span>Events</span>,
-            dataIndex: 'events',
-            key: 'events',
-            render: (_, record) => <span>{record.events?.length}</span>,
-          },
-        ]}
-      />
+      </NavigationHighlight>
       {
-        currentBlock && currentBlock.extrinsics.length > 10 &&
-          <ShowMore>
-            <img src={MoveSVG} alt="" />
-            <span>Show All (Total {currentBlock ? currentBlock.extrinsics.length : 0})</span>
-          </ShowMore>
+        latestBlocks.map(block =>
+          <BlockHolder key={block.hash.toString()}>
+            <BlockInfoHolder
+              id={block.hash.toString()}
+              style={{ position: 'sticky', display: viewingBlock === block.hash.toString() ? 'flex': 'block', boxShadow: viewingBlock === block.hash.toString() ? '0px 4px 12px 0px rgba(0, 0, 0, 0.08)' : '', zIndex: viewingBlock === block.hash.toString() ? 10 :  1 }}
+            >
+              <BlockInfo currentBlock={block} />
+              {
+                viewingBlock === block.hash.toString() &&
+                  <Navigation>
+                    <ForwardButton onClick={forward}>Go to Block</ForwardButton>
+                    <BackButton onClick={backward}>Back to Block</BackButton>
+                  </Navigation>
+              }
+            </BlockInfoHolder>
+            <Table
+              rowKey={record => record.hash.toString()}
+              locale={{emptyText: 'No Data'}}
+              pagination={false}
+              dataSource={block ? block.extrinsics : []}
+              columns={[
+                {
+                  title: <span>Hash</span>,
+                  dataIndex: 'hash',
+                  key: 'hash',
+                  render: (_, record) => <span>{record.hash?.toString()}</span>,
+                },
+                {
+                  title: <span>from</span>,
+                  dataIndex: 'from',
+                  key: 'from',
+                  render: (_, record) => <span>{formatAddress(record.signer?.hash.toString())}</span>,
+                },
+                {
+                  title: <span>to</span>,
+                  dataIndex: 'to',
+                  key: 'to',
+                  render: (_, record) => <span>{formatAddress(record.method.method === 'transferKeepAlive' ? record.args[0]?.toString() : '-')}</span>,
+                },
+                {
+                  title: <span>Events</span>,
+                  dataIndex: 'events',
+                  key: 'events',
+                  render: (_, record) => <span>{record.events?.length}</span>,
+                },
+              ]}
+            />
+            {
+              block && block.extrinsics.length > 10 &&
+                <ShowMore>
+                  <img src={MoveSVG} alt="" />
+                  <span>Show All (Total {block ? block.extrinsics.length : 0})</span>
+                </ShowMore>
+            }
+          </BlockHolder>
+        )
       }
-      <FixedBottom>
-        <BlockInfo currentBlock={currentBlock} />
-      </FixedBottom>
     </Wrapper>
   );
 };

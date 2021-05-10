@@ -35,7 +35,7 @@ const More = styled.div`
 `;
 
 const SiderBg = styled.div`
-  z-index: 1;
+  z-index: 100;
   position: absolute;
   top: 0px;
   bottom: 0px;
@@ -47,7 +47,7 @@ const SiderBg = styled.div`
 `;
 
 const Sider = styled.div`
-  z-index: 2;
+  z-index: 101;
   color: white;
   background: linear-gradient(180deg, #2A292B 0%, #555356 100%);
   position: absolute;
