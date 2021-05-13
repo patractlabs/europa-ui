@@ -156,16 +156,12 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
 
 export const Blocks: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
-  // const [ currentBlock, setCurrentBlock ] = useState<Block>();
   const [ latestBlocks, setLatestBlocks ] = useState<Block[]>([]);
   const [ currentBlockNumber, setCurrentBlockNumber ] = useState<number>(0);
-  const [ atTop,  setAtTop ] = useState<boolean>(true);
   const [ viewingBlock, setViewingBlock ] = useState<string>('');
 
   useEffect(() => {
-    setAtTop(window.scrollY < 146);
     const toggleNavigation = () => {
-      setAtTop(window.scrollY < 146);
       const _viewingBlock =  latestBlocks.find(block => {
         const bounding = document.getElementById(block.hash.toString())?.getBoundingClientRect();
         if (!bounding) {
@@ -190,7 +186,7 @@ export const Blocks: FC = (): ReactElement => {
 
     return () => sub.unsubscribe();
   }, [api]);
-  
+
   const forward = useCallback(() => {
     const sub = (api as any).rpc.europa.forwardToHeight(currentBlockNumber + 1).subscribe(
       () => setCurrentBlockNumber(currentBlockNumber + 1),
@@ -221,7 +217,7 @@ export const Blocks: FC = (): ReactElement => {
         )
       )
       .subscribe(
-        ([blockBase, events, block]) => {
+        ([header, events, block]) => {
           const extrinsics: Extrinsic[] = block.block.extrinsics.map((extrinsic: any, index) => {
             extrinsic.events = events.filter(({ phase }) =>
               phase.isApplyExtrinsic &&
@@ -232,7 +228,7 @@ export const Blocks: FC = (): ReactElement => {
 
           const current: Block = {
             hash: block.hash,
-            number: blockBase?.number,
+            number: header?.number,
             extrinsics,
           };
 

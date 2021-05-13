@@ -13,41 +13,6 @@ import { Blocks } from './Blocks';
 import { Accounts } from './Accounts';
 
 const Main: FC = (): ReactElement => {
-  // const { api } = useContext(ApiContext);
-  // const [ lastHeaders, setLastHeaders ] = useState<HeaderExtended[]>([]);
-
-  // useEffect(() => {
-  //   let _lastHeaders: HeaderExtended[] = [];
-
-  //   const sub = api.derive.chain.subscribeNewHeads().subscribe((lastHeader): void => {
-
-  //     if (!lastHeader.number) {
-  //       return;
-  //     }
-
-  //     if (
-  //       _lastHeaders.find(
-  //         header => header.number.unwrap().eq(
-  //           lastHeader.number.unwrap()
-  //         )
-  //       )
-  //     ) {
-  //       return;
-  //     }
-
-  //     _lastHeaders.push(lastHeader);
-  //     _lastHeaders = _lastHeaders
-  //       .sort((a, b) => b.number.unwrap().cmp(
-  //         a.number.unwrap())
-  //       )
-  //       .slice(0, 5);
-  //     // console.log('headers', _lastHeaders);
-
-  //     setLastHeaders([..._lastHeaders]);
-  //   });
-
-  //   return () => sub.unsubscribe();
-  // }, [api.derive.chain]);
   return (
     <div>
       <BrowserRouter>
