@@ -101,13 +101,18 @@ const ShowMore = styled.div`
   }
 `;
 const BlockInfoHolder = styled.div`
+  width: 100%;
   background: white;
   z-index: 1;
   top: 0px;
   padding: 14px 18px;
-  display: flex;
   justify-content: space-between;
 `;
+
+const SpaceFill = styled.div`
+  height: 78px;
+`;
+
 const NavigationHighlight = styled.div`
   position: relative;
   z-index: 10;
@@ -130,7 +135,7 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
         </BlockName>
       </Left>
       <p>
-        {currentBlock?.hash}
+        {currentBlock?.blockHash}
       </p>
       <Extrinsics>
         <span>Extrinsics</span>
@@ -158,13 +163,13 @@ export const Explorer: FC = (): ReactElement => {
   useEffect(() => {
     const toggleNavigation = () => {
       const _viewingBlock =  blocks.find(block => {
-        const bounding = document.getElementById(block.hash.toString())?.getBoundingClientRect();
+        const bounding = document.getElementById(block.blockHash)?.getBoundingClientRect();
         if (!bounding) {
           return false;
         }
-        return bounding.top <=0 && bounding.top > -1 * bounding.height;
+        return bounding.top > -1 * bounding.height && bounding.top <= 0;
       }
-      )?.hash.toString();
+      )?.blockHash;
 
       setViewingBlock(_viewingBlock || '');
     };
@@ -183,20 +188,28 @@ export const Explorer: FC = (): ReactElement => {
       </NavigationHighlight>
       {
         blocks.map(block =>
-          <BlockHolder key={block.hash.toString()}>
+          <BlockHolder
+            id={block.blockHash}
+            key={block.hash.toString()}
+          >
             <BlockInfoHolder
-              id={block.hash.toString()}
-              style={{ position: 'sticky', display: viewingBlock === block.hash.toString() ? 'flex': 'block', boxShadow: viewingBlock === block.hash.toString() ? '0px 4px 12px 0px rgba(0, 0, 0, 0.08)' : '', zIndex: viewingBlock === block.hash.toString() ? 10 :  1 }}
+              style={{
+                position: viewingBlock === block.blockHash ? 'fixed' : 'static',
+                display: viewingBlock === block.blockHash ? 'flex': 'block',
+                boxShadow: viewingBlock === block.blockHash ? '0px 4px 12px 0px rgba(0, 0, 0, 0.08)' : '',
+                zIndex: viewingBlock === block.blockHash ? 10 :  1,
+              }}
             >
               <BlockInfo currentBlock={block} />
               {
-                viewingBlock === block.hash.toString() &&
+                viewingBlock === block.blockHash &&
                   <Navigation>
                     <ForwardButton onClick={() => backward(1)}>Back to Block</ForwardButton>
                     <BackButton onClick={() => forward(30)}>Go to Block</BackButton>
                   </Navigation>
               }
             </BlockInfoHolder>
+            <SpaceFill style={{ display: viewingBlock === block.blockHash ? 'block': 'none' }}/>
             <Table
               rowKey={record => record.hash.toString()}
               locale={{emptyText: 'No Data'}}

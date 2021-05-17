@@ -13,6 +13,7 @@ export type Extrinsic = GenericExtrinsic<AnyTuple> & {
 }
 
 export type Block  = SignedBlock & {
+  blockHash: string;
   height: number;
   extrinsics: Extrinsic[];
 };
@@ -24,6 +25,21 @@ interface BlockContextProps {
 }
 
 export const BlocksContext: Context<BlockContextProps> = React.createContext({}as unknown as BlockContextProps);
+
+const patchBlocks = (oldBlocks: Block[], newBlocks: Block[]) => {
+  if (!newBlocks.length) {
+    return [...oldBlocks];
+  }
+
+  let sliceIndex = oldBlocks.findIndex((block) => block.height >= newBlocks[0].height);
+
+  sliceIndex = sliceIndex < 0 ? oldBlocks.length : sliceIndex;
+
+  return [
+    ...oldBlocks.slice(0, sliceIndex),
+    ...newBlocks
+  ];
+};
 
 const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
   block: SignedBlock;
@@ -49,21 +65,6 @@ const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
   };
 };
 
-const patchBlocks = (oldBlocks: Block[], newBlocks: Block[]) => {
-  if (!newBlocks.length) {
-    return [...oldBlocks];
-  }
-
-  let sliceIndex = oldBlocks.findIndex((block) => block.height >= newBlocks[0].height);
-
-  sliceIndex = sliceIndex < 0 ? oldBlocks.length : sliceIndex;
-
-  return [
-    ...oldBlocks.slice(0, sliceIndex),
-    ...newBlocks
-  ];
-};
-
 const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Promise<Block[]> => {
   type NullableBlock = Block | null;
 
@@ -80,6 +81,7 @@ const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Pr
           const { block, extrinsics } = await retriveBlock(api, blockHash.toString());
 
           return Object.assign(block, {
+            blockHash: blockHash.toString(),
             height: startHeight + i,
             extrinsics,
           });
@@ -90,7 +92,7 @@ const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Pr
       })
   );
 
-  console.log('Retrive Blocks From Node', `${endHeight} -> ${startHeight}`, blocks.filter(block => !!block).map(b => b?.toHuman()));
+  console.log('Retrive Blocks From Node:', `${startHeight} -> ${endHeight}`, blocks.filter(block => !!block).map(b => b?.toHuman()));
 
   // filter some failures
   return blocks.filter(block => !!block) as Block[];
@@ -105,7 +107,7 @@ const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]>
 export const BlocksProvider = React.memo((
   { children }: { children: React.ReactNode }): React.ReactElement => {
     const { api, isApiReady, systemName } = useContext(ApiContext);
-    const [_blocks, setBlocks] = useState<Block[]>([]);
+    const [blocks, setBlocks] = useState<Block[]>([]);
     const [ backwarding, setBackwarding ] = useState<boolean>(false);
     const blocksRef = useRef<Block[]>([]);
 
@@ -129,7 +131,7 @@ export const BlocksProvider = React.memo((
       if (!isApiReady) { 
         return;
       }
-  
+
       retriveLatestBlocks(api).then(
         _blocks => {
           blocksRef.current = _blocks;
@@ -144,9 +146,10 @@ export const BlocksProvider = React.memo((
             api,
             header.hash.toString(),
           );
-
+          
           blocksRef.current = patchBlocks(blocksRef.current, [
             Object.assign(block, {
+              blockHash: header.hash.toString(),
               height: header.number.toNumber(),
               extrinsics,
             })
@@ -158,7 +161,7 @@ export const BlocksProvider = React.memo((
     }, [api, isApiReady, systemName]);
 
     return <BlocksContext.Provider value={{
-      blocks: _blocks,
+      blocks,
       backward,
       backwarding,
     }}>{children}</BlocksContext.Provider>;
