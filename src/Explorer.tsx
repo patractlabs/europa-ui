@@ -1,4 +1,4 @@
-import { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ApiContext } from './core/provider/api-provider';
 import EnterSVG from './assets/imgs/enter.svg';
@@ -142,8 +142,18 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
 
 export const Explorer: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
-  const { blocks } = useContext(BlocksContext);
+  const { blocks: source, backward } = useContext(BlocksContext);
   const [ viewingBlock, setViewingBlock ] = useState<string>('');
+  const blocks = useMemo(() => ([...source].reverse()), [source]);
+
+  const forward = useCallback((targetBlockHeight: number) => {
+    const sub = (api as any).rpc.europa.forwardToHeight(targetBlockHeight).subscribe(
+      () => console.log('forward to:', targetBlockHeight),
+      () => console.log('bad forward'),
+    );
+
+    return () => sub.unsubscribe();
+  }, [api]);
 
   useEffect(() => {
     const toggleNavigation = () => {
@@ -163,29 +173,11 @@ export const Explorer: FC = (): ReactElement => {
     return () => document.removeEventListener('scroll', toggleNavigation);
   }, [blocks]);
 
-  const forward = useCallback((targetBlockHeight: number) => {
-    const sub = (api as any).rpc.europa.forwardToHeight(targetBlockHeight).subscribe(
-      () => console.log('forward to:', targetBlockHeight),
-      () => console.log('bad forward'),
-    );
-
-    return () => sub.unsubscribe();
-  }, [api]);
-
-  const backward = useCallback((targetBlockHeight: number) => {
-    const sub = (api as any).rpc.europa.backwardToHeight(targetBlockHeight).subscribe(
-      () => console.log('backed to:', targetBlockHeight),
-      () => console.log('bad backward'),
-    );
-
-    return () => sub.unsubscribe();
-  }, [api]);
-
   return (
     <Wrapper>
       <NavigationHighlight>
         <Navigation>
-          <ForwardButton onClick={() => backward(30)}>Back to Block</ForwardButton>
+          <ForwardButton onClick={() => backward(1)}>Back to Block</ForwardButton>
           <BackButton onClick={() => forward(30)}>Go to Block</BackButton>
         </Navigation>
       </NavigationHighlight>
@@ -200,7 +192,7 @@ export const Explorer: FC = (): ReactElement => {
               {
                 viewingBlock === block.hash.toString() &&
                   <Navigation>
-                    <ForwardButton onClick={() => backward(30)}>Back to Block</ForwardButton>
+                    <ForwardButton onClick={() => backward(1)}>Back to Block</ForwardButton>
                     <BackButton onClick={() => forward(30)}>Go to Block</BackButton>
                   </Navigation>
               }

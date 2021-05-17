@@ -1,7 +1,8 @@
 import { ApiRx } from '@polkadot/api';
-import React, { Context, useContext, useEffect, useRef, useState } from 'react';
+import React, { Context, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ApiContext } from './api-provider';
 import { zip } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
@@ -18,6 +19,8 @@ export type Block  = SignedBlock & {
 
 interface BlockContextProps {
   blocks: Block[];
+  backward: (height: number) => void;
+  backwarding: boolean;
 }
 
 export const BlocksContext: Context<BlockContextProps> = React.createContext({}as unknown as BlockContextProps);
@@ -46,10 +49,25 @@ const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
   };
 };
 
+const patchBlocks = (oldBlocks: Block[], newBlocks: Block[]) => {
+  if (!newBlocks.length) {
+    return [...oldBlocks];
+  }
+
+  let sliceIndex = oldBlocks.findIndex((block) => block.height >= newBlocks[0].height);
+
+  sliceIndex = sliceIndex < 0 ? oldBlocks.length : sliceIndex;
+
+  return [
+    ...oldBlocks.slice(0, sliceIndex),
+    ...newBlocks
+  ];
+};
+
 const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Promise<Block[]> => {
   type NullableBlock = Block | null;
 
-  if (endHeight <= startHeight) {
+  if (endHeight < startHeight) {
     return [];
   }
 
@@ -72,10 +90,10 @@ const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Pr
       })
   );
 
-  console.log('Retrive Blocks From Node', blocks, endHeight, startHeight);
+  console.log('Retrive Blocks From Node', `${endHeight} -> ${startHeight}`, blocks.filter(block => !!block).map(b => b?.toHuman()));
 
   // filter some failures
-  return blocks.filter((block) => !!block) as Block[];
+  return blocks.filter(block => !!block) as Block[];
 };
 
 const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]> => {
@@ -88,7 +106,24 @@ export const BlocksProvider = React.memo((
   { children }: { children: React.ReactNode }): React.ReactElement => {
     const { api, isApiReady, systemName } = useContext(ApiContext);
     const [_blocks, setBlocks] = useState<Block[]>([]);
+    const [ backwarding, setBackwarding ] = useState<boolean>(false);
     const blocksRef = useRef<Block[]>([]);
+
+    const backward = useCallback((height: number) => {
+      setBackwarding(true);
+
+      (api as any).rpc.europa.backwardToHeight(height).pipe(
+        finalize(() => setBackwarding(false)),
+      ).subscribe(
+        async () => {
+          const _blocks = await retriveLatestBlocks(api);
+          
+          blocksRef.current = _blocks;
+          setBlocks(_blocks);
+        },
+        () => console.log('bad backward'),
+      );
+    }, [api]);
 
     useEffect(() => {
       if (!isApiReady) { 
@@ -103,20 +138,19 @@ export const BlocksProvider = React.memo((
         () => {},
       ).then(() =>
         api.derive.chain.subscribeNewHeads().subscribe(async header => {
-          console.log('new header: ', header.number.toNumber(), header);
+          console.log('new header: ', header.number.toNumber(), header.toHuman());
 
-          const lastBlock = blocksRef.current[blocksRef.current.length - 1];
-
-          const unSavedBlocks = await retriveBlocks(
+          const { block, extrinsics } = await retriveBlock(
             api,
-            header.number.toNumber(),
-            lastBlock ? lastBlock.height + 1 : 1,
+            header.hash.toString(),
           );
 
-          blocksRef.current = [
-            ...blocksRef.current,
-            ...unSavedBlocks,
-          ];
+          blocksRef.current = patchBlocks(blocksRef.current, [
+            Object.assign(block, {
+              height: header.number.toNumber(),
+              extrinsics,
+            })
+          ]);
           setBlocks(blocksRef.current);
         }),
         () => {},
@@ -124,9 +158,9 @@ export const BlocksProvider = React.memo((
     }, [api, isApiReady, systemName]);
 
     return <BlocksContext.Provider value={{
-      blocks: _blocks
+      blocks: _blocks,
+      backward,
+      backwarding,
     }}>{children}</BlocksContext.Provider>;
   }
 );
-
- 
