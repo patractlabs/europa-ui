@@ -2,13 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { ApiProvider } from './api-context';
-// import reportWebVitals from './reportWebVitals';
+import { ApiProvider } from './core/provider/api-provider';
+import { BlocksProvider } from './core/provider/blocks-provider';
 
 ReactDOM.render(
   <React.StrictMode>
     <ApiProvider>
-      <App />
+      <BlocksProvider>
+        <App />
+      </BlocksProvider>
     </ApiProvider>
   </React.StrictMode>,
   document.getElementById('root')

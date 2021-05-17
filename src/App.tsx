@@ -1,6 +1,5 @@
 import React, { FC, ReactElement, useContext } from 'react';
-import { ApiContext } from './api-context';
-// import type { HeaderExtended } from '@polkadot/api-derive/types';
+import { ApiContext } from './core/provider/api-provider';
 import { Header } from './Header';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { Explorer } from './Explorer';

@@ -1,6 +1,7 @@
 import React, { Context, useEffect, useState } from 'react';
 import { ApiRx, WsProvider } from '@polkadot/api';
 import keyring from '@polkadot/ui-keyring';
+import { zip } from 'rxjs';
 
 const ApiContext: Context<{
   api: ApiRx;
@@ -8,20 +9,30 @@ const ApiContext: Context<{
   genesisHash: string;
   tokenDecimal: number;
   tokenSymbol: string;
+  systemName: string;
 }> = React.createContext({
   isApiReady: false,
-  genesisHash: '',
 } as any);
 
 interface Props {
   children: React.ReactNode;
   url?: string;
 }
+
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
   const [ isApiReady, setIsReady ] = useState<boolean>(false);
   const [ api, setApi ] = useState<ApiRx>();
-  const [ token, setToken ] = useState<{tokenDecimal: number; tokenSymbol: string;}>({tokenDecimal: 10, tokenSymbol: ''});
-  const [ genesisHash, setGenesisHash ] = useState<string>('');
+  const [ {
+    tokenDecimal,
+    tokenSymbol,
+    systemName,
+    genesisHash,
+  }, setProperties ] = useState<{
+    tokenDecimal: number;
+    tokenSymbol: string;
+    systemName: string;
+    genesisHash: string;
+  }>({} as any);
 
   useEffect(() => {
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
@@ -68,31 +79,39 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
       },
     });
 
-    apiRx.on('ready', (_api: ApiRx) => {
+    apiRx.on('ready', async (_api: ApiRx) => {
       console.log('api ready', _api);
-      _api.rpc.system.properties().subscribe(property => {
-        console.log('property', property.toHuman())
-        // load all available addresses and accounts
-        keyring.loadAll({
-          genesisHash: _api.genesisHash,
-          ss58Format: parseInt(property.ss58Format.toString()),
-          type: 'sr25519',
-          isDevelopment: true,
-        });
-        console.log('load all', keyring.getAccounts(), _api.consts.system?.ss58Prefix.toNumber())
-        // additional initialization here, including rendering
-        const decimals = property.tokenDecimals.toHuman() as string[];
 
-        setGenesisHash(_api.genesisHash.toString());
-        setToken({
-          tokenDecimal: parseInt(decimals[0]),
-          tokenSymbol: property.tokenSymbol.toString(),
-        });
-        setApi(_api);
-        setIsReady(true);
+      const [ {
+        ss58Format,
+        tokenDecimals,
+        tokenSymbol,
+      }, _systemName ] = await zip(
+        _api.rpc.system.properties(),
+        _api.rpc.system.name(),
+      ).toPromise();
+
+      keyring.loadAll({
+        genesisHash: _api.genesisHash,
+        ss58Format: parseInt(ss58Format.toString()),
+        type: 'sr25519',
+        isDevelopment: true,
       });
+
+      console.log('keyring load all accounts:', keyring.getAccounts())
+
+      const decimals = tokenDecimals.toHuman() as string[];
+
+      setProperties({
+        systemName: _systemName.toString(),
+        genesisHash: _api.genesisHash.toString(),
+        tokenDecimal: parseInt(decimals[0]),
+        tokenSymbol: tokenSymbol.toString(),
+      });
+      setApi(_api);
+      setIsReady(true);
     });
-    apiRx.on('error', (error: Error) => console.log('api error', error));
+    apiRx.on('error', error => console.log('api error', error));
     apiRx.on('connected', () => console.log('api connected'));
     apiRx.on('disconnected', () => console.log('api disconnected'));
   }, []);
@@ -100,9 +119,10 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
   return <ApiContext.Provider value={ {
     genesisHash,
     isApiReady,
-    api: api as ApiRx,
-    tokenDecimal: token?.tokenDecimal,
-    tokenSymbol: token?.tokenSymbol,
+    api: api!,
+    tokenDecimal,
+    tokenSymbol,
+    systemName,
   } }>{children}</ApiContext.Provider>;
 });
 
