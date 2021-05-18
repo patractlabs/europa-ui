@@ -20,19 +20,19 @@ const Main: FC = (): ReactElement => {
           <Route path='/explorer'>
             <Explorer />
           </Route>
-          <Route path='/accounts'>
+          <Route path='/account'>
             <Accounts />
           </Route>
-          <Route path='/blocks'>
+          <Route path='/block'>
             <Blocks />
           </Route>
-          <Route path='/extrinsics'>
+          <Route path='/extrinsic'>
             <Extrinsics />
           </Route>
-          <Route path='/events'>
+          <Route path='/event'>
             <Events />
           </Route>
-          <Route path='/contracts'>
+          <Route path='/contract'>
             <Contracts />
           </Route>
           <Route path='/developer'>

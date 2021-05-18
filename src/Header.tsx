@@ -146,27 +146,27 @@ const TabGroupOne: TabStructure[] = [
   {
     img: MoreSVG,
     title: 'Accounts',
-    link: '/accounts',
+    link: '/account',
   },
   {
     img: MoreSVG,
     title: 'Blocks',
-    link: '/blocks',
+    link: '/block',
   },
   {
     img: MoreSVG,
     title: 'Extrinsics',
-    link: '/extrinsics',
+    link: '/extrinsic',
   },
   {
     img: MoreSVG,
     title: 'Events',
-    link: '/events',
+    link: '/event',
   },
   {
     img: MoreSVG,
     title: 'Contracts',
-    link: '/contracts',
+    link: '/contract',
   },
   {
     img: MoreSVG,

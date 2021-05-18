@@ -1,11 +1,12 @@
-import { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ApiContext } from './core/provider/api-provider';
 import EnterSVG from './assets/imgs/enter.svg';
 import MoveSVG from './assets/imgs/more.svg';
 import { Table } from 'antd';
 import { formatAddress } from './util';
-import { Block, BlocksContext } from './core/provider/blocks-provider';
+import { Block, BlocksContext, Extrinsic } from './core/provider/blocks-provider';
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
@@ -145,6 +146,18 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
   );
 };
 
+const lookForDestAddress = (extrinsic: Extrinsic) => {
+  try {
+    if (extrinsic.method.section === 'balances'
+      && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
+    ) {
+      return formatAddress((extrinsic.method.args[0].toHuman() as any).Id);
+    }
+  } catch (e) { }
+
+  return '-';
+};
+
 export const Explorer: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks: source, backward } = useContext(BlocksContext);
@@ -218,27 +231,27 @@ export const Explorer: FC = (): ReactElement => {
               columns={[
                 {
                   title: <span>Hash</span>,
-                  dataIndex: 'hash',
+                  width: '50%',
                   key: 'hash',
-                  render: (_, record) => <span>{record.hash?.toString()}</span>,
+                  render: (_, record) => <Link to={`/extrinsic/${record.hash}`}>{record.hash?.toString()}</Link>,
                 },
                 {
                   title: <span>from</span>,
-                  dataIndex: 'from',
+                  width: '17%',
                   key: 'from',
-                  render: (_, record) => <span>{formatAddress(record.signer?.hash.toString())}</span>,
+                  render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{formatAddress(record.signer?.toString())}</Link>,
                 },
                 {
                   title: <span>to</span>,
-                  dataIndex: 'to',
+                  width: '17%',
                   key: 'to',
-                  render: (_, record) => <span>{formatAddress(record.method.method === 'transferKeepAlive' ? record.args[0]?.toString() : '-')}</span>,
+                  render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{lookForDestAddress(record)}</Link>,
                 },
                 {
                   title: <span>Events</span>,
-                  dataIndex: 'events',
+                  width: '15%',
                   key: 'events',
-                  render: (_, record) => <span>{record.events?.length}</span>,
+                  render: (_, record) => <Link to={`/event/tx/${record.hash.toString()}`}>{record.events?.length}</Link>,
                 },
               ]}
             />
