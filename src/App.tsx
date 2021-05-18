@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useContext } from 'react';
-import { ApiContext } from './core/provider/api-provider';
+import { ApiContext } from './core/provider/api.provider';
 import { Header } from './Header';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { Explorer } from './Explorer';
@@ -7,7 +7,7 @@ import { Setting } from './Setting';
 import { Developer } from './Developer';
 import { Contracts } from './Contracts';
 import { Events } from './Events';
-import { Extrinsics } from './Extrinsics';
+import { Extrinsics } from './extrinsic/Extrinsics';
 import { Blocks } from './Blocks';
 import { Accounts } from './Accounts';
 

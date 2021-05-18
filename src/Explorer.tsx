@@ -1,11 +1,11 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from './core/provider/api-provider';
+import { ApiContext } from './core/provider/api.provider';
 import EnterSVG from './assets/imgs/enter.svg';
 import MoveSVG from './assets/imgs/more.svg';
 import { Table } from 'antd';
-import { formatAddress } from './util';
-import { Block, BlocksContext, Extrinsic } from './core/provider/blocks-provider';
+import { formatAddress, lookForDestAddress } from './shared/util';
+import { Block, BlocksContext, Extrinsic } from './core/provider/blocks.provider';
 import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
@@ -13,6 +13,10 @@ const Wrapper = styled.div`
 `;
 const BlockHolder = styled.div`
   margin-bottom: 0px;
+
+  .ant-table-thead > tr > th {
+    background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
+  }
 `;
 const BlockInfoWrapper = styled.div`
   background-color: white;
@@ -146,18 +150,6 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
   );
 };
 
-const lookForDestAddress = (extrinsic: Extrinsic) => {
-  try {
-    if (extrinsic.method.section === 'balances'
-      && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
-    ) {
-      return formatAddress((extrinsic.method.args[0].toHuman() as any).Id);
-    }
-  } catch (e) { }
-
-  return '-';
-};
-
 export const Explorer: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks: source, backward } = useContext(BlocksContext);
@@ -224,6 +216,7 @@ export const Explorer: FC = (): ReactElement => {
             </BlockInfoHolder>
             <SpaceFill style={{ display: viewingBlock === block.blockHash ? 'block': 'none' }}/>
             <Table
+              showHeader={false}
               rowKey={record => record.hash.toString()}
               locale={{emptyText: 'No Data'}}
               pagination={false}

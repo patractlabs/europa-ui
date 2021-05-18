@@ -1,6 +1,6 @@
 import { ApiRx } from '@polkadot/api';
 import React, { Context, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ApiContext } from './api-provider';
+import { ApiContext } from './api.provider';
 import { zip } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';

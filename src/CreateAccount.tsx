@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useCallback, useContext, useEffect, useState }
 import { Button, Modal } from 'antd';
 import { mnemonicGenerate } from '@polkadot/util-crypto';
 import keyring from '@polkadot/ui-keyring';
-import { ApiContext } from './core/provider/api-provider';
+import { ApiContext } from './core/provider/api.provider';
 
 const DEFAULT_TYPE = 'sr25519';
 

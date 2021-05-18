@@ -6,7 +6,7 @@ import type { KeyringPair$Meta } from '@polkadot/keyring/types';
 import type { KeypairType } from '@polkadot/util-crypto/types';
 import { Modal } from 'antd';
 import { CreateAccount } from './CreateAccount';
-import { ApiContext } from './core/provider/api-provider';
+import { ApiContext } from './core/provider/api.provider';
 import keyring from '@polkadot/ui-keyring';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { of, zip } from 'rxjs';
