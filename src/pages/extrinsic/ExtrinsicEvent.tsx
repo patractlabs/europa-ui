@@ -1,8 +1,8 @@
 import { FC, ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
-import MoreSvg from '../assets/imgs/more.svg';
-import { Style } from '../shared/styled/const';
+import MoreSvg from '../../assets/imgs/more.svg';
+import { Style } from '../../shared/styled/const';
 
 const Event = styled.div`
   border-bottom: 1px solid ${Style.color.border};

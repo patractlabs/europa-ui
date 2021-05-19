@@ -1,14 +1,14 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
-import { Style } from '../shared/styled/const';
-import { KeyValueLine } from '../shared/styled/KeyValueLine';
-import SuccessSvg from '../assets/imgs/extrinsic-success.svg';
-import BlockSvg from '../assets/imgs/block.svg';
-import { ValueDefault } from '../shared/styled/ValueDefault';
+import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
+import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { TitleWithBottom } from '../shared/styled/TitleWithBottom';
-import { LabelDefault } from '../shared/styled/LabelDefault';
+import { Style } from '../../shared/styled/const';
+import { KeyValueLine } from '../../shared/styled/KeyValueLine';
+import { ValueDefault } from '../../shared/styled/ValueDefault';
+import { TitleWithBottom } from '../../shared/styled/TitleWithBottom';
+import { LabelDefault } from '../../shared/styled/LabelDefault';
 
 const Wrapper = styled.div`
 `;

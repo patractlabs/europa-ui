@@ -2,17 +2,17 @@ import React, { ReactElement, FC, useState, useEffect, useContext, useMemo } fro
 import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { ApiContext } from '../core/provider/api.provider';
-import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
-import { PaginationContext } from '../core/provider/pagination.provider';
-import { PageSize } from '../shared/components/PageSize';
-import { PaginationR } from '../shared/components/Pagination';
-import { Style } from '../shared/styled/const';
-import { LabelDefault } from '../shared/styled/LabelDefault';
-import { TitleWithBottom } from '../shared/styled/TitleWithBottom';
-import { ValueDefault } from '../shared/styled/ValueDefault';
-import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../shared/util';
-import { PaginationLine } from '../shared/components/PaginationLine';
+import { ApiContext } from '../../core/provider/api.provider';
+import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import { PaginationContext } from '../../core/provider/pagination.provider';
+import { PageSize } from '../../shared/components/PageSize';
+import { PaginationR } from '../../shared/components/Pagination';
+import { Style } from '../../shared/styled/const';
+import { LabelDefault } from '../../shared/styled/LabelDefault';
+import { TitleWithBottom } from '../../shared/styled/TitleWithBottom';
+import { ValueDefault } from '../../shared/styled/ValueDefault';
+import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared/util';
+import { PaginationLine } from '../../shared/components/PaginationLine';
 
 const Wrap = styled.div`
   padding: 20px;

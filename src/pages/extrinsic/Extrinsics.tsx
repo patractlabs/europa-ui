@@ -2,14 +2,14 @@ import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
-import { PaginationContext, PaginationProvider } from '../core/provider/pagination.provider';
-import { PageSize } from '../shared/components/PageSize';
-import { PaginationR } from '../shared/components/Pagination';
-import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../shared/util';
+import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import { PaginationContext, PaginationProvider } from '../../core/provider/pagination.provider';
+import { PageSize } from '../../shared/components/PageSize';
+import { PaginationR } from '../../shared/components/Pagination';
+import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared/util';
 import { Route, Switch } from 'react-router-dom';
 import { ExtrinsicDetailPage } from './ExtrinsicDetailPage';
-import { PaginationLine } from '../shared/components/PaginationLine';
+import { PaginationLine } from '../../shared/components/PaginationLine';
 
 const Wrapper = styled.div`
 `;

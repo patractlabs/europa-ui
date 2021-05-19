@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
-import { PageSize } from '../shared/components/PageSize';
-import { PaginationR } from '../shared/components/Pagination';
-import { PaginationLine } from '../shared/components/PaginationLine';
+import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import { PageSize } from '../../shared/components/PageSize';
+import { PaginationR } from '../../shared/components/Pagination';
+import { PaginationLine } from '../../shared/components/PaginationLine';
 import { ExtrinsicEvent } from './ExtrinsicEvent';
 
 const Wrapper = styled.div`

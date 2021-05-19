@@ -1,13 +1,13 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from '../core/provider/api.provider';
-import EnterSVG from '../assets/imgs/enter.svg';
-import MoveSVG from '../assets/imgs/more.svg';
+import { ApiContext } from '../../core/provider/api.provider';
+import EnterSVG from '../../assets/imgs/enter.svg';
+import MoveSVG from '../../assets/imgs/more.svg';
 import { Table } from 'antd';
-import { formatAddress, lookForDestAddress } from '../shared/util';
-import { Block, BlocksContext } from '../core/provider/blocks.provider';
+import { formatAddress, lookForDestAddress } from '../../shared/util';
+import { Block, BlocksContext } from '../../core/provider/blocks.provider';
 import { Link } from "react-router-dom";
-import { Style } from '../shared/styled/const';
+import { Style } from '../../shared/styled/const';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
