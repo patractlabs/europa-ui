@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 4</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Extrinsics-Details" transform="translate(-40.000000, -273.000000)">
+            <g id="编组-4" transform="translate(40.000000, 273.000000)">
+                <rect id="矩形" x="0" y="0" width="16" height="16"></rect>
+                <path d="M1.07164435,5.177 L7.49964435,8.888 L7.49964435,15.711 L1.07179677,12 L1.07164435,5.177 Z M14.9276443,5.177 L14.9282032,12 L8.49964435,15.711 L8.49964435,8.888 L14.9276443,5.177 Z M8,1.19904087e-13 L14.9282032,4 L14.9276443,4.021 L8.03564435,8 L7.96364435,8 L1.07164435,4.021 L1.07179677,4 L8,1.19904087e-13 Z" id="形状结合" fill="#B19E83"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -5,7 +5,9 @@ import { Style } from '../shared/styled/const';
 import { KeyValueLine } from '../shared/styled/KeyValueLine';
 import { LabelDefault } from '../shared/styled/LabelDefault';
 import SuccessSvg from '../assets/imgs/extrinsic-success.svg';
+import BlockSvg from '../assets/imgs/block.svg';
 import { ValueDefault } from '../shared/styled/ValueDefault';
+import { Link } from 'react-router-dom';
 
 const Wrapper = styled.div`
 `;
@@ -41,21 +43,49 @@ const Success = styled.label`
   line-height: 24px;
 `;
 
+const BlockNumber = styled.label`
+  color: #B19E83;
+`;
+
 type ExtendedExtrinsic = Extrinsic & {
-  
+  blockHash: string;
+  height: number;
+  timestamp: string;
+  gasLimit: string;
+  gasUsed: string;
+  fee: string;
 };
 
 export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
 
-  const extrinsic = useMemo(() =>
-    blocks.reduce((extrinsics: Extrinsic[], block) => extrinsics.concat(block.extrinsics), [])
-      .find(extrinsic => extrinsic.hash.toString() === hash),
-    [hash, blocks],
-  );
+  const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
+    let _extrinsic: ExtendedExtrinsic | undefined;
+    
+    blocks.find(_block => {
+      const e = _block.extrinsics.find(extrinsic => extrinsic.hash.toString() === hash);
+      const setTimeExtrinsic = _block.extrinsics.find(extrinsic => extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set');
 
-  console.log('extrinsic', extrinsic?.args.map(a => a.toHuman()));
-  
+      if (!e || !setTimeExtrinsic) {
+        return false;
+      }
+
+      _extrinsic =  Object.assign(e, {
+        blockHash: _block.blockHash,
+        height: _block.height,
+        timestamp: setTimeExtrinsic?.args[0].toString(),
+        gasLimit: '',
+        gasUsed: '',
+        fee: '',
+      });
+
+      return true;
+    });
+
+    return _extrinsic;
+  }, [hash, blocks]);
+
+  console.log('extrinsic', extrinsic?.method.toHuman(), extrinsic?.args.map(a => a.toHuman()));
 
   return (
     <Wrapper>
@@ -78,13 +108,30 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                 </KeyValueLine>
                 <KeyValueLine>
                   <LabelDefault>Timestamp</LabelDefault>
-                  {/* <ValueDefault>{ extrinsic. }</ValueDefault> */}
+                  <ValueDefault>{ extrinsic.timestamp }</ValueDefault>
+                </KeyValueLine>
+                <KeyValueLine>
+                  <img style={{ width: '16px', height: '16px', marginRight: '4px' }} src={BlockSvg} alt="" />
+                  <LabelDefault>
+                    Block
+                  </LabelDefault>
+                  <ValueDefault>
+                    <Link to={`/block/${extrinsic.blockHash}`}>{extrinsic.height}</Link>
+                  </ValueDefault>
                 </KeyValueLine>
               </ExtrinsicLeft>
               <ExtrinsicRight>
                 <KeyValueLine>
-                  <img style={{ height: '24px', width: '24px' }} src={SuccessSvg} alt=""/>
-                  <Success>Success</Success>
+                  <LabelDefault>Gas Limit</LabelDefault>
+                  <ValueDefault>{ extrinsic.gasLimit }</ValueDefault>
+                </KeyValueLine>
+                <KeyValueLine>
+                  <LabelDefault>Gas Used by extrinsic</LabelDefault>
+                  <ValueDefault>{ extrinsic.gasUsed }</ValueDefault>
+                </KeyValueLine>
+                <KeyValueLine>
+                  <LabelDefault>Extrinsic fee</LabelDefault>
+                  <ValueDefault>{ extrinsic.fee }</ValueDefault>
                 </KeyValueLine>
               </ExtrinsicRight>
             </ExtrinsicInfo>
