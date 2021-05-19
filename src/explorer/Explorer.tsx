@@ -11,6 +11,23 @@ import { Style } from '../shared/styled/const';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
+
+  
+  .viewing-block {
+    position: fixed;
+    
+    display: flex;
+    
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.08);
+    
+    z-index: 10;
+  }
+
+ .not-viewing-block {
+    position: static;
+    display: block;
+    z-index: 1;
+  }
 `;
 const BlockHolder = styled.div`
   margin-bottom: 0px;
@@ -198,14 +215,7 @@ export const Explorer: FC = (): ReactElement => {
             id={block.blockHash}
             key={block.hash.toString()}
           >
-            <BlockInfoHolder
-              style={{
-                position: viewingBlock === block.blockHash ? 'fixed' : 'static',
-                display: viewingBlock === block.blockHash ? 'flex': 'block',
-                boxShadow: viewingBlock === block.blockHash ? '0px 4px 12px 0px rgba(0, 0, 0, 0.08)' : '',
-                zIndex: viewingBlock === block.blockHash ? 10 :  1,
-              }}
-            >
+            <BlockInfoHolder className={viewingBlock === block.blockHash ? 'viewing-block' : 'not-viewing-block'}>
               <BlockInfo currentBlock={block} />
               {
                 viewingBlock === block.blockHash &&
