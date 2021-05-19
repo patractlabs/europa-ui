@@ -1,113 +1,95 @@
-import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
-import { Switch, Link, Route, useParams } from 'react-router-dom';
+import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { Extrinsic } from '../core/provider/blocks.provider';
-import { PaginationContext, PaginationProvider } from '../core/provider/pagination.provider';
-import { PageSize } from '../shared/components/PageSize';
-import { PaginationR } from '../shared/components/Pagination';
+import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
+import { Style } from '../shared/styled/const';
+import { KeyValueLine } from '../shared/styled/KeyValueLine';
+import { LabelDefault } from '../shared/styled/LabelDefault';
+import SuccessSvg from '../assets/imgs/extrinsic-success.svg';
+import { ValueDefault } from '../shared/styled/ValueDefault';
 
 const Wrapper = styled.div`
 `;
-const Footer = styled.div`
+const ExtrinsicHash = styled.h2`
+  padding-bottom: 20px;
+  border-bottom: 1px solid ${Style.color.border};
+  margin: 0px auto;
+  color: #8C8B8C;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-`;
+  justify-content: center;
 
-const TabArea = styled.div`
-  height: 48px;
-  padding-top: 8px;
-  background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
-  color: white;
+  > .hash {
+    font-size: 20px;
+    margin-left: 20px;
+  }
 `;
-
-const Tabs = styled.div`
-  padding: 0px 68px;
+const ExtrinsicInfo = styled.div`
+  padding: 20px;
   display: flex;
-  
-  >.active {
-    background-color: white;
-  }
-
-  .active a {
-    color: #B19E83;
-  }
 `;
-
-const Tab = styled.div`
-  width: 133px;
-  text-align: center;
-  line-height: 40px;
-  font-size: 16px;
-  
-
-  a {
-    color: white; 
-  }
+const ExtrinsicLeft = styled.div`
+  width: 50%;
+`;
+const ExtrinsicRight = styled.div`
+  width: 50%;
+`;
+const Success = styled.label`
+  color: ${Style.color.success};
+  font-size: 24px;
+  margin-left: 10px;
+  height: 24px;
+  line-height: 24px;
 `;
 
 type ExtendedExtrinsic = Extrinsic & {
-  height: number;
+  
 };
 
-enum ActiveTab {
-  details = 'details',
-  events = 'events',
-  state = 'state',
-}
+export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement => {
+  const { blocks } = useContext(BlocksContext);
 
-export const ExtrinsicDetail: FC = (): ReactElement => {
-  const [ active, setActive ] = useState<ActiveTab>(ActiveTab.details);
-  const { part } = useParams<{ part: string }>();
+  const extrinsic = useMemo(() =>
+    blocks.reduce((extrinsics: Extrinsic[], block) => extrinsics.concat(block.extrinsics), [])
+      .find(extrinsic => extrinsic.hash.toString() === hash),
+    [hash, blocks],
+  );
+
+  console.log('extrinsic', extrinsic?.args.map(a => a.toHuman()));
   
-  const tabs = [
-    {
-      tab: ActiveTab.details,
-      title: 'Details',
-      link: '/extrinsic/detail/details',
-    },
-    {
-      tab: ActiveTab.events,
-      title: 'Events',
-      link: '/extrinsic/detail/events',
-    },
-    {
-      tab: ActiveTab.state,
-      title: 'State',
-      link: '/extrinsic/detail/state',
-    }
-  ];
 
   return (
     <Wrapper>
-      <TabArea>
-        <Tabs>
-          {
-            tabs.map(tab =>
-              <Tab className={ tab.tab === part ? 'active' : ''}>
-                <Link to={`${tab.link}`}>
-                  {tab.title}
-                </Link>
-              </Tab>
-            )
-          }
-        </Tabs>
-      </TabArea>
-      <Switch>
-        <Route path={`${tabs[0].link}`}>
-          <div>{tabs[0].title}</div>
-        </Route>
-        <Route path={`${tabs[1].link}`}>
-          <div>{tabs[1].title}</div>
-        </Route>
-        <Route path={`${tabs[2].link}`}>
-          <div>{tabs[2].title}</div>
-        </Route>
-      </Switch>
-        <Footer>
-          <PageSize />
-          <PaginationR />
-        </Footer>
+      {
+        extrinsic &&
+          <div>
+            <ExtrinsicHash>
+              <LabelDefault>
+                Extrinsic Hash
+              </LabelDefault>
+              <span className="hash">
+                { extrinsic.hash.toString() }
+              </span>
+            </ExtrinsicHash>
+            <ExtrinsicInfo>
+              <ExtrinsicLeft>
+                <KeyValueLine>
+                  <img style={{ height: '24px', width: '24px' }} src={SuccessSvg} alt=""/>
+                  <Success>Success</Success>
+                </KeyValueLine>
+                <KeyValueLine>
+                  <LabelDefault>Timestamp</LabelDefault>
+                  {/* <ValueDefault>{ extrinsic. }</ValueDefault> */}
+                </KeyValueLine>
+              </ExtrinsicLeft>
+              <ExtrinsicRight>
+                <KeyValueLine>
+                  <img style={{ height: '24px', width: '24px' }} src={SuccessSvg} alt=""/>
+                  <Success>Success</Success>
+                </KeyValueLine>
+              </ExtrinsicRight>
+            </ExtrinsicInfo>
+          </div>
+      }
     </Wrapper>
   );
 };

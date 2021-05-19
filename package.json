@@ -1,12 +1,13 @@
 {
   "name": "europa-ui",
   "version": "0.1.0",
-	"main": "main.js",
+  "main": "main.js",
   "private": true,
   "dependencies": {
-    "@polkadot/api": "^4.9.2",
-    "@polkadot/ui-keyring": "^0.75.1",
-    "@polkadot/ui-settings": "^0.75.1",
+    "@polkadot/api": "^4.10.1",
+    "@polkadot/api-contract": "^4.10.1",
+    "@polkadot/ui-keyring": "^0.76.1",
+    "@polkadot/ui-settings": "^0.76.1",
     "antd": "^4.15.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -15,7 +16,7 @@
     "web-vitals": "^1.0.1"
   },
   "devDependencies": {
-    "@polkadot/typegen": "^4.9.2",
+    "@polkadot/typegen": "^4.10.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -24,6 +25,7 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",
+    "@types/store": "^2.0.2",
     "@types/styled-components": "^5.1.9",
     "customize-cra": "^1.0.0",
     "electron": "^12.0.7",
@@ -34,6 +36,7 @@
     "typescript": "^4.1.2"
   },
   "scripts": {
+    "update:polkadot": "yarn add @polkadot/api@latest @polkadot/api-contract@latest @polkadot/ui-keyring@latest @polkadot/ui-settings@latest && yarna add @polkadot/typegen -D",
     "generate:defs": "tsc --paths type --outDir types &&  node_modules/.bin/polkadot-types-from-defs.cmd --package europa-ui/interfaces --input ./types/interfaces",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",

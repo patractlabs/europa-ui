@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import LogoSVG from './assets/imgs/Europa.svg';
 import CloseSVG from './assets/imgs/close.svg';
 import MoreSVG from './assets/imgs/more-option.svg';
-import SearchSVG from './assets/imgs/more-option.svg';
+import SearchSVG from './assets/imgs/search.svg';
 import { BreadCrumb, Divide } from './BreadCrumb';
 
 const Wrapper = styled.div`
@@ -124,6 +124,7 @@ const Search = styled.div`
     line-height: 16px;
   }
   > img {
+    cursor: pointer;
     width: 24px;
     height: 24px;
     position: absolute;

@@ -19,9 +19,11 @@ interface Props {
   url?: string;
 }
 
+export let api: ApiRx;
+
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
   const [ isApiReady, setIsReady ] = useState<boolean>(false);
-  const [ api, setApi ] = useState<ApiRx>();
+  // const [ api, setApi ] = useState<ApiRx>();
   const [ {
     tokenDecimal,
     tokenSymbol,
@@ -108,7 +110,8 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         tokenDecimal: parseInt(decimals[0]),
         tokenSymbol: tokenSymbol.toString(),
       });
-      setApi(_api);
+      // setApi(_api);
+      api = _api;
       setIsReady(true);
     });
     apiRx.on('error', error => console.log('api error', error));
@@ -119,7 +122,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
   return <ApiContext.Provider value={ {
     genesisHash,
     isApiReady,
-    api: api!,
+    api,
     tokenDecimal,
     tokenSymbol,
     systemName,

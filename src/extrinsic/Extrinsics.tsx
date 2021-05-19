@@ -8,7 +8,7 @@ import { PageSize } from '../shared/components/PageSize';
 import { PaginationR } from '../shared/components/Pagination';
 import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../shared/util';
 import { Route, Switch } from 'react-router-dom';
-import { ExtrinsicDetail } from './ExtrinsicDetail';
+import { ExtrinsicDetailPage } from './ExtrinsicDetailPage';
 
 const Wrapper = styled.div`
 `;
@@ -36,10 +36,6 @@ const ExtrinsicsR: FC = (): ReactElement => {
     [blocks, pageSize, pageIndex],
   );
 
-  useMemo(() => {
-    console.log('seletecExtrinsics[0]', seletecExtrinsics[0]?.tip.toString());
-  }, [seletecExtrinsics]);
-
   return (
     <Wrapper>
       <Table
@@ -52,7 +48,7 @@ const ExtrinsicsR: FC = (): ReactElement => {
             title: <span>Hash</span>,
             width: '20%',
             key: 'hash',
-            render: (_, record) => <Link to={`/extrinsic/${record.hash}`}>{formatAddress(record.hash.toString(), 23)}</Link>,
+            render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
           },
           {
             title: <span>height</span>,
@@ -97,9 +93,9 @@ const ExtrinsicsR: FC = (): ReactElement => {
 export const Extrinsics: FC = (): ReactElement => {
   return (
     <Switch>
-      <Route path='/extrinsic/detail/:part'>
+      <Route path='/extrinsic/:hash/:part'>
         <PaginationProvider>
-          <ExtrinsicDetail />
+          <ExtrinsicDetailPage />
         </PaginationProvider>
       </Route>
       <Route path='/extrinsic' exact>
