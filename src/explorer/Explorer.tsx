@@ -1,12 +1,13 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from './core/provider/api.provider';
-import EnterSVG from './assets/imgs/enter.svg';
-import MoveSVG from './assets/imgs/more.svg';
+import { ApiContext } from '../core/provider/api.provider';
+import EnterSVG from '../assets/imgs/enter.svg';
+import MoveSVG from '../assets/imgs/more.svg';
 import { Table } from 'antd';
-import { formatAddress, lookForDestAddress } from './shared/util';
-import { Block, BlocksContext, Extrinsic } from './core/provider/blocks.provider';
+import { formatAddress, lookForDestAddress } from '../shared/util';
+import { Block, BlocksContext } from '../core/provider/blocks.provider';
 import { Link } from "react-router-dom";
+import { Style } from '../shared/styled/const';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
@@ -41,7 +42,7 @@ const BlockName = styled.div`
 
   > span {
     font-size: 14px;
-    color: #8C8B8C;
+    color: ${Style.color.label.default};
     line-height: 16px;
   }
   > h4 {
@@ -56,14 +57,14 @@ const BlockName = styled.div`
 const Extrinsics = styled.div`
   > span {
     font-size: 14px;
-    color: #8C8B8C;
+    color: ${Style.color.label.default};
     line-height: 16px;
   }
   > h4 {
     height: 24px;
     font-size: 24px;
     font-weight: bold;
-    color: #2A292B;
+    color: ${Style.color.label.primary};
     line-height: 24px;
   }
 `;
@@ -84,7 +85,7 @@ const NavigationButton = styled.button`
   line-height: 18px;
 `;
 const BackButton = styled(NavigationButton)`
-  background: #2A292B;
+  background: ${Style.color.label.primary};
 `;
 const ForwardButton = styled(NavigationButton)`
   margin-right: 9px;
@@ -226,7 +227,7 @@ export const Explorer: FC = (): ReactElement => {
                   title: <span>Hash</span>,
                   width: '50%',
                   key: 'hash',
-                  render: (_, record) => <Link to={`/extrinsic/${record.hash}`}>{record.hash?.toString()}</Link>,
+                  render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{record.hash?.toString()}</Link>,
                 },
                 {
                   title: <span>from</span>,
@@ -238,7 +239,7 @@ export const Explorer: FC = (): ReactElement => {
                   title: <span>to</span>,
                   width: '17%',
                   key: 'to',
-                  render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{lookForDestAddress(record)}</Link>,
+                  render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{formatAddress(lookForDestAddress(record))}</Link>,
                 },
                 {
                   title: <span>Events</span>,

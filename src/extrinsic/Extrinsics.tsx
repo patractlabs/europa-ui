@@ -9,13 +9,9 @@ import { PaginationR } from '../shared/components/Pagination';
 import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../shared/util';
 import { Route, Switch } from 'react-router-dom';
 import { ExtrinsicDetailPage } from './ExtrinsicDetailPage';
+import { PaginationLine } from '../shared/components/PaginationLine';
 
 const Wrapper = styled.div`
-`;
-const Footer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 `;
 
 type ExtendedExtrinsic = Extrinsic & {
@@ -66,7 +62,7 @@ const ExtrinsicsR: FC = (): ReactElement => {
             title: <span>to</span>,
             width: '15%',
             key: 'to',
-            render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{lookForDestAddress(record)}</Link>,
+            render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{formatAddress(lookForDestAddress(record))}</Link>,
           },
           {
             title: <span>Value</span>,
@@ -82,10 +78,10 @@ const ExtrinsicsR: FC = (): ReactElement => {
           },
         ]}
       />
-      <Footer>
+      <PaginationLine>
         <PageSize />
         <PaginationR />
-      </Footer>
+      </PaginationLine>
     </Wrapper>
   );
 };

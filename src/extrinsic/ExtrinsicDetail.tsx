@@ -3,19 +3,17 @@ import styled from 'styled-components';
 import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
 import { Style } from '../shared/styled/const';
 import { KeyValueLine } from '../shared/styled/KeyValueLine';
-import { LabelDefault } from '../shared/styled/LabelDefault';
 import SuccessSvg from '../assets/imgs/extrinsic-success.svg';
 import BlockSvg from '../assets/imgs/block.svg';
 import { ValueDefault } from '../shared/styled/ValueDefault';
 import { Link } from 'react-router-dom';
+import { TitleWithBottom } from '../shared/styled/TitleWithBottom';
+import { LabelDefault } from '../shared/styled/LabelDefault';
 
 const Wrapper = styled.div`
 `;
-const ExtrinsicHash = styled.h2`
-  padding-bottom: 20px;
-  border-bottom: 1px solid ${Style.color.border};
-  margin: 0px auto;
-  color: #8C8B8C;
+const ExtrinsicHash = styled(TitleWithBottom)`
+  color: ${Style.color.label.default};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,8 +41,8 @@ const Success = styled.label`
   line-height: 24px;
 `;
 
-const BlockNumber = styled.label`
-  color: #B19E83;
+const Label = styled(LabelDefault)`
+  margin-right: 8px;
 `;
 
 type ExtendedExtrinsic = Extrinsic & {
@@ -93,9 +91,10 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
         extrinsic &&
           <div>
             <ExtrinsicHash>
-              <LabelDefault>
+
+              <Label>
                 Extrinsic Hash
-              </LabelDefault>
+              </Label>
               <span className="hash">
                 { extrinsic.hash.toString() }
               </span>
@@ -107,14 +106,14 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                   <Success>Success</Success>
                 </KeyValueLine>
                 <KeyValueLine>
-                  <LabelDefault>Timestamp</LabelDefault>
+                  <Label>Timestamp</Label>
                   <ValueDefault>{ extrinsic.timestamp }</ValueDefault>
                 </KeyValueLine>
                 <KeyValueLine>
                   <img style={{ width: '16px', height: '16px', marginRight: '4px' }} src={BlockSvg} alt="" />
-                  <LabelDefault>
+                  <Label>
                     Block
-                  </LabelDefault>
+                  </Label>
                   <ValueDefault>
                     <Link to={`/block/${extrinsic.blockHash}`}>{extrinsic.height}</Link>
                   </ValueDefault>
@@ -122,15 +121,15 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               </ExtrinsicLeft>
               <ExtrinsicRight>
                 <KeyValueLine>
-                  <LabelDefault>Gas Limit</LabelDefault>
+                  <Label>Gas Limit</Label>
                   <ValueDefault>{ extrinsic.gasLimit }</ValueDefault>
                 </KeyValueLine>
                 <KeyValueLine>
-                  <LabelDefault>Gas Used by extrinsic</LabelDefault>
+                  <Label>Gas Used by extrinsic</Label>
                   <ValueDefault>{ extrinsic.gasUsed }</ValueDefault>
                 </KeyValueLine>
                 <KeyValueLine>
-                  <LabelDefault>Extrinsic fee</LabelDefault>
+                  <Label>Extrinsic fee</Label>
                   <ValueDefault>{ extrinsic.fee }</ValueDefault>
                 </KeyValueLine>
               </ExtrinsicRight>

@@ -9,7 +9,6 @@ const Wrapper = styled.div`
 `;
 const Content = styled.div`
   padding: 20px;
-  background: #F8F8F8;
 `;
 
 const TabArea = styled.div`

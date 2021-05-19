@@ -12,12 +12,12 @@ export const lookForDestAddress = (extrinsic: Extrinsic): string => {
     if (extrinsic.method.section === 'balances'
       && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
     ) {
-      return formatAddress((extrinsic.method.args[0].toHuman() as any).Id);
+      return (extrinsic.method.args[0].toHuman() as any).Id;
     }
     if (extrinsic.method.section === 'balances'
       && (extrinsic.method.method === 'forceTransfer')
     ) {
-      return formatAddress((extrinsic.method.args[1].toHuman() as any).Id);
+      return (extrinsic.method.args[1].toHuman() as any).Id;
     }
   } catch (e) { }
 

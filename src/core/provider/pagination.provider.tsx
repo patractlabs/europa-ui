@@ -17,7 +17,7 @@ interface Props {
 const PaginationProvider = React.memo(({ children }: Props): React.ReactElement<Props> =>  {
   const [ pageSize, setPageSize ] = useState<number>(5);
   const [ pageIndex, setPageIndex ] = useState<number>(1);
-  const [ total, setTotal ] = useState<number>(40);
+  const [ total, setTotal ] = useState<number>(0);
 
   return (
     <PaginationContext.Provider

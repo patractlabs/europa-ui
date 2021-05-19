@@ -14,7 +14,7 @@ const InfoLine = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0px 20px;
-  color: #2A292B;
+  color: ${Style.color.label.primary};
 `;
 const DetailToggle = styled.div`
   user-select: none;

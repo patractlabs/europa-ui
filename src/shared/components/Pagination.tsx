@@ -9,11 +9,11 @@ const PaginationStyled = styled.div`
 `;
 
 export const PaginationR: FC = (): ReactElement => {
-  const { pageIndex, setPageIndex, total } = useContext(PaginationContext);
+  const { pageIndex, setPageIndex, total, pageSize } = useContext(PaginationContext);
 
   return (
     <PaginationStyled>
-      <Pagination defaultCurrent={1} current={pageIndex} total={total} onChange={ index => setPageIndex(index)} ></Pagination>
+      <Pagination defaultCurrent={1} current={pageIndex} total={total} pageSize={pageSize} onChange={ index => setPageIndex(index)} ></Pagination>
     </PaginationStyled>
   );
 };

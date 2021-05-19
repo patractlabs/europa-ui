@@ -1,16 +1,19 @@
 import React, { FC, ReactElement, useContext } from 'react';
 import styled from 'styled-components';
 import { PaginationContext } from '../../core/provider/pagination.provider';
+import { Style } from '../styled/const';
 
 const PageSizeStyled = styled.div`
+  font-size: 12px;
   display: flex;
   align-items: center;
-  background: white;
   padding: 6px 16px;
 `;
 
 const NumberInput = styled.div`
-  background: #F6F5F7;
+  background: #F8F8F8;
+  border-radius: 4px;
+  border: 1px solid #BEAC92;
   height: 28px;
   display: flex;
   align-items: center;
@@ -29,13 +32,18 @@ const StepHolder = styled.div`
 `;
 
 const Step = styled.div`
-  background-color: #7C44FF;
+  background-color: #DBAA66;
   width: 16px;
   height: 10px;
 `;
+const Total = styled.span`
+  margin-left: 10px;
+  color: ${Style.color.label.primary};
+  font-weight: bold;
+`;
 
 export const PageSize: FC = (): ReactElement => {
-  const { pageSize, setPageSize } = useContext(PaginationContext);
+  const { pageSize, setPageSize, total } = useContext(PaginationContext);
 
   return (
     <PageSizeStyled>
@@ -48,6 +56,7 @@ export const PageSize: FC = (): ReactElement => {
         </StepHolder>
       </NumberInput>
       items
+      <Total>(Total {total})</Total>
     </PageSizeStyled>
   );
 };

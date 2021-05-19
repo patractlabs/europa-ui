@@ -1,7 +1,7 @@
 import styled from 'styled-components';
+import { Style } from './const';
 
 export const LabelDefault = styled.label`
-  color: #8C8B8C;
+  color: ${Style.color.label.default};
   font-size: 14px;
-  margin-right: 8px;
 `;

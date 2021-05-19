@@ -4,17 +4,12 @@ import styled from 'styled-components';
 import { BlocksContext, Extrinsic } from '../core/provider/blocks.provider';
 import { PageSize } from '../shared/components/PageSize';
 import { PaginationR } from '../shared/components/Pagination';
+import { PaginationLine } from '../shared/components/PaginationLine';
 import { ExtrinsicEvent } from './ExtrinsicEvent';
 
 const Wrapper = styled.div`
   background-color: white;
 `;
-const Footer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 export const ExtrinsicEvents: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { hash } = useParams<{ hash: string }>();
@@ -33,10 +28,10 @@ export const ExtrinsicEvents: FC = (): ReactElement => {
           <ExtrinsicEvent key={event.hash.toString()} event={event} />
         )
       }
-      <Footer>
+      <PaginationLine>
         <PageSize />
         <PaginationR />
-      </Footer>
+      </PaginationLine>
     </Wrapper>
   );
 };
