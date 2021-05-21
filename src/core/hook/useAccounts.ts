@@ -1,12 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
 import { accounts as accountsObservable } from '@polkadot/ui-keyring/observable/accounts';
-import keyring from '@polkadot/ui-keyring';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import { of, zip } from 'rxjs';
 import { ApiContext } from '../provider/api.provider';
 import type { KeyringPair$Meta } from '@polkadot/keyring/types';
 import type { KeypairType } from '@polkadot/util-crypto/types';
 import { SubjectInfo } from '@polkadot/ui-keyring/observable/types';
+import { formatBalance } from '@polkadot/util';
 
 interface AccountJson extends KeyringPair$Meta {
   address: string;
@@ -33,7 +33,7 @@ function transformAccounts (accounts: SubjectInfo): AccountJson[] {
 }
 
 export const useAccounts = () => {
-  const { api } = useContext(ApiContext);
+  const { api, tokenDecimal } = useContext(ApiContext);
   const [ accounts, setAccounts ] = useState<AccountInfo[]>([]);
 
   useEffect(() => {
@@ -43,10 +43,10 @@ export const useAccounts = () => {
       mergeMap(accounts =>
         zip(
           ...accounts.map(keyringAccount =>
-            api.query.balances.account(keyring.decodeAddress(keyringAccount.address)).pipe(
+            api.derive.balances?.all(keyringAccount.address).pipe(
               map(accountInfo => ({
                 ...keyringAccount,
-                balance: accountInfo.free.toString(),
+                balance: formatBalance(accountInfo.freeBalance.toString(), {}, tokenDecimal),
                 mnemonic: localStorage.getItem(`mnemonic${keyringAccount.address}`) || '',
               })),
               catchError(() => of({

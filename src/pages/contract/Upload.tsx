@@ -1,10 +1,24 @@
-import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Button, Input, Modal, Select, Upload } from 'antd';
+import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
+import { Button, Input, message, Modal, Select, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import { ApiContext } from '../../core/provider/api.provider';
 import type { RcFile } from 'antd/lib/upload';
-import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
+import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
 import { useAccounts } from '../../core/hook/useAccounts';
+import { CodeRx } from '@polkadot/api-contract';
+import store from '../../core/store/store';
+import { SingleAccountSigner } from '../../core/SingleAccountSigner';
+import keyring from '@polkadot/ui-keyring';
+import { handleTxResults } from '../../core/handle-result';
+
+interface AbiState {
+  abiSource: string | null;
+  abi: Abi | null;
+  errorText: string | null;
+  isAbiError: boolean;
+  isAbiValid: boolean;
+  isAbiSupplied: boolean;
+}
 
 const { Option } = Select;
 const BYTE_STR_0 = '0'.charCodeAt(0);
@@ -30,42 +44,103 @@ function convertResult (result: ArrayBuffer): Uint8Array {
   return data;
 }
 
+const EMPTY: AbiState = {
+  abi: null,
+  abiSource: null,
+  errorText: null,
+  isAbiError: false,
+  isAbiSupplied: false,
+  isAbiValid: false
+};
+
 export const UploadContract: FC<{
   onCancel: () => void;
   onCompleted: () => void;
   show: boolean;
 }> = ({ onCancel, onCompleted, show }): ReactElement => {
   const { api } = useContext(ApiContext);
-  const [ contractAbi, setContractAbi ] = useState<Abi>();
+  const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
-  const [ { address, name, endowment, masGas: maxGas }, setState ] = useState<{ address: string, name: string, endowment: number, masGas: number }>({} as any);
+  // const [[wasm, isWasmValid], setWasm] = useState<[Uint8Array | null, boolean]>([null, false]);
   const { accounts } = useAccounts();
+  const [ { address, name, endowment, gasLimit }, setState ] = useState<{ address: string, name: string, endowment: number, gasLimit: number }>({
+    address: accounts[0]?.address,
+    name: '',
+    endowment: 10,
+    gasLimit: 100,
+  });
+
+  useMemo(() => console.log(address, name, endowment, gasLimit, args), [address, name, endowment, gasLimit, args]);
 
   const onUpload = useCallback(async (file: RcFile) => {
     const data = await file.arrayBuffer();
     const json = u8aToString(convertResult(data));
     const abi = new Abi(json, api.registry.getChainProperties());
+    
+    try {
+      setAbi({
+        abiSource: json,
+        abi,
+        errorText: null,
+        isAbiError: false,
+        isAbiSupplied: true,
+        isAbiValid: true
+      });
+      setArgs(abi.constructors[0].args.map(() => 222));
 
-    setContractAbi(abi);
+    } catch (error) {
+      console.error(error);
 
-    console.log('abi', abi);
-    setArgs(abi.constructors[0].args.map(() => undefined));
+      setAbi({ ...EMPTY, errorText: (error as Error).message });
+      setArgs([]);
+    }
 
     return false;
   }, [api]);
 
+  const deploy = useCallback(async () => {
+    if (!abi || !isWasm(abi.project.source.wasm)) {
+      return;
+    }
+    const code = new CodeRx(api, abi, abi?.project.source.wasm);
+    const tx = code.tx[abi.constructors[0].method]({
+      gasLimit,
+      value: endowment,
+    }, args);
+
+    const account = accounts.find(account => account.address === address);
+    const suri = account?.mnemonic || `//${account?.name}`;
+    const pair = keyring.createFromUri(suri);
+
+    await tx.signAndSend(pair).subscribe(
+      handleTxResults({
+        success() {
+          message.success('deployed');
+        },
+        fail(e) {
+          console.log(e.events.map(e => e.toHuman()));
+          
+          message.error('failed');
+        },
+        update(r) {
+          message.info(r.events.map(e => e.toHuman()));
+        }
+      }, () => {})
+    );
+  }, [abi, api, args, endowment, gasLimit, address, accounts]);
+
   return (
     <Modal visible={show} onCancel={onCancel} footer={[
-      <Button key="deploy">Deploy</Button>,
+      <Button key="deploy" onClick={deploy}>Deploy</Button>,
     ]}>
       <Upload beforeUpload={onUpload}>
         <Button>Upload</Button>
       </Upload>
       {
-        contractAbi &&
+        abi &&
           <div>
             {
-              contractAbi.constructors.map(contractContructor =>
+              abi.constructors.map(contractContructor =>
                 <div key={contractContructor.identifier}>
                   {contractContructor.method}&nbsp; (
                     <span key={contractContructor.args[0].name}>{contractContructor.args[0].name}:&nbsp;{contractContructor.args[0].type.displayName}</span>
@@ -78,8 +153,23 @@ export const UploadContract: FC<{
             }
             <div>
               {
-                contractAbi.constructors[0]?.args.map((arg, index)=>
-                  <Input key={arg.name} placeholder={arg.name} value={args[index]} onChange={e => setArgs(values => ([...values].splice(index, 1, e.target.value)))} />
+                abi.constructors[0]?.args.map((arg, index)=>
+                  <Input
+                    key={arg.name}
+                    placeholder={arg.name}
+                    value={args[index]}
+                    onChange={e => {
+                      setArgs(
+                        values => [...values].splice(
+                          index,
+                          1,
+                          isNaN(parseFloat(e.target.value)) ?
+                            0 : parseFloat(e.target.value)
+                        )
+                      )
+
+                    }}
+                  />
                 )
               }
             </div>
@@ -87,25 +177,25 @@ export const UploadContract: FC<{
       }
       <div>
         account
-        <Select style={{ width: '100%' }} defaultValue={accounts[0]?.address}>
+        <Select style={{ width: '100%' }} value={address} onChange={value => setState(pre => ({...pre, address: value}))}>
           {
             accounts.map(account =>
-              <Option key={account.address} value={account.address}>{account.address}</Option>
+              <Option key={account.address} value={account.address}>{account.name}-{account.address}</Option>
             )
           }
         </Select>
       </div>
       <div>
         code bundle name
-        <Input value={name} onChange={e => setState(pre => ({...pre, name }))} />
+        <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
       </div>
       <div>
         endowment
-        <Input value={endowment} onChange={e => setState(pre => ({...pre, endowment }))} />
+        <Input value={endowment} onChange={e => setState(pre => ({...pre, endowment: isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value) }))} />
       </div>
       <div>
         max gas allowed (M)
-        <Input value={maxGas} onChange={e => setState(pre => ({...pre, maxGas }))} />
+        <Input value={gasLimit} onChange={e => setState(pre => ({...pre, gasLimit: isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value) }))} />
       </div>
     </Modal>
   );

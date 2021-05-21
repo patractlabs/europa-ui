@@ -36,7 +36,7 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
       visible={open} title="Add Account"
       onCancel={onClose}
       footer={[
-        <Button onClick={onCreate}>Create</Button>
+        <Button key="oncreate" onClick={onCreate}>Create</Button>
       ]}>
         <h4>mnemonic: </h4>
         <p>{seed}</p>

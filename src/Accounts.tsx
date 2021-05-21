@@ -49,7 +49,10 @@ const Account: FC<{
       <div>name: {account.name}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div>Address: {account.address}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
       <div>Balance: {account.balance}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-      <div>mnemonic: {account.mnemonic}&nbsp;</div>
+      {
+        !account.isTesting &&
+          <div>mnemonic: {account.mnemonic}&nbsp;</div>
+      }
       <div>
         {
           !account.isTesting &&

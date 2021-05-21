@@ -23,7 +23,6 @@ export let api: ApiRx;
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
   const [ isApiReady, setIsReady ] = useState<boolean>(false);
-  // const [ api, setApi ] = useState<ApiRx>();
   const [ {
     tokenDecimal,
     tokenSymbol,
@@ -99,6 +98,9 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         type: 'sr25519',
         isDevelopment: true,
       });
+
+      console.log('ss58format', ss58Format.toHuman());
+      
 
       console.log('keyring load all accounts:', keyring.getAccounts())
 
