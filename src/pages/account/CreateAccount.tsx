@@ -1,8 +1,8 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Modal } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import { mnemonicGenerate } from '@polkadot/util-crypto';
 import keyring from '@polkadot/ui-keyring';
-import { ApiContext } from './core/provider/api.provider';
+import { ApiContext } from '../../core/provider/api.provider';
 
 const DEFAULT_TYPE = 'sr25519';
 
@@ -41,9 +41,7 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
         <h4>mnemonic: </h4>
         <p>{seed}</p>
         <p>{address}</p>
-        <div>
-          <input value={name} onChange={e => setName(e.target.value)} />
-        </div>
+        <Input value={name} onChange={e => setName(e.target.value)} />
     </Modal>
   );
 };

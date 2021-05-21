@@ -10,6 +10,10 @@ import store from '../../core/store/store';
 import { SingleAccountSigner } from '../../core/SingleAccountSigner';
 import keyring from '@polkadot/ui-keyring';
 import { handleTxResults } from '../../core/handle-result';
+import type { Weight } from '@polkadot/types/interfaces';
+import { BN_MILLION, BN_TEN, BN_ZERO } from '@polkadot/util';
+import BN from 'bn.js';
+import { randomAsHex } from '@polkadot/util-crypto';
 
 interface AbiState {
   abiSource: string | null;
@@ -58,19 +62,19 @@ export const UploadContract: FC<{
   onCompleted: () => void;
   show: boolean;
 }> = ({ onCancel, onCompleted, show }): ReactElement => {
-  const { api } = useContext(ApiContext);
+  const { api, tokenDecimal } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
-  // const [[wasm, isWasmValid], setWasm] = useState<[Uint8Array | null, boolean]>([null, false]);
   const { accounts } = useAccounts();
   const [ { address, name, endowment, gasLimit }, setState ] = useState<{ address: string, name: string, endowment: number, gasLimit: number }>({
     address: accounts[0]?.address,
-    name: '',
+    name: 'xxx',
     endowment: 10,
-    gasLimit: 100,
+    gasLimit: 200000,
+    // (api.consts.system.blockWeights
+    //   ? api.consts.system.blockWeights.maxBlock
+    //   : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
   });
-
-  useMemo(() => console.log(address, name, endowment, gasLimit, args), [address, name, endowment, gasLimit, args]);
 
   const onUpload = useCallback(async (file: RcFile) => {
     const data = await file.arrayBuffer();
@@ -103,10 +107,15 @@ export const UploadContract: FC<{
       return;
     }
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
+
+    const value = (new BN(endowment)).pow(new BN(tokenDecimal));
     const tx = code.tx[abi.constructors[0].method]({
       gasLimit,
-      value: endowment,
+      value,
+      // salt: randomAsHex(),
     }, args);
+
+    console.log('send:', 'gasLimit:', gasLimit, ',  endowment', value.toString(), ',  args', args, 'name', name);
 
     const account = accounts.find(account => account.address === address);
     const suri = account?.mnemonic || `//${account?.name}`;
@@ -116,6 +125,7 @@ export const UploadContract: FC<{
       handleTxResults({
         success() {
           message.success('deployed');
+          onCompleted();
         },
         fail(e) {
           console.log(e.events.map(e => e.toHuman()));
@@ -127,7 +137,7 @@ export const UploadContract: FC<{
         }
       }, () => {})
     );
-  }, [abi, api, args, endowment, gasLimit, address, accounts]);
+  }, [abi, api, args, endowment, gasLimit, address, accounts, onCompleted, tokenDecimal, name]);
 
   return (
     <Modal visible={show} onCancel={onCancel} footer={[

@@ -9,7 +9,7 @@ import { Contracts } from './pages/contract/Contracts';
 import { Events } from './Events';
 import { Extrinsics } from './pages/extrinsic/Extrinsics';
 import { Blocks } from './Blocks';
-import { Accounts } from './Accounts';
+import { Accounts } from './pages/account/Accounts';
 import { EOA } from './pages/explorer/EOA';
 import { PaginationProvider } from './core/provider/pagination.provider';
 

@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Modal } from 'antd';
 import { CreateAccount } from './CreateAccount';
 import keyring from '@polkadot/ui-keyring';
-import { AccountInfo, useAccounts } from './core/hook/useAccounts';
+import { AccountInfo, useAccounts } from '../../core/hook/useAccounts';
+import { ImportAccount } from './ImportAccount';
 
 const Wrapper = styled.div`
   padding: 5px 15px;
@@ -97,9 +98,11 @@ export const Accounts: FC = (): ReactElement => {
         isCreateModalOpen &&
           <CreateAccount open={isCreateModalOpen} onClose={() => setCreateModalOpen(false)}/>
       }
-      <Modal visible={isImportModalOpen}>
-          
-      </Modal>
+      
+      {
+        isImportModalOpen &&
+          <ImportAccount open={isImportModalOpen} onClose={() => setImportModalOpen(false)}/>
+      }
     </Wrapper>
   );
 };

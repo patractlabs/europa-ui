@@ -98,13 +98,10 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         type: 'sr25519',
         isDevelopment: true,
       });
-
-      console.log('ss58format', ss58Format.toHuman());
       
 
-      console.log('keyring load all accounts:', keyring.getAccounts())
-
       const decimals = tokenDecimals.toHuman() as string[];
+      console.log('ss58format', ss58Format.toHuman(), decimals[0]);
 
       setProperties({
         systemName: _systemName.toString(),
@@ -112,7 +109,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         tokenDecimal: parseInt(decimals[0]),
         tokenSymbol: tokenSymbol.toString(),
       });
-      // setApi(_api);
       api = _api;
       setIsReady(true);
     });
