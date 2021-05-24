@@ -191,21 +191,24 @@ export const Explorer: FC = (): ReactElement => {
           return false;
         }
         return bounding.top > -1 * bounding.height && bounding.top <= 0;
-      }
-      )?.blockHash;
+      });
 
-      setViewingBlock(_viewingBlock || '');
+      console.log('viewing block', _viewingBlock?.height, _viewingBlock?.blockHash || '');
+      
+      setViewingBlock(_viewingBlock?.blockHash || '');
     };
     document.addEventListener('scroll', toggleNavigation, false);
     
     return () => document.removeEventListener('scroll', toggleNavigation);
-  }, [blocks]);
+  }, [blocks, setViewingBlock]);
+
+  useMemo(() => console.log(viewingBlock, 'viewing block changed'), [viewingBlock]);
 
   return (
     <Wrapper>
       <NavigationHighlight>
         <Navigation>
-          <ForwardButton onClick={() => backward(1)}>Back to Block</ForwardButton>
+          <ForwardButton onClick={() => backward(0)}>Back to Block</ForwardButton>
           <BackButton onClick={() => forward(30)}>Go to Block</BackButton>
         </Navigation>
       </NavigationHighlight>
@@ -213,7 +216,7 @@ export const Explorer: FC = (): ReactElement => {
         blocks.map(block =>
           <BlockHolder
             id={block.blockHash}
-            key={block.hash.toString()}
+            key={block.blockHash}
           >
             <BlockInfoHolder className={viewingBlock === block.blockHash ? 'viewing-block' : 'not-viewing-block'}>
               <BlockInfo currentBlock={block} />
