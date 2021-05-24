@@ -2,6 +2,7 @@ import React, { FC, ReactElement, useMemo } from 'react';
 import { Switch, Link, Route, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationProvider } from '../../core/provider/pagination.provider';
+import { Style } from '../../shared';
 import { ExtrinsicDetail } from './ExtrinsicDetail';
 import { ExtrinsicEvents } from './ExtrinsicEvents';
 
@@ -14,7 +15,7 @@ const Content = styled.div`
 const TabArea = styled.div`
   height: 48px;
   padding-top: 8px;
-  background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
+  background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
   color: white;
 `;
 
@@ -27,7 +28,8 @@ const Tabs = styled.div`
   }
 
   .active a {
-    color: #B19E83;
+    color: ${Style.color.primary};
+;
   }
 `;
 

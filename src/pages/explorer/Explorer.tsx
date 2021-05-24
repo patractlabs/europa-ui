@@ -33,7 +33,7 @@ const BlockHolder = styled.div`
   margin-bottom: 0px;
 
   .ant-table-thead > tr > th {
-    background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
+    background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
   }
 `;
 const BlockInfoWrapper = styled.div`
@@ -117,7 +117,7 @@ const ShowMore = styled.div`
   background: #EFEFEF;
   font-size: 14px;
   font-weight: bold;
-  color: #B19E83;
+  color: ${Style.color.primary};
 
   > img {
     margin-right: 4px;

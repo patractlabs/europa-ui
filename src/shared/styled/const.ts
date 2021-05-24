@@ -5,6 +5,7 @@ export const Style = {
       primary: '#2A292B',
     },
     success: '#5FCBAA',
-    border: '#DEDEDE'
+    border: '#DEDEDE',
+    primary: '#B19E83',
   }
 };

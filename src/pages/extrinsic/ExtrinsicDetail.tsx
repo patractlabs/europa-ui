@@ -7,12 +7,12 @@ import { Link } from 'react-router-dom';
 import { Style } from '../../shared/styled/const';
 import { KeyValueLine } from '../../shared/styled/KeyValueLine';
 import { ValueDefault } from '../../shared/styled/ValueDefault';
-import { TitleWithBottom } from '../../shared/styled/TitleWithBottom';
+import { TitleWithBottomBorder } from '../../shared/styled/TitleWithBottom';
 import { LabelDefault } from '../../shared/styled/LabelDefault';
 
 const Wrapper = styled.div`
 `;
-const ExtrinsicHash = styled(TitleWithBottom)`
+const ExtrinsicHash = styled(TitleWithBottomBorder)`
   color: ${Style.color.label.default};
   display: flex;
   align-items: center;

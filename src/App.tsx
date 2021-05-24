@@ -12,6 +12,7 @@ import { Blocks } from './Blocks';
 import { Accounts } from './pages/account/Accounts';
 import { EOA } from './pages/explorer/EOA';
 import { PaginationProvider } from './core/provider/pagination.provider';
+import { CodeHash } from './pages/code-hash';
 
 const Main: FC = (): ReactElement => {
   return (
@@ -21,6 +22,9 @@ const Main: FC = (): ReactElement => {
         <Switch>
           <Route path='/explorer' exact>
             <Explorer />
+          </Route>
+          <Route path='/explorer/code-hash/:codeHash'>
+            <CodeHash />
           </Route>
           <Route path='/explorer/eoa/:address'>
             <PaginationProvider>

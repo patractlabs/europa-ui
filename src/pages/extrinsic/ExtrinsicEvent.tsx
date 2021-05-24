@@ -22,7 +22,7 @@ const DetailToggle = styled.div`
   align-items: center;
 
   > span {
-    color: #B19E83;
+    color: ${Style.color.primary};
     margin-right: 4px;
   }
 `;

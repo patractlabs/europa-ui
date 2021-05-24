@@ -7,7 +7,6 @@ import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
 import { useAccounts } from '../../core/hook/useAccounts';
 import { CodeRx } from '@polkadot/api-contract';
 import store from '../../core/store/store';
-import { SingleAccountSigner } from '../../core/SingleAccountSigner';
 import keyring from '@polkadot/ui-keyring';
 import { handleTxResults } from '../../core/handle-result';
 import type { Weight } from '@polkadot/types/interfaces';

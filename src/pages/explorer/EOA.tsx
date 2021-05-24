@@ -5,27 +5,10 @@ import styled from 'styled-components';
 import { ApiContext } from '../../core/provider/api.provider';
 import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
 import { PaginationContext } from '../../core/provider/pagination.provider';
-import { PageSize } from '../../shared/components/PageSize';
-import { PaginationR } from '../../shared/components/Pagination';
-import { Style } from '../../shared/styled/const';
-import { LabelDefault } from '../../shared/styled/LabelDefault';
-import { TitleWithBottom } from '../../shared/styled/TitleWithBottom';
-import { ValueDefault } from '../../shared/styled/ValueDefault';
-import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared/util';
-import { PaginationLine } from '../../shared/components/PaginationLine';
+import { ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
 
 const Wrap = styled.div`
-  padding: 20px;
-`;
-const LabelLine = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-const ValueLine = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    ${contentBase}
 `;
 
 const Value = styled(ValueDefault)`
@@ -99,20 +82,18 @@ export const EOA: FC = (): ReactElement => {
 
   useMemo(() => setTotal(extrinsics.length), [extrinsics, setTotal]);
 
-  console.log('extrinsics', extrinsics);
-
   return (
     <Wrap>
-      <TitleWithBottom>
-        <LabelLine>
+      <TitleWithBottomBorder>
+        <div className="label-line">
           <LabelDefault>Address</LabelDefault>
           <LabelDefault>Balance</LabelDefault>
-        </LabelLine>
+        </div>
         <ValueLine>
           <Value>{ address }</Value>
           <Value>{ balance }</Value>
         </ValueLine>
-      </TitleWithBottom>
+      </TitleWithBottomBorder>
       <Title><label>Extrinsics</label> <span>Total { total } Extrinsics</span></Title>
       <Table
         style={{ marginBottom: '16px' }}

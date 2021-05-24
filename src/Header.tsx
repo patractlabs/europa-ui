@@ -6,13 +6,14 @@ import CloseSVG from './assets/imgs/close.svg';
 import MoreSVG from './assets/imgs/more-option.svg';
 import SearchSVG from './assets/imgs/search.svg';
 import { BreadCrumb, Divide } from './BreadCrumb';
+import { Style } from './shared';
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 68px;
-  background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
+  background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
 `;
 const HeaderLeft = styled.div`
   display: flex;
@@ -112,7 +113,7 @@ const Search = styled.div`
   height: 36px;
 
   > input {
-    background: linear-gradient(90deg, #BEAC92 0%, #B19E83 100%);
+    background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
     width: 300px;
     height: 100%;
     border-radius: 22px;
