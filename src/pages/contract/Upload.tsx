@@ -108,14 +108,15 @@ export const UploadContract: FC<{
     }
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
 
-    const value = (new BN(endowment)).pow(new BN(tokenDecimal));
+    const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
     const tx = code.tx[abi.constructors[0].method]({
-      gasLimit,
+      gasLimit: 200000000000,
+      // gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
       value,
-      // salt: randomAsHex(),
+      salt: randomAsHex(),
     }, args);
 
-    console.log('send:', 'gasLimit:', gasLimit, ',  endowment', value.toString(), ',  args', args, 'name', name);
+    console.log('send:', randomAsHex(), ',  endowment', value.toString(), ',  args', args, 'name', name);
 
     const account = accounts.find(account => account.address === address);
     const suri = account?.mnemonic || `//${account?.name}`;
