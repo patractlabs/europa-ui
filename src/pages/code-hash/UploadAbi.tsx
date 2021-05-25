@@ -2,9 +2,7 @@ import React, { FC, ReactElement, useCallback, useContext, useState } from 'reac
 import { Button, message, Modal, Upload } from 'antd';
 import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
 import type { RcFile } from 'antd/lib/upload';
-import { ApiContext } from '../../core/provider/api.provider';
-import store from '../../core/store/store';
-import { CodeJson } from '../../core/store/types';
+import { ApiContext, CodeJson, store } from '../../core';
 
 const BYTE_STR_0 = '0'.charCodeAt(0);
 const BYTE_STR_X = 'x'.charCodeAt(0);

@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext } from 'react';
 import styled from 'styled-components';
-import { PaginationContext } from '../../core/provider/pagination.provider';
+import { PaginationContext } from '../../core';
 import { Style } from '../styled/const';
 
 const PageSizeStyled = styled.div`

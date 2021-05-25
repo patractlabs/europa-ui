@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import { BlocksContext, Extrinsic } from '../../core';
 import { PaginationLine, PaginationR, PageSize } from '../../shared';
 import { ExtrinsicEvent } from './ExtrinsicEvent';
 

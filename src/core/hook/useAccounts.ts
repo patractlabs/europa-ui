@@ -21,7 +21,7 @@ interface AccountJson extends KeyringPair$Meta {
   whenCreated?: number;
 }
 
-export type AccountInfo = AccountJson & { balance: string; mnemonic: string; };
+export type AccountInfo = AccountJson & { balance: string; mnemonic: string };
 
 
 function transformAccounts (accounts: SubjectInfo): AccountJson[] {

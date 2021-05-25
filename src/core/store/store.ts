@@ -5,7 +5,7 @@ import type { Hash } from '@polkadot/types/interfaces';
 import type { CodeJson, CodeStored } from './types';
 
 import EventEmitter from 'eventemitter3';
-import store from 'store';
+import storage from 'store';
 
 import { Abi } from '@polkadot/api-contract';
 import { isString } from '@polkadot/util';
@@ -40,7 +40,7 @@ class Store extends EventEmitter {
     };
     const key = `${KEY_CODE}${json.codeHash}`;
 
-    store.set(key, json);
+    storage.set(key, json);
     this.addCode(key, json as CodeJson);
   }
 
@@ -52,7 +52,7 @@ class Store extends EventEmitter {
     try {
       const genesisHash = api.genesisHash.toHex();
 
-      store.each((json: CodeJson, key: string): void => {
+      storage.each((json: CodeJson, key: string): void => {
         if (json && json.genesisHash === genesisHash && key.startsWith(KEY_CODE)) {
           this.addCode(key, json);
         }
@@ -83,7 +83,7 @@ class Store extends EventEmitter {
   private removeCode (key: string, codeHash: string): void {
     try {
       delete this.#allCode[codeHash];
-      store.remove(key);
+      storage.remove(key);
       this.emit('removed-code');
     } catch (error) {
       console.error(error);
@@ -91,4 +91,4 @@ class Store extends EventEmitter {
   }
 }
 
-export default new Store();
+export const store = new Store();

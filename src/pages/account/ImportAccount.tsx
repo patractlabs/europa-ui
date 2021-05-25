@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
 import keyring from '@polkadot/ui-keyring';
-import { ApiContext } from '../../core/provider/api.provider';
+import { ApiContext } from '../../core';
 
 export const ImportAccount: FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }): ReactElement => {
   const { genesisHash } = useContext(ApiContext);

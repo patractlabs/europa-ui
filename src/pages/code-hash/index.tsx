@@ -4,12 +4,10 @@ import styled from 'styled-components';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style, ValueLine } from '../../shared';
-import { BlocksContext } from '../../core/provider/blocks.provider';
-import { useContracts } from '../../core/hook/useContracts';
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
-import { ApiContext } from '../../core/provider/api.provider';
+import { BlocksContext, useContracts, ApiContext } from '../../core';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -69,7 +67,7 @@ enum TabChoosed {
 
 export const CodeHash: FC = (): ReactElement => {
   const [ show, setShow ] = useState(false);
-  const { codeHash } = useParams<{ codeHash: string; }>();
+  const { codeHash } = useParams<{ codeHash: string }>();
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { codesHash } = useContracts(api, blocks);
@@ -85,7 +83,7 @@ export const CodeHash: FC = (): ReactElement => {
           <LabelDefault>Uploader</LabelDefault>
         </div>
         <ValueLine>
-          <ValueLine>{ codeHash }</ValueLine>
+          <div>{ codeHash }</div>
           <Uploader>
             <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
             <span>at</span>

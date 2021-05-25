@@ -1,13 +1,11 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { Button, Input, message, Modal, Select, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
-import { ApiContext } from '../../core/provider/api.provider';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
-import { useAccounts } from '../../core/hook/useAccounts';
+import { handleTxResults, ApiContext, useAccounts } from '../../core';
 import { CodeRx } from '@polkadot/api-contract';
 import keyring from '@polkadot/ui-keyring';
-import { handleTxResults } from '../../core/handle-result';
 import BN from 'bn.js';
 import { randomAsHex } from '@polkadot/util-crypto';
 

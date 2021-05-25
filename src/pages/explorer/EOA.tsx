@@ -1,10 +1,8 @@
-import React, { ReactElement, FC, useState, useEffect, useContext, useMemo } from 'react';
+import React, { ReactElement, FC, useContext, useMemo } from 'react';
 import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { ApiContext } from '../../core/provider/api.provider';
-import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
-import { PaginationContext } from '../../core/provider/pagination.provider';
+import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
 import { ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
 
 const Wrap = styled.div`
@@ -40,19 +38,11 @@ type ExtenedExtrinsic = Extrinsic & {
 };
 
 export const EOA: FC = (): ReactElement => {
-  const { address } = useParams<{ address: string; }>();
-  const [ balance, setBalance ] = useState('');
+  const { address } = useParams<{ address: string }>();
   const { blocks } = useContext(BlocksContext);
   const { api } = useContext(ApiContext);
   const { pageIndex, pageSize, setTotal, total } = useContext(PaginationContext);
-  
-  useEffect(() => {
-    const sub = api.query.balances.account(address).subscribe(accountInfo =>
-      setBalance(accountInfo.free.toString())
-    );
-
-    return () => sub.unsubscribe();
-  }, [api, address]);
+  const { balance } = useBalance(api, address);
 
   const extrinsics: ExtenedExtrinsic[] = useMemo(() =>
     [...blocks]

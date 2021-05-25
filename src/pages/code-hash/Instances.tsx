@@ -1,9 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useContracts } from '../../core/hook/useContracts';
-import { ApiContext } from '../../core/provider/api.provider';
-import { BlocksContext } from '../../core/provider/blocks.provider';
+import { useContracts, ApiContext, BlocksContext } from '../../core';
 
 const Wrapper = styled.div`
   background-color: white;

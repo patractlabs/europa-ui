@@ -3,9 +3,7 @@ import { Button } from 'antd';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { UploadContract } from './Upload';
-import { BlocksContext } from '../../core/provider/blocks.provider';
-import { ApiContext } from '../../core/provider/api.provider';
-import { useContracts } from '../../core/hook/useContracts';
+import { BlocksContext, ApiContext, useContracts } from '../../core';
 
 const Wrapper = styled.div`
 `;
@@ -25,8 +23,12 @@ export const Contracts: FC = (): ReactElement => {
           {
             contracts.map(contract =>
               <div key={contract.address}>
-                {contract.address} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
-                {contract.extrinsic.hash.toString()} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                <Link to={`/explorer/contract/${contract.address}`}>
+                  {contract.address} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                </Link>
+                <Link to={`/extrinsic/${contract.extrinsic.hash.toString()}/details`}>
+                  {contract.extrinsic.hash.toString()} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                </Link>
                 {contract.block.height}
               </div>
             )

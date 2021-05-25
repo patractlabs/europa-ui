@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import { CreateAccount } from './CreateAccount';
 import keyring from '@polkadot/ui-keyring';
-import { AccountInfo, useAccounts } from '../../core/hook/useAccounts';
+import { AccountInfo, useAccounts } from '../../core';
 import { ImportAccount } from './ImportAccount';
 
 const Wrapper = styled.div`

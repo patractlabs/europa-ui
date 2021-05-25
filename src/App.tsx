@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useContext } from 'react';
-import { ApiContext } from './core/provider/api.provider';
+import { ApiContext, PaginationProvider } from './core';
 import { Header } from './Header';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
@@ -11,8 +11,8 @@ import { Extrinsics } from './pages/extrinsic/Extrinsics';
 import { Blocks } from './Blocks';
 import { Accounts } from './pages/account/Accounts';
 import { EOA } from './pages/explorer/EOA';
-import { PaginationProvider } from './core/provider/pagination.provider';
 import { CodeHash } from './pages/code-hash';
+import { Contract } from './pages/contract/Contract';
 
 const Main: FC = (): ReactElement => {
   return (
@@ -29,6 +29,11 @@ const Main: FC = (): ReactElement => {
           <Route path='/explorer/eoa/:address'>
             <PaginationProvider>
               <EOA />
+            </PaginationProvider>
+          </Route>
+          <Route path='/explorer/contract/:address'>
+            <PaginationProvider>
+              <Contract />
             </PaginationProvider>
           </Route>
           <Route path='/account'>

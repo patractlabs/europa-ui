@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
+import { BlocksContext, Extrinsic } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';

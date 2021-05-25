@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useMemo } from 'react';
 import { Switch, Link, Route, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { PaginationProvider } from '../../core/provider/pagination.provider';
+import { PaginationProvider } from '../../core';
 import { Style } from '../../shared';
 import { ExtrinsicDetail } from './ExtrinsicDetail';
 import { ExtrinsicEvents } from './ExtrinsicEvents';

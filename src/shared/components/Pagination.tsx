@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext } from 'react';
 import styled from 'styled-components'
 import { Pagination } from 'antd';
-import { PaginationContext } from '../../core/provider/pagination.provider';
+import { PaginationContext } from '../../core';
 
 const PaginationStyled = styled.div`
   background-color: white;

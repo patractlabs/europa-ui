@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { ApiProvider } from './core/provider/api.provider';
-import { BlocksProvider } from './core/provider/blocks.provider';
+import { BlocksProvider, ApiProvider } from './core';
 
 ReactDOM.render(
   <React.StrictMode>

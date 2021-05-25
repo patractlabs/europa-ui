@@ -1,6 +1,6 @@
 import { FC, ReactElement, useMemo } from 'react';
 import styled from 'styled-components';
-import store from '../../core/store/store';
+import { store } from '../../core';
 import { Constructor } from './Constructor';
 
 const Wrapper = styled.div`

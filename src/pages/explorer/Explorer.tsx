@@ -1,11 +1,10 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from '../../core/provider/api.provider';
 import EnterSVG from '../../assets/imgs/enter.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
 import { Table } from 'antd';
 import { formatAddress, lookForDestAddress } from '../../shared/util';
-import { Block, BlocksContext } from '../../core/provider/blocks.provider';
+import { ApiContext, Block, BlocksContext } from '../../core';
 import { Link } from "react-router-dom";
 import { Style } from '../../shared/styled/const';
 
