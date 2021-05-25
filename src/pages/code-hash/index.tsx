@@ -1,28 +1,15 @@
-import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
-import { Button, Input, message, Modal, Select } from 'antd';
-import { Abi } from '@polkadot/api-contract';
-import { ApiContext } from '../../core/provider/api.provider';
-import type { RcFile } from 'antd/lib/upload';
-import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
-import { useAccounts } from '../../core/hook/useAccounts';
-import { CodeRx } from '@polkadot/api-contract';
-import store from '../../core/store/store';
-import keyring from '@polkadot/ui-keyring';
-import { handleTxResults } from '../../core/handle-result';
-import type { Weight } from '@polkadot/types/interfaces';
-import BN from 'bn.js';
-import { randomAsHex } from '@polkadot/util-crypto';
+import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
+import { Button } from 'antd';
 import styled from 'styled-components';
-import { TitleWithBottomBorder } from '../../shared/styled/TitleWithBottom';
-import { LabelDefault } from '../../shared/styled/LabelDefault';
 import { useParams } from 'react-router';
-import { contentBase, formatAddress, Style, ValueLine } from '../../shared';
 import { Link } from 'react-router-dom';
+import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style, ValueLine } from '../../shared';
 import { BlocksContext } from '../../core/provider/blocks.provider';
 import { useContracts } from '../../core/hook/useContracts';
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
+import { ApiContext } from '../../core/provider/api.provider';
 
 const Wrapper = styled.div`
   ${contentBase}

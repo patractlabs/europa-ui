@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
 import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core/provider/api.provider';

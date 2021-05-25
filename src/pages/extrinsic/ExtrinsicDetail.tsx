@@ -4,11 +4,7 @@ import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { Style } from '../../shared/styled/const';
-import { KeyValueLine } from '../../shared/styled/KeyValueLine';
-import { ValueDefault } from '../../shared/styled/ValueDefault';
-import { TitleWithBottomBorder } from '../../shared/styled/TitleWithBottom';
-import { LabelDefault } from '../../shared/styled/LabelDefault';
+import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine } from '../../shared';
 
 const Wrapper = styled.div`
 `;

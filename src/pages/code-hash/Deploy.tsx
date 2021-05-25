@@ -1,6 +1,5 @@
-import { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
+import { FC, ReactElement, useMemo } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from '../../core/provider/api.provider';
 import store from '../../core/store/store';
 import { Constructor } from './Constructor';
 
@@ -14,7 +13,6 @@ const Form = styled.div`
 `;
 
 export const Deploy: FC<{ hash: string }> = ({ hash }): ReactElement => {
-  const { api } = useContext(ApiContext);
 
   const abi = useMemo(() => {
     store.loadAll();

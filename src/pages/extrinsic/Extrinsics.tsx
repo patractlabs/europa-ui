@@ -4,12 +4,9 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { BlocksContext, Extrinsic } from '../../core/provider/blocks.provider';
 import { PaginationContext, PaginationProvider } from '../../core/provider/pagination.provider';
-import { PageSize } from '../../shared/components/PageSize';
-import { PaginationR } from '../../shared/components/Pagination';
-import { formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared/util';
+import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared';
 import { Route, Switch } from 'react-router-dom';
 import { ExtrinsicDetailPage } from './ExtrinsicDetailPage';
-import { PaginationLine } from '../../shared/components/PaginationLine';
 
 const Wrapper = styled.div`
 `;
