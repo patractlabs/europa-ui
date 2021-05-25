@@ -1,4 +1,4 @@
-import React, { ReactElement, FC, useContext, useMemo } from 'react';
+import React, { ReactElement, FC, useContext, useMemo, useEffect } from 'react';
 import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -70,7 +70,7 @@ export const EOA: FC = (): ReactElement => {
     [extrinsics, pageIndex, pageSize],
   );
 
-  useMemo(() => setTotal(extrinsics.length), [extrinsics, setTotal]);
+  useEffect(() => setTotal(extrinsics.length), [extrinsics, setTotal]);
 
   return (
     <Wrap>

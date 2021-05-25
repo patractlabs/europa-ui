@@ -132,7 +132,7 @@ export const UploadContract: FC<{
         }
       }, () => {})
     );
-  }, [abi, api, args, endowment, gasLimit, address, accounts, onCompleted, tokenDecimal, name]);
+  }, [abi, api, args, endowment, address, accounts, onCompleted, tokenDecimal, name]);
 
   return (
     <Modal visible={show} onCancel={onCancel} footer={[

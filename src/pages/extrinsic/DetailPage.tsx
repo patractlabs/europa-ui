@@ -3,8 +3,8 @@ import { Switch, Link, Route, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationProvider } from '../../core';
 import { Style } from '../../shared';
-import { ExtrinsicDetail } from './ExtrinsicDetail';
-import { ExtrinsicEvents } from './ExtrinsicEvents';
+import { ExtrinsicDetail } from './Detail';
+import { ExtrinsicEvents } from './Events';
 
 const Wrapper = styled.div`
 `;

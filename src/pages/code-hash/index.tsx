@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import styled from 'styled-components';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
-import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style, ValueLine } from '../../shared';
+import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style, ValueLine, Tabs } from '../../shared';
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
@@ -24,26 +24,6 @@ const TabTitle = styled.div`
   align-items: center;
   justify-content: space-between;
 `;
-const TabChoices = styled.div`
-  display: flex;
-
-  >.tab-choosed {
-    color: ${Style.color.primary};
-    background-color: white;
-  }
-
-`;
-const TabChoice = styled.div`
-  cursor: pointer;
-  padding: 0px 32px;
-  text-align: center;
-  line-height: 48px;
-  height: 48px;
-  background: #EEECE9;
-  border-radius: 8px 8px 0px 0px;
-  font-size: 16px;
-  color: ${Style.color.label.primary};
-`;
 const UploadButton = styled(Button)`
   padding: 0px 24px;
   height: 40px;
@@ -59,10 +39,9 @@ const UploadButton = styled(Button)`
   }
 `;
 
-
-enum TabChoosed {
-  deploy = 'deploy',
-  instances = 'instances',
+enum TabChoice {
+  Codes = 'Codes',
+  Instances = 'Instances',
 }
 
 export const CodeHash: FC = (): ReactElement => {
@@ -71,7 +50,7 @@ export const CodeHash: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { codesHash } = useContracts(api, blocks);
-  const [ tabChoosed, setTabChoosed ] = useState<TabChoosed>(TabChoosed.deploy);
+  const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
 
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
 
@@ -93,25 +72,23 @@ export const CodeHash: FC = (): ReactElement => {
       </TitleWithBottomBorder>
 
       <TabTitle>
-        <TabChoices>
-          <TabChoice
-            className={ tabChoosed === TabChoosed.deploy ? 'tab-choosed' : '' }
-            onClick={() => setTabChoosed(TabChoosed.deploy)}
-          >Codes</TabChoice>
-          <TabChoice
-            className={ tabChoosed === TabChoosed.instances ? 'tab-choosed' : '' }
-            onClick={() => setTabChoosed(TabChoosed.instances)}
-          >Instances</TabChoice>
-        </TabChoices>
+        <Tabs
+          options={[
+            { title: 'Codes', value: TabChoice.Codes },
+            { title: 'Instances', value: TabChoice.Instances },
+          ]}
+          defaultValue={TabChoice.Codes}
+          onChange={choice => setTabChoice(choice)}
+        ></Tabs>
         <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
       </TabTitle>
 
       {
-        tabChoosed === TabChoosed.deploy &&
+        tabChoice === TabChoice.Codes &&
           <Deploy hash={codeHash} />
       }
       {
-        tabChoosed === TabChoosed.instances &&
+        tabChoice === TabChoice.Instances &&
           <Instances hash={codeHash} />
       }
       <UploadAbi show={show} onClose={() => setShow(false)} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />

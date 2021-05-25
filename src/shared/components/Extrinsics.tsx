@@ -1,32 +1,27 @@
-import React, { FC, ReactElement, useContext, useMemo } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { PaginationContext, PaginationProvider, BlocksContext, Extrinsic } from '../../core';
+import { PaginationContext, Extrinsic } from '../../core';
 import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared';
-import { Route, Switch } from 'react-router-dom';
-import { ExtrinsicDetailPage } from './ExtrinsicDetailPage';
 
 const Wrapper = styled.div`
 `;
 
-type ExtendedExtrinsic = Extrinsic & {
+export type ExtendedExtrinsic = Extrinsic & {
   height: number;
 };
 
-const ExtrinsicsR: FC = (): ReactElement => {
-  const { blocks } = useContext(BlocksContext);
-  const { pageIndex, pageSize } = useContext(PaginationContext);
+export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics: extrinsicsSource }): ReactElement => {
+  const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
 
-  const seletecExtrinsics: ExtendedExtrinsic[] = useMemo(
-    () => [...blocks].reverse().reduce((all: ExtendedExtrinsic[], block) => {
-      const extrinsics = block.extrinsics.map(extrinsic => Object.assign(extrinsic, {
-        height: block.height,
-      }));
-      return all.concat(extrinsics);
-    }, []).slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
-    [blocks, pageSize, pageIndex],
+  const extrinsics: ExtendedExtrinsic[] = useMemo(
+    () =>
+      extrinsicsSource.slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
+    [extrinsicsSource, pageSize, pageIndex],
   );
+
+  useEffect(() => setTotal(extrinsicsSource.length), [extrinsicsSource, setTotal]);
 
   return (
     <Wrapper>
@@ -34,7 +29,7 @@ const ExtrinsicsR: FC = (): ReactElement => {
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
         pagination={false}
-        dataSource={seletecExtrinsics}
+        dataSource={extrinsics}
         columns={[
           {
             title: <span>Hash</span>,
@@ -81,20 +76,3 @@ const ExtrinsicsR: FC = (): ReactElement => {
     </Wrapper>
   );
 };
-
-export const Extrinsics: FC = (): ReactElement => {
-  return (
-    <Switch>
-      <Route path='/extrinsic/:hash/:part'>
-        <PaginationProvider>
-          <ExtrinsicDetailPage />
-        </PaginationProvider>
-      </Route>
-      <Route path='/extrinsic' exact>
-        <PaginationProvider>
-          <ExtrinsicsR />
-        </PaginationProvider>
-      </Route>
-    </Switch>
-  );
-}

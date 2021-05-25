@@ -7,7 +7,7 @@ import { Setting } from './Setting';
 import { Developer } from './Developer';
 import { Contracts } from './pages/contract/Contracts';
 import { Events } from './Events';
-import { Extrinsics } from './pages/extrinsic/Extrinsics';
+import { ExtrinsicPage } from './pages/extrinsic';
 import { Blocks } from './Blocks';
 import { Accounts } from './pages/account/Accounts';
 import { EOA } from './pages/explorer/EOA';
@@ -43,7 +43,7 @@ const Main: FC = (): ReactElement => {
             <Blocks />
           </Route>
           <Route path='/extrinsic'>
-            <Extrinsics />
+            <ExtrinsicPage />
           </Route>
           <Route path='/event'>
             <Events />

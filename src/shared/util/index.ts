@@ -24,14 +24,11 @@ export const lookForDestAddress = (extrinsic: Extrinsic): string => {
   return '-';
 };
 
-
 export const lookForTranferedValue = (extrinsic: Extrinsic): string => {
   try {
     if (extrinsic.method.section === 'balances'
       && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
     ) {
-      console.log('asdfasd', );
-      
       return extrinsic.method.args.map(a => a.toHuman())[1] as any;
     }
     if (extrinsic.method.section === 'balances'

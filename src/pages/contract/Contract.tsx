@@ -1,8 +1,11 @@
-import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
 import { contentBase, formatAddress, LabelDefault, Style, Tabs, TitleWithBottomBorder, ValueLine } from '../../shared';
 import { BlocksContext, ApiContext, useContracts, useBalance } from '../../core';
+import { Functions } from './Functions';
+import { ContractExtrinsics } from './ContractExtrinsics';
+import { ContractEvents } from './ContractEvents';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -14,12 +17,19 @@ const Uploader = styled.div`
   }
 `;
 
+enum TabChoice {
+  Functions = 'Functions',
+  Extrinsics = 'Extrinsics',
+  Events = 'Events',
+}
+
 export const Contract: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
   const { address } = useParams<{ address: string }>();
   const { balance } = useBalance(api, address);
+  const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Functions);
 
   const choosedCode = useMemo(() => contracts.find(contract => contract.address === address), [contracts, address]);
 
@@ -42,13 +52,19 @@ export const Contract: FC = (): ReactElement => {
         </ValueLine>
       </TitleWithBottomBorder>
       <div>
-        <Tabs options={[
-          { title: 'Functions', value: 'Functions' },
-          { title: 'Extrinsics', value: 'Extrinsics' },
-          { title: 'Events', value: 'Events' },
-        ]} onChange={() => {}} ></Tabs>
+        <Tabs
+          options={[
+            { title: 'Functions', value: TabChoice.Functions },
+            { title: 'Extrinsics', value: TabChoice.Extrinsics },
+            { title: 'Events', value: TabChoice.Events },
+          ]}
+          defaultValue={TabChoice.Functions}
+          onChange={choice => setTabChoice(choice)}
+        ></Tabs>
       </div>
-
+      <Functions show={tabChoice === TabChoice.Functions} contractAddress={address} />
+      <ContractExtrinsics show={tabChoice === TabChoice.Extrinsics} contractAddress={address} />
+      <ContractEvents show={tabChoice === TabChoice.Events} contractAddress={address} />
     </Wrapper>
   );
 };

@@ -65,7 +65,7 @@ export const useAccounts = () => {
     }, e => console.log('eee', e));
 
     return () => sub.unsubscribe();
-  }, [api.query.balances]);
+  }, [api.derive.balances, tokenDecimal]);
 
   return { accounts };
 }

@@ -2,9 +2,9 @@ import { FC, ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import MoreSvg from '../../assets/imgs/more.svg';
-import { Style } from '../../shared/styled/const';
+import { Style } from '../styled/const';
 
-const Event = styled.div`
+const Wrapper = styled.div`
   border-bottom: 1px solid ${Style.color.border};
 `;
 const InfoLine = styled.div`
@@ -40,13 +40,13 @@ const DetailContent = styled.div`
 
 `;
 
-export const ExtrinsicEvent: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
+export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
 
   console.log('event', event.event.toHuman());
 
   return (
-    <Event>
+    <Wrapper>
       <InfoLine onClick={() => setExpanded(!expanded)}>
         <span>{event.event.section.toString()}.{event.event.method.toString()}</span>
         <DetailToggle>
@@ -69,6 +69,6 @@ export const ExtrinsicEvent: FC<{ event: EventRecord }> = ({ event }): ReactElem
             }
           </Detail>
       }
-    </Event>
+    </Wrapper>
   );
 };

@@ -140,6 +140,8 @@ export const BlocksProvider = React.memo((
         () => {},
       ).then(() =>
         api.derive.chain.subscribeNewHeads().subscribe(async header => {
+
+
           console.log('new header: ', header.number.toNumber(), header.toHuman());
 
           const { block, extrinsics } = await retriveBlock(
