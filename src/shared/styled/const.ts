@@ -7,5 +7,8 @@ export const Style = {
     success: '#5FCBAA',
     border: '#DEDEDE',
     primary: '#B19E83',
+    bg: {
+      default: '#F8F8F8',
+    }
   }
 };

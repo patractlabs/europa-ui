@@ -5,8 +5,12 @@ import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
 import { ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
 
-const Wrap = styled.div`
-    ${contentBase}
+const Wrapper = styled.div`
+  ${contentBase}
+
+  .ant-table-thead > tr > th {
+    background-color: white;
+  }
 `;
 
 const Value = styled(ValueDefault)`
@@ -73,7 +77,7 @@ export const EOA: FC = (): ReactElement => {
   useEffect(() => setTotal(extrinsics.length), [extrinsics, setTotal]);
 
   return (
-    <Wrap>
+    <Wrapper>
       <TitleWithBottomBorder>
         <div className="label-line">
           <LabelDefault>Address</LabelDefault>
@@ -81,7 +85,7 @@ export const EOA: FC = (): ReactElement => {
         </div>
         <ValueLine>
           <Value>{ address }</Value>
-          <Value>{ balance }</Value>
+          <Value>{ balance?.toString() }</Value>
         </ValueLine>
       </TitleWithBottomBorder>
       <Title><label>Extrinsics</label> <span>Total { total } Extrinsics</span></Title>
@@ -138,7 +142,7 @@ export const EOA: FC = (): ReactElement => {
         <PageSize />
         <PaginationR />
       </PaginationLine>
-    </Wrap>
+    </Wrapper>
   );
 
 };

@@ -3,9 +3,13 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, Extrinsic } from '../../core';
-import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared';
+import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue, Style } from '../../shared';
 
 const Wrapper = styled.div`
+  
+  .ant-table-thead > tr > th {
+    background-color: white;
+  }
 `;
 
 export type ExtendedExtrinsic = Extrinsic & {
@@ -26,6 +30,7 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
   return (
     <Wrapper>
       <Table
+        className="asdfaaaaaaaaaa"
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
         pagination={false}

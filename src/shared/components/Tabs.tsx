@@ -24,14 +24,15 @@ const TabChoice = styled.div`
 `;
 
 export const Tabs: FC<{
-  options: { title: string; value: string }[];
+  options: { name: string; value: string }[];
   defaultValue?: string;
   onChange: (value: any) => void;
-}> = ({ options, defaultValue, onChange }): ReactElement => {
+  style?: React.CSSProperties;
+}> = ({ options, defaultValue, onChange, style = {} }): ReactElement => {
   const [ choosed, setChoosed ] = useState<any>(defaultValue || options[0]?.value);
 
   return (
-    <TabChoices>
+    <TabChoices style={style}>
       {
         options.map(option =>
           <TabChoice
@@ -44,7 +45,7 @@ export const Tabs: FC<{
                 onChange(option.value);
               }
             }}
-          >{ option.title }</TabChoice>
+          >{ option.name }</TabChoice>
         )
       }
     </TabChoices>

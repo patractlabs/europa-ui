@@ -1,12 +1,12 @@
 import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import LogoSVG from './assets/imgs/Europa.svg';
-import CloseSVG from './assets/imgs/close.svg';
-import MoreSVG from './assets/imgs/more-option.svg';
-import SearchSVG from './assets/imgs/search.svg';
-import { BreadCrumb, Divide } from './BreadCrumb';
-import { Style } from './shared';
+import LogoSVG from '../../assets/imgs/Europa.svg';
+import CloseSVG from '../../assets/imgs/close.svg';
+import MoreSVG from '../../assets/imgs/more-option.svg';
+import SearchSVG from '../../assets/imgs/search.svg';
+import { BreadCrumb, Divide } from '../../shared';
+import { Style } from '../../shared';
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,7 +23,7 @@ const More = styled.div`
   width: 68px;
   height: 68px;
   margin-right: 20px;
-  background: linear-gradient(180deg, #2A292B 0%, #555356 100%);
+  background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,7 +50,7 @@ const SiderBg = styled.div`
 const Sider = styled.div`
   z-index: 101;
   color: white;
-  background: linear-gradient(180deg, #2A292B 0%, #555356 100%);
+  background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
   position: absolute;
   width: 240px;
   left: -240px;

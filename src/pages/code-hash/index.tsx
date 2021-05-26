@@ -74,8 +74,8 @@ export const CodeHash: FC = (): ReactElement => {
       <TabTitle>
         <Tabs
           options={[
-            { title: 'Codes', value: TabChoice.Codes },
-            { title: 'Instances', value: TabChoice.Instances },
+            { name: 'Codes', value: TabChoice.Codes },
+            { name: 'Instances', value: TabChoice.Instances },
           ]}
           defaultValue={TabChoice.Codes}
           onChange={choice => setTabChoice(choice)}

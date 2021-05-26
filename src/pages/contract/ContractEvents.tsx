@@ -1,12 +1,11 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
 import { BlocksContext, PaginationProvider } from '../../core';
-import { contentBase, Events, ExtendedExtrinsic } from '../../shared';
+import { Events, ExtendedExtrinsic } from '../../shared';
 import { isRelatedCall, isRelatedInstantiation } from './ContractExtrinsics';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
-  ${contentBase}
 `;
 
 export const ContractEvents: FC<{ show: boolean, contractAddress: string }> = ({ show, contractAddress }): ReactElement => {

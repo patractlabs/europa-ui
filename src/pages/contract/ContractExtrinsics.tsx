@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
 import { BlocksContext, Extrinsic, PaginationProvider } from '../../core';
-import { contentBase, ExtendedExtrinsic, Extrinsics } from '../../shared';
+import { ExtendedExtrinsic, Extrinsics } from '../../shared';
 
 const Wrapper = styled.div`
-  ${contentBase}
+  background-color: white;
 `;
 
 // const isTransfer = (extrinsic: Extrinsic, contractAddress: string): boolean => {};
@@ -13,10 +13,10 @@ export const isRelatedCall = (extrinsic: Extrinsic, contractAddress: string): bo
     return false;
   }
 
-  console.log('asdfasdf', extrinsic.args[0].toHuman(), contractAddress);
   
   return (extrinsic.args[0].toHuman() as { Id: string }).Id === contractAddress;
 };
+
 export const isRelatedInstantiation = (extrinsic: Extrinsic, contractAddress: string): boolean => {
   if (extrinsic.method.section.toLowerCase() !== 'contracts' ||
     (extrinsic.method.method.toLowerCase() !== 'instantiate' &&

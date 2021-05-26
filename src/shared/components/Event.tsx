@@ -43,7 +43,7 @@ const DetailContent = styled.div`
 export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
 
-  console.log('event', event.event.toHuman());
+  // console.log('event', event.event.toHuman());
 
   return (
     <Wrapper>
