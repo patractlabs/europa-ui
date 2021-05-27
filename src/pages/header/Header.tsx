@@ -191,12 +191,6 @@ export const Header: FC = (): ReactElement => {
   const [ divides, setDivides ] = useState<Divide[]>([]);
 
   const onTabClicked = useCallback((tab: TabStructure) => {
-    console.log('choosed tab', tab, [
-      {
-        name: tab.title,
-        path: tab.link[0] === '/' ? tab.link.slice(1) : tab.link,
-      }
-    ]);
     setDivides([
       {
         name: tab.title,

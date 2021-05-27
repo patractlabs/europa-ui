@@ -192,16 +192,12 @@ export const Explorer: FC = (): ReactElement => {
         return bounding.top > -1 * bounding.height && bounding.top <= 0;
       });
 
-      console.log('viewing block', _viewingBlock?.height, _viewingBlock?.blockHash || '');
-      
       setViewingBlock(_viewingBlock?.blockHash || '');
     };
     document.addEventListener('scroll', toggleNavigation, false);
     
     return () => document.removeEventListener('scroll', toggleNavigation);
   }, [blocks, setViewingBlock]);
-
-  useMemo(() => console.log(viewingBlock, 'viewing block changed'), [viewingBlock]);
 
   return (
     <Wrapper>

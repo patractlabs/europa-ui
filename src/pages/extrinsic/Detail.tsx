@@ -79,8 +79,6 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     return _extrinsic;
   }, [hash, blocks]);
 
-  console.log('extrinsic', extrinsic?.method.toHuman(), extrinsic?.args.map(a => a.toHuman()));
-
   return (
     <Wrapper>
       {

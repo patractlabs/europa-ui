@@ -135,8 +135,6 @@ export default function findComponent (registry: Registry, def: TypeDef, overrid
   const findOne = (type: string): React.ComponentType<Props> | null =>
     overrides[type] || components[type];
   const type = fromDef(def);
-  console.log('def', def);
-  console.log('type', type);
   let Component = findOne(type);
 
   if (!Component) {

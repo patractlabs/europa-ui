@@ -76,7 +76,13 @@ const Caller = styled.div`
 `;
 
 const Result = styled.div`
+  padding-top: 18px;
 
+  > .type {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2A292B;
+  }
 `;
 
 
@@ -116,8 +122,6 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
 
-    console.log('asdfasdfs', pair, account);
-    
     tx.signAndSend(pair).subscribe(
       handleTxResults({
         success() {
@@ -132,7 +136,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
         }
       }, () => {})
     );
-  }, [params, sender, contract, message, accounts, queryEstimatedWeight]);
+  }, [params, sender, contract, message, accounts]);
 
   useEffect(() => {
     const params = message.args.reduce((p: { [key: string]: string}, arg) => {

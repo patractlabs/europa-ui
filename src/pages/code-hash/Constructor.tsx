@@ -17,8 +17,6 @@ export const Constructor: FC<{ abiMessages: AbiMessage[] }> = ({ abiMessages }):
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abiMessages[0]);
   const [ args, setArgs ] = useState<{ [key: string]: any }>({});
 
-  console.log('abimessages', abiMessages);
-  
   return (
     <Wrapper>
       <StyledSelected size="large" value={message?.identifier} onChange={value => setMessage(abiMessages.find(m => m.identifier === value))} >

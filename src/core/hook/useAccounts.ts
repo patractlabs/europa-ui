@@ -36,7 +36,9 @@ export const useAccounts = () => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const [ accounts, setAccounts ] = useState<AccountInfo[]>([]);
 
+  // console.log('useaccounts', api.derive.balances, tokenDecimal);
   useEffect(() => {
+    // console.log('useeffect', api.derive.balances, tokenDecimal);
     
     const sub = accountsObservable.subject.pipe(
       map(accounts => transformAccounts(accounts)),
@@ -61,7 +63,7 @@ export const useAccounts = () => {
     ).subscribe((accounts) => {
       accounts = accounts.filter((account) => !!account);
       setAccounts(accounts);
-      console.log('accounts', accounts);
+      // console.log('retrieve accounts', accounts);
     }, e => console.log('eee', e));
 
     return () => sub.unsubscribe();

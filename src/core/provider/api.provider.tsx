@@ -100,7 +100,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
       });
 
       const decimals = tokenDecimals.toHuman() as string[];
-      console.log('ss58format', ss58Format.toHuman(), decimals[0]);
 
       setProperties({
         systemName: _systemName.toString(),
