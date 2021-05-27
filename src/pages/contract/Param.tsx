@@ -4,12 +4,6 @@ import { AbiParam } from '@polkadot/api-contract/types';
 import { Input } from 'antd';
 
 const Wrapper = styled.div`
-  margin-bottom: 16px;
-
-  &:last-child {
-    margin-bottom: 0px;
-  }
-
   > .param {
     font-size: 16px;
     font-weight: bold;
@@ -17,7 +11,6 @@ const Wrapper = styled.div`
     padding-bottom: 8px;
   }
 `;
-
 
 export const Param: FC<{ arg: AbiParam, value: string, onChange: (value: string) => void }> = ({ arg, value, onChange }): ReactElement => {
 

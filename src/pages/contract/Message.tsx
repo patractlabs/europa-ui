@@ -1,11 +1,15 @@
-import React, { FC, ReactElement, useState, useEffect, useCallback } from 'react';
+import React, { FC, ReactElement, useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
-import { Style } from '../../shared';
-import { Button } from 'antd';
-import { Param } from './Param';
-import { AddressInput } from '../../shared/components/AddressInput';
+import { AddressInput, Style } from '../../shared';
+import { Button, message as messageService } from 'antd';
+import { Param } from '../../params/Param';
+import { ContractRx } from '@polkadot/api-contract';
+import { ApiContext, handleTxResults, useAccounts } from '../../core';
+import { hexToNumber } from '@polkadot/util';
+import BN from 'bn.js';
+import keyring from '@polkadot/ui-keyring';
 
 const Wrapper = styled.div`
   background-color: ${Style.color.bg.default};
@@ -42,7 +46,6 @@ const Toggle = styled.img`
   height: 16px;
 `;
 const Exec = styled.div`
-  margin-top: 20px;
 `;
 
 const Call = styled.div`
@@ -53,6 +56,13 @@ const Call = styled.div`
 const Params = styled.div`
   width: 50%;
   min-width: 550px;
+
+  .data-input {
+    margin-bottom: 16px;
+  }
+  .data-input:last-child {
+    margin-bottom: 20px;
+  }
 `;
 
 const Caller = styled.div`
@@ -70,15 +80,59 @@ const Result = styled.div`
 `;
 
 
-export const Message: FC<{ message: AbiMessage; index: number }> = ({ message, index }): ReactElement => {
+export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
   const [ sender, setSender ] = useState<string>('');
+  const [ result, setResult ] = useState<any>();
   const [ params, setParams ] = useState<{ [key: string]: string}>({});
+  const { accounts } = useAccounts();
+  const { tokenDecimal } = useContext(ApiContext);
 
-  const send = useCallback(() => {
+  const queryEstimatedWeight = useCallback(
+    async (fields: any[], value?: string) => {
+      const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
+      return result.isOk ? gasConsumed : null;
+    },
+    [contract, message, sender],
+  );
+
+  const send = useCallback(async () => {
     console.log('send', params, sender);
+    const fields = Object.keys(params).map(key => params[key]);
+    if (!message.isMutating) {
+      const query = await contract.query[message.method](accounts[0].address, {}, ...fields).toPromise();
+      // const a = new BN(query.output?.toString() ||'');
+      // console.log(a.div(new BN(10).pow(new BN(tokenDecimal))).toString());
+      setResult(query.output?.toHuman());
+      return;
+    }
+
+    // const estimatedGas = await queryEstimatedWeight(fields);
+    const tx = contract.tx[message.method]({
+      gasLimit: 200000000000,
+      value: 0,
+    }, ...fields);
+    const account = accounts.find(account => account.address === sender);
+    const suri = account?.mnemonic || `//${account?.name}`;
+    const pair = keyring.createFromUri(suri);
+
+    console.log('asdfasdfs', pair, account);
     
-  }, [params, sender]);
+    tx.signAndSend(pair).subscribe(
+      handleTxResults({
+        success() {
+          messageService.success('executed');
+        },
+        fail(e) {
+          console.log(e.events.map(e => e.toHuman()));
+          messageService.error('failed');
+        },
+        update(r) {
+          messageService.info(r.events.map(e => e.toHuman()));
+        }
+      }, () => {})
+    );
+  }, [params, sender, contract, message, accounts, queryEstimatedWeight]);
 
   useEffect(() => {
     const params = message.args.reduce((p: { [key: string]: string}, arg) => {
@@ -104,18 +158,20 @@ export const Message: FC<{ message: AbiMessage; index: number }> = ({ message, i
             <Params>
               {
                 message.args.map(arg =>
-                  <Param key={arg.name} arg={arg} value={params[arg.name]} onChange={value => setParams({
-                    ...params,
-                    [arg.name]: value
-                  })} />
+                  <div key={arg.name} className="data-input">
+                    <Param arg={arg} onChange={value => setParams({
+                      ...params,
+                      [arg.name]: value as string
+                    })} />
+                  </div>
                 )
               }
               
               {
                 message.isMutating &&
-                  <Caller>
+                  <Caller className="data-input">
                     <div className="caller">Caller</div>
-                    <AddressInput address={sender} onChange={setSender}/>
+                    <AddressInput onChange={setSender}/>
                   </Caller>
               }
             </Params>
@@ -123,8 +179,8 @@ export const Message: FC<{ message: AbiMessage; index: number }> = ({ message, i
               <Button onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
             </Exec>
             <Result>
-              <span className="type"></span>
-              <span className="value"></span>
+              <span className="type">{ message.returnType?.displayName }: </span>
+              <span className="value">{ result }</span>
             </Result>
           </Call>
       }

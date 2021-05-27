@@ -1,3 +1,4 @@
+import { ContractRx } from '@polkadot/api-contract';
 import React, { FC, useMemo, ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { useContracts, store, ApiContext, BlocksContext } from '../../core';
@@ -35,14 +36,21 @@ export const Functions: FC<{ show: boolean, contractAddress: string }> = ({ show
     [abi, section]
   );
 
+  const contract = useMemo(() => {
+    if (!abi) {
+      return;
+    }
+    return new ContractRx(api, abi, contractAddress);
+  }, [api, abi, contractAddress]);
+
   return (
     <Wrapper style={{ display: show ? 'block' : 'none' }}>
       {
-        !abi &&
+        (!abi || !contract) &&
           'Please upload ABI'
       }
       {
-        abi &&
+        abi && contract &&
           <div>
             <Tabs
               style={{ marginBottom: '20px' }}
@@ -53,7 +61,7 @@ export const Functions: FC<{ show: boolean, contractAddress: string }> = ({ show
             
             {
               messages.map((message, index) =>
-                <Message key={message.identifier} message={message} index={index + 1} />
+                <Message key={message.identifier} contract={contract} message={message} index={index + 1} />
               )
             }
           </div>

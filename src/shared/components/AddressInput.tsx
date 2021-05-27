@@ -1,21 +1,20 @@
-import { Input, Select } from 'antd';
-import React, { FC, ReactElement, useContext, useEffect } from 'react';
-import styled from 'styled-components';
-import { Style } from '../styled/const';
+import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
+import { Select } from 'antd';
 import { useAccounts } from '../../core';
 
 const { Option } = Select;
 
-export const AddressInput: FC<{ address: string; onChange: (address: string)  => void }> = ({ address, onChange }): ReactElement => {
+export const AddressInput: FC<{ onChange: (address: string)  => void }> = ({ onChange }): ReactElement => {
   const { accounts } = useAccounts();
+  const [ value, setValue ] = useState<string>();
 
-  // set default only once
-  useEffect(() => {
-    !address && onChange(accounts[0]?.address);
-  }, [accounts]);
+  // const _onChange = useCallback(value => {
+  //   // setValue(value);
+  //   // onChange(value);
+  // }, [setValue, onChange]);
 
   return (
-    <Select style={{ width: '100%' }} value={address} onChange={onChange}>
+    <Select style={{ width: '100%' }} onChange={onChange}>
       {
         accounts.map(account =>
           <Option key={account.address} value={account.address}>{account.name} : {account.address}</Option>

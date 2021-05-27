@@ -94,11 +94,10 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
 
       keyring.loadAll({
         genesisHash: _api.genesisHash,
-        ss58Format: parseInt(ss58Format.toString()),
+        ss58Format: parseInt(_api.consts.system?.ss58Prefix.toString() || ss58Format.toString()),
         type: 'sr25519',
         isDevelopment: true,
       });
-      
 
       const decimals = tokenDecimals.toHuman() as string[];
       console.log('ss58format', ss58Format.toHuman(), decimals[0]);
