@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import styled from 'styled-components';
 
 interface Props {
@@ -6,11 +6,12 @@ interface Props {
   className?: string;
   withBorder?: boolean;
   withPadding?: boolean;
+  style: CSSProperties;
 }
 
-function Holder ({ children, className = '', withBorder, withPadding }: Props): React.ReactElement<Props> {
+function Holder ({ style, children, className = '', withBorder, withPadding }: Props): React.ReactElement<Props> {
   return (
-    <div className={`ui--Params ${className} ${withBorder ? 'withBorder' : 'withoutBorder'} ${withPadding ? 'withPadding' : ''}`}>
+    <div style={style} className={`ui--Params ${className} ${withBorder ? 'withBorder' : 'withoutBorder'} ${withPadding ? 'withPadding' : ''}`}>
       {children}
     </div>
   );
