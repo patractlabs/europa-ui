@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   }
 `;
 
-export const Param: FC<{ arg: AbiParam, onChange: (value: unknown) => void }> = ({ arg, onChange }): ReactElement => {
+export const Param: FC<{ defaultValue: { isValid: boolean, value: unknown }; arg: AbiParam, onChange: (value: unknown) => void }> = ({ defaultValue, arg, onChange }): ReactElement => {
   const { api } = useContext(ApiContext);
   const Component = useMemo(() => findComponent(api.registry, arg.type), [api, arg]);
 
@@ -22,7 +22,7 @@ export const Param: FC<{ arg: AbiParam, onChange: (value: unknown) => void }> = 
       <div className="param">
         {arg.name} : {arg.type.displayName || arg.type.type}
       </div>
-      <Component defaultValue={{ isValid: true, value: '' }} onChange={value => onChange(value.value)} registry={api.registry} type={arg.type} />
+      <Component defaultValue={defaultValue} onChange={value => onChange(value.value)} registry={api.registry} type={arg.type} />
     </Wrapper>
   );
 };

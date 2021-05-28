@@ -10,6 +10,7 @@ import { ApiContext, handleTxResults, useAccounts } from '../../core';
 import { hexToNumber } from '@polkadot/util';
 import BN from 'bn.js';
 import keyring from '@polkadot/ui-keyring';
+import Params from './Params';
 
 const Wrapper = styled.div`
   background-color: ${Style.color.bg.default};
@@ -53,19 +54,14 @@ const Call = styled.div`
   padding: 16px 20px;
 
 `;
-const Params = styled.div`
+const ParamsContainer = styled.div`
   width: 50%;
   min-width: 550px;
-
-  .data-input {
-    margin-bottom: 16px;
-  }
-  .data-input:last-child {
-    margin-bottom: 20px;
-  }
 `;
 
 const Caller = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
 
   > .caller {
     font-size: 16px;
@@ -90,7 +86,8 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [ expanded, setExpanded ] = useState(false);
   const [ sender, setSender ] = useState<string>('');
   const [ result, setResult ] = useState<any>();
-  const [ params, setParams ] = useState<{ [key: string]: string}>({});
+  // const [ params, setParams ] = useState<{ [key: string]: string}>({});
+  const [params, setParams] = useState<any[]>([]);
   const { accounts } = useAccounts();
   const { tokenDecimal } = useContext(ApiContext);
 
@@ -104,9 +101,9 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
 
   const send = useCallback(async () => {
     console.log('send', params, sender);
-    const fields = Object.keys(params).map(key => params[key]);
+    // const fields = Object.keys(params).map(key => params[key]);
     if (!message.isMutating) {
-      const query = await contract.query[message.method](accounts[0].address, {}, ...fields).toPromise();
+      const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
       // const a = new BN(query.output?.toString() ||'');
       // console.log(a.div(new BN(10).pow(new BN(tokenDecimal))).toString());
       setResult(query.output?.toHuman());
@@ -117,7 +114,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     const tx = contract.tx[message.method]({
       gasLimit: 200000000000,
       value: 0,
-    }, ...fields);
+    }, ...params);
     const account = accounts.find(account => account.address === sender);
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
@@ -138,14 +135,14 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     );
   }, [params, sender, contract, message, accounts]);
 
-  useEffect(() => {
-    const params = message.args.reduce((p: { [key: string]: string}, arg) => {
-      p[arg.name] = '';
-      return p;
-    }, {});
-    setParams(params);
-  }
-  , [message]);
+  // useEffect(() => {
+  //   const params = message.args.reduce((p: { [key: string]: string}, arg) => {
+  //     p[arg.name] = '';
+  //     return p;
+  //   }, {});
+  //   setParams(params);
+  // }
+  // , [message]);
 
   return (
     <Wrapper>
@@ -159,27 +156,36 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       {
         expanded &&
           <Call>
-            <Params>
+            <ParamsContainer>
               {
-                message.args.map(arg =>
-                  <div key={arg.name} className="data-input">
-                    <Param arg={arg} onChange={value => setParams({
-                      ...params,
-                      [arg.name]: value as string
-                    })} />
-                  </div>
-                )
+                <Params
+                  onChange={setParams}
+                  params={
+                    message
+                      ? message.args
+                      : undefined
+                  }
+                  registry={contract.abi.registry}
+                />
+                // message.args.map(arg =>
+                //   <div key={arg.name} className="data-input">
+                //     <Param defaultValue={{ isValid: true, value: undefined }} arg={arg}  onChange={value => setParams({
+                //       ...params,
+                //       [arg.name]: value as string
+                //     })} />
+                //   </div>
+                // )
               }
               
               {
                 message.isMutating &&
-                  <Caller className="data-input">
+                  <Caller>
                     <div className="caller">Caller</div>
-                    <AddressInput onChange={setSender}/>
+                    <AddressInput defaultValue={accounts[0]?.address} onChange={setSender}/>
                   </Caller>
               }
-            </Params>
-            <Exec>
+            </ParamsContainer>
+            <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
               <Button onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
             </Exec>
             <Result>

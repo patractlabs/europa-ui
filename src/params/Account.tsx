@@ -8,9 +8,8 @@ import Bare from './Bare';
 import keyring from '@polkadot/ui-keyring';
 import { AddressInput } from '../shared/components/AddressInput';
 
-
 function Account ({ className = '', defaultValue: { value }, isDisabled, isError, isInOption, label, onChange, withLabel }: Props): React.ReactElement<Props> {
-
+  
   const _onChange = useCallback(
     (value: string): void => {
       let isValid = false;
@@ -35,7 +34,7 @@ function Account ({ className = '', defaultValue: { value }, isDisabled, isError
 
   return (
     <Bare clssName={className}>
-      <AddressInput onChange={_onChange} />
+      <AddressInput defaultValue={value as string} onChange={_onChange} />
     </Bare>
   );
 }
