@@ -10,6 +10,7 @@ const ApiContext: Context<{
   tokenDecimal: number;
   tokenSymbol: string;
   systemName: string;
+  wsProvider: WsProvider;
 }> = React.createContext({
   isApiReady: false,
 } as any);
@@ -23,6 +24,7 @@ export let api: ApiRx;
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
   const [ isApiReady, setIsReady ] = useState<boolean>(false);
+  const [ wsProvider, setWsProvider ] = useState<WsProvider>(undefined as any);
   const [ {
     tokenDecimal,
     tokenSymbol,
@@ -37,6 +39,9 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
 
   useEffect(() => {
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
+
+    
+    // const wsProvider = new WsProvider('ws://192.168.2.142:9944');
     const apiRx = new ApiRx({
       provider: wsProvider,
       rpc: {
@@ -61,6 +66,24 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
             ],
             type: 'Bytes',
           },
+        },
+        contractsExt: {
+          call: {
+            description: '',
+            params: [
+              {
+                name: 'callRequest',
+                type: 'ContractCallRequest'
+              },
+              {
+                name: 'at',
+                type: 'BlockHash',
+                isHistoric: true,
+                isOptional: true
+              }
+            ],
+            type: 'Bytes',
+          }
         }
       },
       types: {
@@ -101,13 +124,14 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
 
       const decimals = tokenDecimals.toHuman() as string[];
 
+      api = _api;
       setProperties({
         systemName: _systemName.toString(),
         genesisHash: _api.genesisHash.toString(),
         tokenDecimal: parseInt(decimals[0]),
         tokenSymbol: tokenSymbol.toString(),
       });
-      api = _api;
+      setWsProvider(wsProvider);
       setIsReady(true);
     });
     apiRx.on('error', error => console.log('api error', error));
@@ -122,6 +146,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     tokenDecimal,
     tokenSymbol,
     systemName,
+    wsProvider,
   } }>{children}</ApiContext.Provider>;
 });
 

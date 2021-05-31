@@ -1,10 +1,11 @@
-import React, { FC, ReactElement, useContext, useMemo } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic } from '../../core';
+import { ApiContext, BlocksContext, Extrinsic } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
 import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine } from '../../shared';
+import { ContractTrace } from './Trace';
 
 const Wrapper = styled.div`
 `;
@@ -50,8 +51,45 @@ type ExtendedExtrinsic = Extrinsic & {
   fee: string;
 };
 
+interface EventTrace {
+
+}
+export interface Trace {
+  args: string,
+  caller: string,
+  depth: number,
+  env_trace: any[],
+  ext_result: {
+    Ok: {
+      data: string;
+      flags: number;
+    }
+  },
+  gas_left: number,
+  gas_limit: number,
+  nest: Trace[],
+  sandbox_result_ok: null,
+  selector: string,
+  self_account: string,
+  trap_reason: {
+    Return: {
+      data: string;
+      flags: number;
+    }
+  },
+  value: string,
+  wasm_error: {
+    Trap: {
+      code: string;
+      trace: string[];
+    }
+  },
+}
+
 export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
+  const { wsProvider } = useContext(ApiContext);
+  const [ trace, setTrace ] = useState<Trace>();
 
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
@@ -79,13 +117,30 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     return _extrinsic;
   }, [hash, blocks]);
 
+  useEffect(() => {
+    // (api.rpc as any).contractsExt.call().subscribe((res: any) => console.log(res), (e: any) => console.log(e));
+
+    wsProvider.send('contractsExt_call', [{
+      "origin": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+      "dest": "5EZSVbYBQteBcszRPQgc3KpMhLo3UMqCoo8wdXV1LSak2vzG",
+      "value": 0,
+      "gasLimit": 4999999999999,
+      "inputData": "0xbb3990171cbd2d43530a44705ad088af313e18f80b53ef16b36177cd4b77b846f2a5f07c1cbd2d43530a44705ad088af313e18f80b53ef16b36177cd4b77b846f2a5f07c00000000000000000000000000000000"
+    }]).then(({ trace }: { trace: Trace}) => {
+      console.log(trace);
+      setTrace(trace);
+    }, (e: any) => {
+      console.log('e', e);
+      setTrace(undefined);
+    });
+  }, [wsProvider]);
+
   return (
     <Wrapper>
       {
         extrinsic &&
           <div>
             <ExtrinsicHash>
-
               <Label>
                 Extrinsic Hash
               </Label>
@@ -129,6 +184,10 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               </ExtrinsicRight>
             </ExtrinsicInfo>
           </div>
+      }
+      {
+        trace &&
+          <ContractTrace index={0} trace={trace} />
       }
     </Wrapper>
   );

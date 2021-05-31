@@ -9,6 +9,9 @@ export const Style = {
     primary: '#B19E83',
     bg: {
       default: '#F8F8F8',
+    },
+    button: {
+      primary: '#BEAC92'
     }
   }
 };

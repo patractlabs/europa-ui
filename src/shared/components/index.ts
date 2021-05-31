@@ -6,3 +6,4 @@ export * from './Events';
 export * from './Extrinsics';
 export * from './BreadCrumb';
 export * from './AddressInput';
+export * from './ParamInput';

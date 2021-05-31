@@ -7,7 +7,7 @@ import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style,
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
-import { BlocksContext, useContracts, ApiContext } from '../../core';
+import { BlocksContext, useContracts, ApiContext, PaginationProvider } from '../../core';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -89,7 +89,9 @@ export const CodeHash: FC = (): ReactElement => {
       }
       {
         tabChoice === TabChoice.Instances &&
-          <Instances hash={codeHash} />
+          <PaginationProvider>
+            <Instances hash={codeHash} />
+          </PaginationProvider>
       }
       <UploadAbi show={show} onClose={() => setShow(false)} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />
     </Wrapper>

@@ -9,9 +9,11 @@ const { Option } = Select;
 
 const StyledSelected = styled(Select)`
   width: 100%;
-  /* height: 48px; */
+  height: 48px;
+  > .ant-select-selector {
+    height: 48px;
+  }
 `;
-
 
 export const Constructor: FC<{ abiMessages: AbiMessage[] }> = ({ abiMessages }): ReactElement => {
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abiMessages[0]);
