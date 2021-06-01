@@ -16,6 +16,7 @@ const depthColors = [
 ];
 
 const Wrapper = styled.div<{ depth: number }>`
+  margin-top: 10px;
   position: relative;
   margin-left: ${props => (props.depth - 1) * 20}px;
 `;
@@ -25,7 +26,7 @@ const BorderBase = styled.div<{ depth: number }>`
   bottom: 0px;
   width: 4px;
   background-color: ${props => depthColors[props.depth - 1 % depthColors.length]};
-  opacity: 0.8;
+  opacity: 0.2;
 `;
 const Contract = styled.div<{ depth: number }>`
   border: 1px solid ${Style.color.border};
@@ -43,7 +44,6 @@ const Left = styled.div`
 `;
 const Right = styled.div`
   flex: 1;
-  display: flex;
 `;
 const GasLeft = styled.div`
 
@@ -52,7 +52,9 @@ const GasUsed = styled.div`
 
 `;
 const Detail = styled.div`
-  height: 100px;
+  border-top: 1px solid ${Style.color.border};
+  padding: 20px;
+  display: flex;
 `;
 const Toggle = styled.div<{ expanded: boolean }>`
   padding: 0px 20px;
@@ -72,16 +74,39 @@ const Toggle = styled.div<{ expanded: boolean }>`
       width: 16px;
       height: 16px;
       margin-left: 4px;
-      transform: ${ props => props.expanded ? 'scaleY(-1)' : 'scaleY(1)' }
+      transform: ${props => props.expanded ? 'scaleY(-1)' : 'scaleY(1)'}
     }
   }
+`;
+const Args = styled.div`
+  border: 1px solid ${Style.color.border};
+  border-radius: 4px;
+  height: 144px;
+  background: #F6F5F7;
+  word-break: break-all;
+  word-wrap: break-word;
+  overflow-y: auto;
+  padding: 12px;
+`;
+
+const Button = styled.button`
+  margin-top: 10px;
+  padding: 0px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #FFFFFF;
+  line-height: 32px;
+  height: 32px;
+  background: ${Style.color.primary};
+  border-width: 0px;
+  cursor: pointer;
 `;
 
 export const ContractTrace: FC<{
   index: number;
   trace: Trace;
 }> = ({ index, trace }): ReactElement => {
-  const [ showDetail, setShowDetail ] = useState<boolean>(false);
+  const [showDetail, setShowDetail] = useState<boolean>(false);
 
   return (
     <Wrapper depth={trace.depth}>
@@ -117,23 +142,44 @@ export const ContractTrace: FC<{
         </MainInfo>
         {
           showDetail &&
-            <Detail>
-              <Left></Left>
-              <Right></Right>
-            </Detail>
+          <Detail>
+            <Left>
+              <Line>
+                <LabelDefault>Function</LabelDefault>
+                <ValueDefault>{trace.selector}</ValueDefault>
+              </Line>
+              <Line>
+                <LabelDefault>Args</LabelDefault>
+                <div>
+                  <Args>{trace.args}</Args>
+                  <Button>Decode Parameters</Button>
+                </div>
+              </Line>
+            </Left>
+            <Right>
+              <Line>
+                <LabelDefault>Trap Reason</LabelDefault>
+                <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>
+              </Line>
+              <Line>
+                <LabelDefault>Env trace</LabelDefault>
+                <Args>{JSON.stringify(trace.env_trace)}</Args>
+              </Line>
+            </Right>
+          </Detail>
         }
         <Toggle expanded={showDetail} onClick={() => setShowDetail(!showDetail)}>
           <div>
             <span>More Details</span>
-            <img src={MoveSVG} alt=""/>
+            <img src={MoveSVG} alt="" />
           </div>
         </Toggle>
       </Contract>
       {
         trace.nest.length > 0 &&
-          trace.nest.map((child, index) =>
-            <ContractTrace key={index} index={index} trace={child} />
-          )
+        trace.nest.map((child, index) =>
+          <ContractTrace key={index} index={index} trace={child} />
+        )
       }
     </Wrapper>
   );

@@ -120,15 +120,17 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   useEffect(() => {
     // (api.rpc as any).contractsExt.call().subscribe((res: any) => console.log(res), (e: any) => console.log(e));
 
-    wsProvider.send('contractsExt_call', [{
-      "origin": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-      "dest": "5EZSVbYBQteBcszRPQgc3KpMhLo3UMqCoo8wdXV1LSak2vzG",
-      "value": 0,
-      "gasLimit": 4999999999999,
-      "inputData": "0xbb3990171cbd2d43530a44705ad088af313e18f80b53ef16b36177cd4b77b846f2a5f07c1cbd2d43530a44705ad088af313e18f80b53ef16b36177cd4b77b846f2a5f07c00000000000000000000000000000000"
-    }]).then(({ trace }: { trace: Trace}) => {
+    wsProvider.send('contractsExt_call', [
+      {
+        "origin": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        "dest": "5EYBRsnQTxGkC9YUc6rneWnUFkqj7g7oH3VEwisFB2VXncbb",
+        "value": 0,
+        "gasLimit": 4999999999999,
+        "inputData": "0xb388803f00000000",
+      }
+    ]).then(({ trace }: { trace: Trace}) => {
       console.log(trace);
-      setTrace(trace);
+      setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {
       console.log('e', e);
       setTrace(undefined);
