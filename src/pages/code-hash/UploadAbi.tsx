@@ -31,8 +31,9 @@ export const UploadAbi: FC<{
   blockHeight: number;
   codeHash: string;
   show: boolean;
-  onClose: () => void;
-}> = ({ blockHeight, codeHash, show, onClose }): ReactElement => {
+  onCanceled: () => void;
+  onCompleted: () => void;
+}> = ({ blockHeight, codeHash, show, onCanceled, onCompleted }): ReactElement => {
   const { genesisHash } = useContext(ApiContext);
   const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
 
@@ -62,13 +63,13 @@ export const UploadAbi: FC<{
     }
 
     store.saveCode(codeHash, codeJSON);
-    onClose();
-  }, [codeJSON, codeHash, onClose]);
+    onCompleted();
+  }, [codeJSON, codeHash, onCompleted]);
 
   return (
       <Modal
         visible={show}
-        onCancel={onClose}
+        onCancel={onCanceled}
         onOk={upload}
       >
         <Upload beforeUpload={beforeUpload}>

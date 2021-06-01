@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useMemo } from 'react';
+import React, { FC, ReactElement, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { store } from '../../core';
 import { Constructor } from './Constructor';
@@ -23,31 +23,32 @@ const ButtonPrimary = styled.button`
   border-width: 0px;
 `;
 
-export const Deploy: FC<{ hash: string }> = ({ hash }): ReactElement => {
+export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): ReactElement => {
 
   const abi = useMemo(() => {
     store.loadAll();
     return store.getCode(hash)?.contractAbi;
-  }, [hash]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash, signal]);
+
+  const a = useCallback(e => console.log('asdfasdf', e), []);
 
   return (
     <Wrapper>
-      <div>
-        {
-          !abi ? 'Please upload the ABI first' :
+      {
+        !abi ? 'Please upload the ABI first' :
+          <div>
             <Form>
-              <Constructor abiMessages={abi.constructors} />
-
+              <Constructor abiMessages={abi.constructors} onMessageChange={a} onParamsChange={a} />
               <ParamInput style={{ margin: '20px 0px' }} onChange={() => {} } label="Endowment" unit="DOT" />
               <ParamInput style={{ borderBottomWidth: '0px' }} onChange={() => {} } label="unique deployment salt" />
               <ParamInput onChange={() => {} } label="max gas allowed" />
-
             </Form>
-        }
-        <div>
-          <ButtonPrimary>Deploy</ButtonPrimary>
-        </div>
-      </div>
+            <div>
+              <ButtonPrimary>Deploy</ButtonPrimary>
+            </div>
+          </div>
+      }
     </Wrapper>
   );
 };

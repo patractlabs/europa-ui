@@ -46,6 +46,7 @@ enum TabChoice {
 
 export const CodeHash: FC = (): ReactElement => {
   const [ show, setShow ] = useState(false);
+  const [ signal, updateSignal ] = useState(0);
   const { codeHash } = useParams<{ codeHash: string }>();
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
@@ -85,7 +86,7 @@ export const CodeHash: FC = (): ReactElement => {
 
       {
         tabChoice === TabChoice.Codes &&
-          <Deploy hash={codeHash} />
+          <Deploy signal={signal} hash={codeHash} />
       }
       {
         tabChoice === TabChoice.Instances &&
@@ -93,7 +94,7 @@ export const CodeHash: FC = (): ReactElement => {
             <Instances hash={codeHash} />
           </PaginationProvider>
       }
-      <UploadAbi show={show} onClose={() => setShow(false)} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />
+      <UploadAbi show={show} onCanceled={() => setShow(false)} onCompleted={() => { updateSignal(signal + 1); setShow(false)}} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />
     </Wrapper>
   );
 };

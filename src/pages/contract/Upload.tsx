@@ -74,7 +74,7 @@ export const UploadContract: FC<{
     const data = await file.arrayBuffer();
     const json = u8aToString(convertResult(data));
     const abi = new Abi(json, api.registry.getChainProperties());
-    
+
     try {
       setAbi({
         abiSource: json,
