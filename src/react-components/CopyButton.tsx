@@ -3,13 +3,12 @@
 
 // import type { IconName } from '@fortawesome/fontawesome-svg-core';
 
-import React, { useCallback, useContext } from 'react';
+import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 
 // import StatusContext from './Status/Context';
 import Button from './Button';
-import { useTranslation } from './translate';
 
 interface Props {
   children?: React.ReactNode;
@@ -24,7 +23,7 @@ interface Props {
 const NOOP = () => undefined;
 
 function CopyButton ({ children, className = '', label, type, value }: Props): React.ReactElement<Props> {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   // const { queueAction } = useContext(StatusContext);
 
   // const _onCopy = useCallback(

@@ -1,14 +1,11 @@
-import React, { FC, ReactElement, useState, useEffect, useCallback, useContext } from 'react';
+import React, { FC, ReactElement, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { AddressInput, Style } from '../../shared';
 import { Button, message as messageService } from 'antd';
-import { Param } from '../../params/Param';
 import { ContractRx } from '@polkadot/api-contract';
-import { ApiContext, handleTxResults, useAccounts } from '../../core';
-import { hexToNumber } from '@polkadot/util';
-import BN from 'bn.js';
+import { handleTxResults, useAccounts } from '../../core';
 import keyring from '@polkadot/ui-keyring';
 import Params from './Params';
 
@@ -89,15 +86,15 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   // const [ params, setParams ] = useState<{ [key: string]: string}>({});
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useAccounts();
-  const { tokenDecimal } = useContext(ApiContext);
+  // const { tokenDecimal } = useContext(ApiContext);
 
-  const queryEstimatedWeight = useCallback(
-    async (fields: any[], value?: string) => {
-      const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
-      return result.isOk ? gasConsumed : null;
-    },
-    [contract, message, sender],
-  );
+  // const queryEstimatedWeight = useCallback(
+  //   async (fields: any[], value?: string) => {
+  //     const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
+  //     return result.isOk ? gasConsumed : null;
+  //   },
+  //   [contract, message, sender],
+  // );
 
   const send = useCallback(async () => {
     console.log('send', params, sender);

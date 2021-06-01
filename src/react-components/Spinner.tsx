@@ -25,6 +25,7 @@ function Spinner ({ className = '', label, noLabel, variant = 'app' }: Props): R
   return (
     <div className={`${className} ui--Spinner${variant === 'cover' ? ' isCover' : ''}`}>
       <img
+        alt=""
         className={variant === 'push' ? '' : 'highlight--bg highlight--border'}
         src={spinnerSrc as string}
       />

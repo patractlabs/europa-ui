@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { Select } from 'antd';
 import { useAccounts } from '../../core';
 
@@ -6,7 +6,7 @@ const { Option } = Select;
 
 export const AddressInput: FC<{ defaultValue?: string; onChange: (address: string)  => void }> = ({ defaultValue, onChange }): ReactElement => {
   const { accounts } = useAccounts();
-  const [ value, setValue ] = useState<string>();
+  // const [ value, setValue ] = useState<string>();
 
   // useEffect(() => {
   //   console.log('change', accounts[0]?.address, accounts)

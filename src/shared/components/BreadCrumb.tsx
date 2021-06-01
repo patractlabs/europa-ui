@@ -6,7 +6,16 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   height: 68px;
+  color: white;
 
+  > div {
+    display: flex;
+    align-items: center;
+
+    > span {
+      margin: 0px 6px;
+    }
+  }
   a {
     color: white;
     font-size: 24px;
@@ -16,12 +25,12 @@ const Wrapper = styled.div`
 
 export interface Divide {
   name: string;
-  path: string;
+  link?: string;
 }
 
-const concatPath = (divides: Divide[], index: number): string => {
-  return `/${divides.slice(0, index + 1).map(item => item.path).join('/')}`;
-};
+// const concatPath = (divides: Divide[], index: number): string => {
+//   return `/${divides.slice(0, index + 1).map(item => item.link).join('/')}`;
+// };
 
 export const BreadCrumb: FC<{
   divides: Divide[];
@@ -32,16 +41,24 @@ export const BreadCrumb: FC<{
   }
   return (
     <Wrapper>
-      <Link to={concatPath(divides, 0)}>
-        {divides[0].name}
-      </Link>
       {
-        divides.slice(1).map((divide, index) => (
+        divides.map((divide, index) => (
           <div key={index}>
-            <span>&gt;</span>
-            <Link to={concatPath(divides, index)}>
-              {divide.name}
-            </Link>
+            {
+              !!index &&
+                <span>&gt;</span>
+            }
+            {
+              index === divides.length - 1 ?
+                // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                <a>
+                  {divide.name}
+                </a>
+                :
+                <Link to={divide.link || ''}>
+                  {divide.name}
+                </Link>
+            }
           </div>
         ))
       }

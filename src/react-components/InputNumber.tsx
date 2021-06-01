@@ -6,7 +6,7 @@ import type { SiDef } from '@polkadot/util/types';
 import type { BitLength } from './types';
 
 import BN from 'bn.js';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { BN_ONE, BN_TEN, BN_TWO, BN_ZERO, formatBalance, isBn, isUndefined } from '@polkadot/util';
@@ -69,14 +69,14 @@ function getRegex (isDecimal: boolean): RegExp {
   );
 }
 
-function getSiOptions (symbol: string, decimals?: number): { text: string; value: string }[] {
-  return formatBalance.getOptions(decimals).map(({ power, text, value }): { text: string; value: string } => ({
-    text: power === 0
-      ? symbol
-      : text,
-    value
-  }));
-}
+// function getSiOptions (symbol: string, decimals?: number): { text: string; value: string }[] {
+//   return formatBalance.getOptions(decimals).map(({ power, text, value }): { text: string; value: string } => ({
+//     text: power === 0
+//       ? symbol
+//       : text,
+//     value
+//   }));
+// }
 
 function getSiPowers (si: SiDef | null, decimals?: number): [BN, number, number] {
   if (!si) {
@@ -175,16 +175,16 @@ function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, clas
   const { t } = useTranslation();
   const { api } = useContext(ApiContext);
   // const [si, setSi] = useState<SiDef | null>(isSi ? formatBalance.findSi('-') : null);
-  const [si, setSi] = useState<SiDef | null>(null);
+  const [si] = useState<SiDef | null>(null);
   const [isPreKeyDown, setIsPreKeyDown] = useState(false);
   const [[value, valueBn, isValid], setValues] = useState<[string, BN, boolean]>(
     getValues(api, propsValue || defaultValue, si, bitLength, isZeroable, maxValue, siDecimals)
   );
 
-  const siOptions = useMemo(
-    () => getSiOptions(siSymbol || TokenUnit.abbr, siDecimals),
-    [siDecimals, siSymbol]
-  );
+  // const siOptions = useMemo(
+  //   () => getSiOptions(siSymbol || TokenUnit.abbr, siDecimals),
+  //   [siDecimals, siSymbol]
+  // );
 
   useEffect((): void => {
     onChange && onChange(isValid ? valueBn : undefined);
@@ -246,15 +246,15 @@ function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, clas
     [isDecimal, si]
   );
 
-  const _onSelectSiUnit = useCallback(
-    (siUnit: string): void => {
-      const si = formatBalance.findSi(siUnit);
+  // const _onSelectSiUnit = useCallback(
+  //   (siUnit: string): void => {
+  //     const si = formatBalance.findSi(siUnit);
 
-      setSi(si);
-      _onChangeWithSi(value, si);
-    },
-    [_onChangeWithSi, value]
-  );
+  //     setSi(si);
+  //     _onChangeWithSi(value, si);
+  //   },
+  //   [_onChangeWithSi, value]
+  // );
 
   // Same as the number of digits, which means it can still overflow, i.e.
   // for u8 we allow 3, which could be 999 (however 2 digits will limit to only 99,

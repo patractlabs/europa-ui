@@ -51,9 +51,6 @@ type ExtendedExtrinsic = Extrinsic & {
   fee: string;
 };
 
-interface EventTrace {
-
-}
 export interface Trace {
   args: string,
   caller: string,

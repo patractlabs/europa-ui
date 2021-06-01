@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useState } from 'react';
 import styled from 'styled-components';
 import { LabelDefault, Style, ValueDefault } from '../../shared';
 import { Trace } from './Detail';

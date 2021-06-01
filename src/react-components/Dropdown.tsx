@@ -3,7 +3,7 @@
 
 // import type { DropDownProps } from 'antd';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Select } from 'antd';
 import styled from 'styled-components';
 import Labelled from './Labelled';
@@ -26,11 +26,11 @@ interface Props {
 
 }
 
-export type IDropdown<Option> = React.ComponentType<Props> & {
+export type IDropdown = React.ComponentType<Props> & {
   Header: React.ComponentType<{ content: React.ReactNode }>;
 }
 
-function BaseDropdown<Option> ({ children, className = '', defaultValue, isDisabled, isError, label, onChange, options, placeholder, transform, withEllipsis, withLabel }: Props): React.ReactElement<Props> {
+function BaseDropdown ({ children, className = '', defaultValue, isDisabled, isError, label, onChange, options, placeholder, transform, withEllipsis, withLabel }: Props): React.ReactElement<Props> {
   const lastUpdate = useRef<string>('');
   const [stored, setStored] = useState<string | undefined>();
 
@@ -131,7 +131,7 @@ const Dropdown = React.memo(styled(BaseDropdown)`
       }
     }
   }
-`) as unknown as IDropdown<any>;
+`) as unknown as IDropdown;
 
 // (Dropdown as any).Header = SUIDropdown.Header;
 

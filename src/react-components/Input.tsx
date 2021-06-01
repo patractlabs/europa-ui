@@ -5,7 +5,6 @@ import React, { useCallback, useState } from 'react';
 import { Input as SUIInput } from 'antd';
 
 import { isFunction, isUndefined } from '@polkadot/util';
-import Labelled from './Labelled';
 
 type Input$Type = 'number' | 'password' | 'text';
 
@@ -128,11 +127,11 @@ function Input ({ autoFocus = false, children, className, defaultValue, help, ic
     [onEnter, onEscape, onKeyUp]
   );
 
-  const _onPaste = useCallback(
-    (event: React.ClipboardEvent<HTMLInputElement>): void =>
-      onPaste && onPaste(event),
-    [onPaste]
-  );
+  // const _onPaste = useCallback(
+  //   (event: React.ClipboardEvent<HTMLInputElement>): void =>
+  //     onPaste && onPaste(event),
+  //   [onPaste]
+  // );
 
   return (
     // <Labelled

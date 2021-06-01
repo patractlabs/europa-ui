@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { FC, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import LogoSVG from '../../assets/imgs/Europa.svg';
 import CloseSVG from '../../assets/imgs/close.svg';
@@ -185,16 +185,153 @@ const TabGroupTwo: TabStructure[] = [
   }
 ];
 
+const hashReg = '(.+)';
+const addressReg = '(.+)';
+const pathRegs = [
+  {
+    reg: new RegExp('/explorer$'),
+    divides: [
+      {
+        name: 'Explorer',
+        link: '/explorer',
+      },
+    ],
+  },
+  {
+    reg: new RegExp(`/explorer/code-hash/${hashReg}$`),
+    divides: [
+      {
+        name: 'Explorer',
+        link: '/explorer',
+      },
+      {
+        name: 'Code Hash',
+      },
+    ],
+  },
+  {
+    reg: new RegExp(`/explorer/eoa/${addressReg}$`),
+    divides: [
+      {
+        name: 'Explorer',
+        link: '/explorer',
+      },
+      {
+        name: 'EOA',
+      },
+    ],
+  },
+  {
+    reg: new RegExp(`/explorer/contract/${addressReg}$`),
+    divides: [
+      {
+        name: 'Explorer',
+        link: '/explorer',
+      },
+      {
+        name: 'Contract',
+      },
+    ],
+  },
+  {
+    reg: new RegExp(`/explorer/block/${hashReg}$`),
+    divides: [
+      {
+        name: 'Explorer',
+        link: '/explorer',
+      },
+      {
+        name: 'Block',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/account$'),
+    divides: [
+      {
+        name: 'Account',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/block$'),
+    divides: [
+      {
+        name: 'Block',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/extrinsic$'),
+    divides: [
+      {
+        name: 'Extrinsic',
+      },
+    ],
+  },
+  {
+    reg: new RegExp(`/extrinsic/${hashReg}/(.+)$`),
+    divides: [
+      {
+        name: 'Extrinsic',
+        link: '/extrinsic',
+      },
+      {
+        name: 'Details',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/event$'),
+    divides: [
+      {
+        name: 'Event',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/contract$'),
+    divides: [
+      {
+        name: 'Contract',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/developer$'),
+    divides: [
+      {
+        name: 'Developer',
+      },
+    ],
+  },
+  {
+    reg: new RegExp('/setting$'),
+    divides: [
+      {
+        name: 'Setting',
+      },
+    ],
+  },
+]
+
 export const Header: FC = (): ReactElement => {
   const [ showSider, toggoleSider ] = useState<boolean>(false);
   const [ showSiderBg, toggoleSiderBg ] = useState<boolean>(false);
   const [ divides, setDivides ] = useState<Divide[]>([]);
+  const { pathname } = useLocation();
+
+  useMemo(() => {
+    console.log('find', pathname, pathRegs.find(reg => reg.reg.test(pathname)));
+    
+    setDivides(pathRegs.find(reg => reg.reg.test(pathname))?.divides || []);
+  }, [setDivides, pathname]);
 
   const onTabClicked = useCallback((tab: TabStructure) => {
     setDivides([
       {
         name: tab.title,
-        path: tab.link[0] === '/' ? tab.link.slice(1) : tab.link,
+        link: tab.link[0] === '/' ? tab.link.slice(1) : tab.link,
       }
     ]);
     toggoleSider(false);
@@ -214,9 +351,7 @@ export const Header: FC = (): ReactElement => {
 
   return (
   <Wrapper>
-    {
-      <SiderBg onClick={() => toggoleSider(false)} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
-    }
+    <SiderBg onClick={() => toggoleSider(false)} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
     <Sider style={{ left: showSider ? '0px' : '-240px' }}>
       <SiderHeadr>
         <div>
