@@ -24,11 +24,8 @@ export const Constructor: FC<{
   onMessageChange: (message: AbiMessage) => void;
   onParamsChange: (params: any[]) => void;
 }> = ({ abiMessages, onMessageChange, onParamsChange, defaultValue }): ReactElement => {
-  const a = useState(() => {console.log('init', defaultValue); return 1;});
   const [ message, setMessage ] = useState<AbiMessage | undefined>(defaultValue);
   const { api } = useContext(ApiContext);
-
-  console.log('render')
   const _onMessageChange = useCallback(value => {
     const message = abiMessages.find(m => m.identifier === value)!;
     const args = message.args.reduce((args: { [key: string]: any }, arg) => {

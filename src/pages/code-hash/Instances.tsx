@@ -15,6 +15,7 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { contracts } = useContracts(api, blocks);
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
 
+  console.log('contracts', contracts);
   const selectedContracts = useMemo(
     () => contracts
       .filter(contract => contract.codeHash === hash)
@@ -22,7 +23,12 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
     [contracts, hash, pageIndex, pageSize],
   );
 
-  useEffect(() => setTotal(selectedContracts.length), [selectedContracts, setTotal]);
+  useEffect(
+    () => setTotal(
+      contracts.filter(contract => contract.codeHash === hash).length
+    ),
+    [contracts, hash, setTotal]
+  );
 
   return (
     <Wrapper>

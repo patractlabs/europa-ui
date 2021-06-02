@@ -1,15 +1,25 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Button, Input, message, Modal, Select, Upload } from 'antd';
+import { Button, Input, message as antMessage, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
-import { handleTxResults, ApiContext, AccountsContext } from '../../core';
+import { handleTxResults, ApiContext, AccountsContext, CodeJson, store } from '../../core';
 import { CodeRx } from '@polkadot/api-contract';
 import keyring from '@polkadot/ui-keyring';
 import BN from 'bn.js';
 import { randomAsHex } from '@polkadot/util-crypto';
-import { catchError } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { Constructor } from '../code-hash/Constructor';
+import styled from 'styled-components';
+import { AddressInput, ParamInput } from '../../shared';
+import { AbiMessage } from '@polkadot/api-contract/types';
+import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
+
+const Form = styled.div`
+  width: 480px;
+  margin-bottom: 30px;
+`;
 
 interface AbiState {
   abiSource: string | null;
@@ -20,7 +30,6 @@ interface AbiState {
   isAbiSupplied: boolean;
 }
 
-const { Option } = Select;
 const BYTE_STR_0 = '0'.charCodeAt(0);
 const BYTE_STR_X = 'x'.charCodeAt(0);
 const STR_NL = '\n';
@@ -58,12 +67,20 @@ export const UploadContract: FC<{
   onCompleted: () => void;
   show: boolean;
 }> = ({ onCancel, onCompleted, show }): ReactElement => {
-  const { api, tokenDecimal } = useContext(ApiContext);
+  const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
+  const [ message, setMessage ] = useState<AbiMessage>();
+  const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
 
-  const [ { address, name, endowment, gasLimit }, setState ] = useState<{ address: string, name: string, endowment: number, gasLimit: number }>({
+  const [ { address, name, endowment, gasLimit, salt }, setState ] = useState<{
+    address: string;
+    name: string;
+    endowment: number;
+    gasLimit: number;
+    salt: string;
+  }>({
     address: accounts[0]?.address,
     name: 'xxx',
     endowment: 10,
@@ -71,6 +88,7 @@ export const UploadContract: FC<{
     // (api.consts.system.blockWeights
     //   ? api.consts.system.blockWeights.maxBlock
     //   : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
+    salt: randomAsHex(),
   });
 
   const onUpload = useCallback(async (file: RcFile) => {
@@ -87,60 +105,91 @@ export const UploadContract: FC<{
         isAbiSupplied: true,
         isAbiValid: true
       });
+      setCodeJSON({
+        abi: json,
+        codeHash: '',
+        name: file.name,
+        genesisHash,
+        tags: [],
+        whenCreated: 0,
+      });
+      setMessage(abi.constructors[0]);
       setArgs(abi.constructors[0].args.map(() => 222));
-
     } catch (error) {
       console.error(error);
 
       setAbi({ ...EMPTY, errorText: (error as Error).message });
+      
+      setCodeJSON({
+        abi: null,
+        codeHash: '',
+        name: '',
+        genesisHash,
+        tags: [],
+        whenCreated: 0,
+      });
+      setMessage(undefined);
       setArgs([]);
     }
 
     return false;
-  }, [api]);
+  }, [api, setCodeJSON, genesisHash]);
 
   const deploy = useCallback(async () => {
-    if (!abi || !isWasm(abi.project.source.wasm)) {
+    console.log('deploy: abi', abi, ' message', message);
+    
+    if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
+
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-
     const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
-    const tx = code.tx[abi.constructors[0].method]({
-      gasLimit: 200000000000,
-      // gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
+    console.log('salt:', salt, ',  endowment', value.toString(), ',  args', args, 'sender', address, ' gas:', (new BN(gasLimit)).mul(new BN(1000000)).toString());
+    const tx = code.tx[message.method]({
+      gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
       value,
-      salt: randomAsHex(),
-    }, args);
-
-    console.log('send:', randomAsHex(), ',  endowment', value.toString(), ',  args', args, 'name', name);
-
+      salt,
+    }, ...args);
     const account = accounts.find(account => account.address === address);
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {
-        message.error(e.message || 'failed')
+        antMessage.error(e.message || 'failed')
         return throwError('');
       })
     ).subscribe(
       handleTxResults({
-        success() {
-          message.success('deployed');
-          onCompleted();
+        async success(result: CodeSubmittableResult) {
+          console.log('success')
+          const contract =  result.contract?.address.toString();
+
+          api.query.contracts.contractInfoOf(contract)
+            .pipe(
+              map(info => info.toHuman() as unknown as { Alive: { codeHash: string } } )
+            )
+            .subscribe(info => {
+              const { Alive: { codeHash } }  = info;
+              
+              console.log('result', result, codeHash);
+    
+              antMessage.success('deployed');
+              store.saveCode(codeHash, codeJSON!);
+              onCompleted();
+            });
         },
         fail(e) {
           console.log(e.events.map(e => e.toHuman()));
           
-          message.error('failed');
+          antMessage.error('failed');
         },
         update(r) {
-          message.info(r.events.map(e => e.toHuman()));
+          antMessage.info(r.events.map(e => e.toHuman()));
         }
       }, () => {})
     );
-  }, [abi, api, args, endowment, address, accounts, onCompleted, tokenDecimal, name]);
+  }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
 
   return (
     <Modal visible={show} onCancel={onCancel} footer={[
@@ -149,66 +198,46 @@ export const UploadContract: FC<{
       <Upload beforeUpload={onUpload}>
         <Button>Upload</Button>
       </Upload>
-      {
-        abi &&
-          <div>
-            {
-              abi.constructors.map(contractContructor =>
-                <div key={contractContructor.identifier}>
-                  {contractContructor.method}&nbsp; (
-                    <span key={contractContructor.args[0].name}>{contractContructor.args[0].name}:&nbsp;{contractContructor.args[0].type.displayName}</span>
-                  {
-                    contractContructor.args.slice(1).map(arg => <span key={arg.name}>, {arg.name}:&nbsp;{arg.type.displayName}</span>)
-                  }
-                  )
-                </div>
-              )
-            }
-            <div>
-              {
-                abi.constructors[0]?.args.map((arg, index)=>
-                  <Input
-                    key={arg.name}
-                    placeholder={arg.name}
-                    value={args[index]}
-                    onChange={e => {
-                      setArgs(
-                        values => [...values].splice(
-                          index,
-                          1,
-                          isNaN(parseFloat(e.target.value)) ?
-                            0 : parseFloat(e.target.value)
-                        )
-                      )
-
-                    }}
-                  />
-                )
-              }
-            </div>
-          </div>
-      }
       <div>
-        account
-        <Select style={{ width: '100%' }} value={address} onChange={value => setState(pre => ({...pre, address: value}))}>
-          {
-            accounts.map(account =>
-              <Option key={account.address} value={account.address}>{account.name}-{account.address}</Option>
-            )
-          }
-        </Select>
+      {
+        !!abi &&
+          <Form>
+            <Constructor
+              defaultValue={abi.constructors[0]}
+              abiMessages={abi.constructors}
+              onMessageChange={setMessage}
+              onParamsChange={setArgs}
+            />
+            <ParamInput
+              defaultValue={endowment}
+              style={{ margin: '20px 0px' }}
+              onChange={
+                value => setState(pre => ({...pre, endowment: parseInt(value)}))
+              }
+              label="Endowment" unit="DOT"
+            />
+            <ParamInput
+              defaultValue={salt}
+              style={{ borderBottomWidth: '0px' }}
+              onChange={
+                value => setState(pre => ({...pre, salt: value}))
+              }
+              label="unique deployment salt"
+            />
+            <ParamInput
+              defaultValue={gasLimit}
+              onChange={
+                value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
+              }
+              label="max gas allowed"
+            />
+            <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
+          </Form>
+      }
       </div>
       <div>
         code bundle name
         <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
-      </div>
-      <div>
-        endowment
-        <Input value={endowment} onChange={e => setState(pre => ({...pre, endowment: isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value) }))} />
-      </div>
-      <div>
-        max gas allowed (M)
-        <Input value={gasLimit} onChange={e => setState(pre => ({...pre, gasLimit: isNaN(parseFloat(e.target.value)) ? 0 : parseFloat(e.target.value) }))} />
       </div>
     </Modal>
   );

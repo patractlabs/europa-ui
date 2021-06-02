@@ -100,8 +100,6 @@ export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): 
     );
   }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal]);
 
-  console.log('render deploy')
-
   return (
     <Wrapper>
       {
