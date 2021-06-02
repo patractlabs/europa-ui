@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { AddressInput, Style } from '../../shared';
-import { Button, message as messageService } from 'antd';
+import { Button, message as antMessage } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, handleTxResults } from '../../core';
 import keyring from '@polkadot/ui-keyring';
 import Params from './Params';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 const Wrapper = styled.div`
   background-color: ${Style.color.bg.default};
@@ -117,17 +119,22 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
 
-    tx.signAndSend(pair).subscribe(
+    tx.signAndSend(pair).pipe(
+      catchError(e => {
+        antMessage.error(e.message || 'failed');
+        return throwError('');
+      })
+    ).subscribe(
       handleTxResults({
         success() {
-          messageService.success('executed');
+          antMessage.success('executed');
         },
         fail(e) {
           console.log(e.events.map(e => e.toHuman()));
-          messageService.error('failed');
+          antMessage.error('failed');
         },
         update(r) {
-          messageService.info(r.events.map(e => e.toHuman()));
+          antMessage.info(r.events.map(e => e.toHuman()));
         }
       }, () => {})
     );

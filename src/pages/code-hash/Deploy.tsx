@@ -5,13 +5,13 @@ import { Constructor } from './Constructor';
 import { AddressInput, ParamInput, Style } from '../../shared';
 import { message as antMessage } from 'antd';
 import { randomAsHex } from '@polkadot/util-crypto';
-import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
+import { isWasm } from '@polkadot/util';
 import { CodeRx } from '@polkadot/api-contract';
 import BN from 'bn.js';
 import keyring from '@polkadot/ui-keyring';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { catchError } from 'rxjs/operators';
-import { of,throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 
 const Wrapper = styled.div`
   background-color: white;
@@ -65,7 +65,6 @@ export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): 
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
-
     
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
     const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
@@ -75,14 +74,13 @@ export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): 
       value,
       salt,
     }, ...args);
-
     const account = accounts.find(account => account.address === address);
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {
-        antMessage.error(e.message)
+        antMessage.error(e.message || 'failed')
         return throwError('');
       })
     ).subscribe(
@@ -140,7 +138,7 @@ export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): 
                 label="max gas allowed"
               />
 
-              <AddressInput onChange={address => setState(pre => ({...pre, address}))} />
+              <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
             </Form>
             <div>
               <ButtonPrimary onClick={deploy}>Deploy</ButtonPrimary>

@@ -8,6 +8,8 @@ import { CodeRx } from '@polkadot/api-contract';
 import keyring from '@polkadot/ui-keyring';
 import BN from 'bn.js';
 import { randomAsHex } from '@polkadot/util-crypto';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 interface AbiState {
   abiSource: string | null;
@@ -117,7 +119,12 @@ export const UploadContract: FC<{
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
 
-    await tx.signAndSend(pair).subscribe(
+    await tx.signAndSend(pair).pipe(
+      catchError(e => {
+        message.error(e.message || 'failed')
+        return throwError('');
+      })
+    ).subscribe(
       handleTxResults({
         success() {
           message.success('deployed');

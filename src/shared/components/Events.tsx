@@ -20,12 +20,11 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
     [eventsSource, pageIndex, pageSize],
   );
 
-
   return (
     <Wrapper>
       {
-        events.map(event =>
-          <Event key={event.hash.toString()} event={event} />
+        events.map((event, index) =>
+          <Event key={index} event={event} />
         )
       }
       <PaginationLine>

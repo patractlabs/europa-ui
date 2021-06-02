@@ -33,7 +33,6 @@ export const Contract: FC = (): ReactElement => {
   const { address } = useParams<{ address: string }>();
   const { balance } = useBalance(api, address);
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Functions);
-
   const choosedCode = useMemo(() => contracts.find(contract => contract.address === address), [contracts, address]);
 
   return (

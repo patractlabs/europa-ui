@@ -21,7 +21,7 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
       .slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
     [contracts, hash, pageIndex, pageSize],
   );
-  
+
   useEffect(() => setTotal(selectedContracts.length), [selectedContracts, setTotal]);
 
   return (
