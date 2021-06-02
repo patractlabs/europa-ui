@@ -1,9 +1,12 @@
-import React, { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { LabelDefault, Style, ValueDefault } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
-
+import { store, ApiContext, BlocksContext, useContracts } from '../../core';
+import { hexToU8a } from '@polkadot/util';
+import { Abi } from '@polkadot/api-contract';
+import type { Codec } from '@polkadot/types/types';
 
 const depthColors = [
   '#BEAC92',
@@ -102,11 +105,41 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const getIdentifer = (abi: Abi, selector: string): string => {
+  return abi.messages.find(c => c.selector.toString() === selector)?.identifier ||
+    abi.constructors.find(c => c.selector.toString() === selector)?.identifier || selector;
+};
+
+const getArgs = (abi: Abi, selector: string, args: string): Codec[] => {
+  const message = abi.messages.find(c => c.selector.toString() === selector) ||
+    abi.constructors.find(c => c.selector.toString() === selector);
+  
+  if (!message) {
+    return [];
+  }
+
+  return message.fromU8a(hexToU8a(args)).args;
+};
+
 export const ContractTrace: FC<{
   index: number;
   trace: Trace;
-}> = ({ index, trace }): ReactElement => {
+}> = ({ trace }): ReactElement => {
+  const { api } = useContext(ApiContext);
+  const { blocks } = useContext(BlocksContext);
+  const { contracts } = useContracts(api, blocks);
   const [showDetail, setShowDetail] = useState<boolean>(false);
+
+  const abi = useMemo(() => {
+    const contract = contracts.find(contracts => contracts.address === trace.self_account);
+
+    if (!contract) {
+      return;
+    }
+
+    store.loadAll();
+    return store.getCode(contract.codeHash)?.contractAbi;
+  }, [contracts, trace.self_account]);
 
   return (
     <Wrapper depth={trace.depth}>
@@ -146,13 +179,25 @@ export const ContractTrace: FC<{
             <Left>
               <Line>
                 <LabelDefault>Function</LabelDefault>
-                <ValueDefault>{trace.selector}</ValueDefault>
+                <ValueDefault>{
+                  abi ? getIdentifer(abi, trace.selector) : trace.selector
+                }</ValueDefault>
               </Line>
               <Line>
                 <LabelDefault>Args</LabelDefault>
                 <div>
-                  <Args>{trace.args}</Args>
-                  <Button>Decode Parameters</Button>
+                  <Args>{
+                    abi ?
+                      getArgs(abi, trace.selector, trace.args).map((arg, index) =>
+                        <div key={index}>{arg.toString()}</div>
+                      )
+                      :
+                      trace.args
+                  }</Args>
+                  {
+                    !abi &&
+                      <Button>Decode Parameters</Button>
+                  }
                 </div>
               </Line>
             </Left>

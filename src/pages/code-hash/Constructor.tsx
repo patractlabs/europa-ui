@@ -1,9 +1,8 @@
-import React, { FC, ReactElement, useCallback, useContext, useRef, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { Select } from 'antd';
 import styled from 'styled-components';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { ApiContext } from '../../core';
-import Param from '../../react-params/Param';
 import UIParams from '../../react-params';
 
 const Wrapper = styled.div`

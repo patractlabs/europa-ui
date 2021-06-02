@@ -88,14 +88,14 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   const { blocks } = useContext(BlocksContext);
   const { wsProvider } = useContext(ApiContext);
   const [ trace, setTrace ] = useState<Trace>();
-  const [ { height, index }, setExtrinsic ] = useState<{ height: number, index: number}>({height: 0, index: 0});
-
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
     
     blocks.find(_block => {
       const index = _block.extrinsics.findIndex(extrinsic => extrinsic.hash.toString() === hash);
-      const setTimeExtrinsic = _block.extrinsics.find(extrinsic => extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set');
+      const setTimeExtrinsic = _block.extrinsics.find(extrinsic =>
+        extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set'
+      );
 
       if (index < 0 || !setTimeExtrinsic) {
         return false;
@@ -125,7 +125,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     wsProvider.send('contractsExt_tracing', [
       extrinsic.height, extrinsic.index      
     ]).then(({ trace }: { trace: Trace}) => {
-      console.log(trace);
+      console.log('trace', trace);
       setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {
       console.log('e', e);
