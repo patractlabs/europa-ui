@@ -322,8 +322,6 @@ export const Header: FC = (): ReactElement => {
   const { pathname } = useLocation();
 
   useMemo(() => {
-    console.log('find', pathname, pathRegs.find(reg => reg.reg.test(pathname)));
-    
     setDivides(pathRegs.find(reg => reg.reg.test(pathname))?.divides || []);
   }, [setDivides, pathname]);
 

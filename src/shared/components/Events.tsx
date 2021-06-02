@@ -11,14 +11,13 @@ const Wrapper = styled.div`
 
 export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }): ReactElement => {
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
-
-  useEffect(() => setTotal(eventsSource.length), [eventsSource, setTotal]);
-
   const events = useMemo(
     () =>
-      eventsSource.slice(pageSize * (pageIndex - 1), pageSize * pageIndex) || [],
+    eventsSource.slice(pageSize * (pageIndex - 1), pageSize * pageIndex) || [],
     [eventsSource, pageIndex, pageSize],
   );
+
+  useEffect(() => setTotal(eventsSource.length), [eventsSource, setTotal]);
 
   return (
     <Wrapper>

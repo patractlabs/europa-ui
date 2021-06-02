@@ -176,8 +176,8 @@ export const ContractTrace: FC<{
         </Toggle>
       </Contract>
       {
-        trace.nest.length > 0 &&
-        trace.nest.map((child, index) =>
+        trace.nests.length > 0 &&
+        trace.nests.map((child, index) =>
           <ContractTrace key={index} index={index} trace={child} />
         )
       }

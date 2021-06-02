@@ -45,6 +45,7 @@ const Label = styled(LabelDefault)`
 type ExtendedExtrinsic = Extrinsic & {
   blockHash: string;
   height: number;
+  index: number;
   timestamp: string;
   gasLimit: string;
   gasUsed: string;
@@ -64,7 +65,7 @@ export interface Trace {
   },
   gas_left: number,
   gas_limit: number,
-  nest: Trace[],
+  nests: Trace[],
   sandbox_result_ok: null,
   selector: string,
   self_account: string,
@@ -87,21 +88,23 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   const { blocks } = useContext(BlocksContext);
   const { wsProvider } = useContext(ApiContext);
   const [ trace, setTrace ] = useState<Trace>();
+  const [ { height, index }, setExtrinsic ] = useState<{ height: number, index: number}>({height: 0, index: 0});
 
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
     
     blocks.find(_block => {
-      const e = _block.extrinsics.find(extrinsic => extrinsic.hash.toString() === hash);
+      const index = _block.extrinsics.findIndex(extrinsic => extrinsic.hash.toString() === hash);
       const setTimeExtrinsic = _block.extrinsics.find(extrinsic => extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set');
 
-      if (!e || !setTimeExtrinsic) {
+      if (index < 0 || !setTimeExtrinsic) {
         return false;
       }
 
-      _extrinsic =  Object.assign(e, {
+      _extrinsic =  Object.assign(_block.extrinsics[index], {
         blockHash: _block.blockHash,
         height: _block.height,
+        index,
         timestamp: setTimeExtrinsic?.args[0].toString(),
         gasLimit: '',
         gasUsed: '',
@@ -115,16 +118,12 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   }, [hash, blocks]);
 
   useEffect(() => {
-    // (api.rpc as any).contractsExt.call().subscribe((res: any) => console.log(res), (e: any) => console.log(e));
+    if (!extrinsic) {
+      return;
+    }
 
-    wsProvider.send('contractsExt_call', [
-      {
-        "origin": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
-        "dest": "5EYBRsnQTxGkC9YUc6rneWnUFkqj7g7oH3VEwisFB2VXncbb",
-        "value": 0,
-        "gasLimit": 4999999999999,
-        "inputData": "0xb388803f00000000",
-      }
+    wsProvider.send('contractsExt_tracing', [
+      extrinsic.height, extrinsic.index      
     ]).then(({ trace }: { trace: Trace}) => {
       console.log(trace);
       setTrace(trace.depth ? trace : undefined);
@@ -132,7 +131,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
       console.log('e', e);
       setTrace(undefined);
     });
-  }, [wsProvider]);
+  }, [wsProvider, extrinsic]);
 
   return (
     <Wrapper>
