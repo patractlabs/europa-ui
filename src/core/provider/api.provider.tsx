@@ -39,8 +39,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
 
   useEffect(() => {
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
-
-    
     // const wsProvider = new WsProvider('ws://192.168.2.142:9944');
     const apiRx = new ApiRx({
       provider: wsProvider,

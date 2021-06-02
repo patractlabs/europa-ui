@@ -104,8 +104,7 @@ const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]>
   return retriveBlocks(api, header.number.toNumber(), startIndex);
 };
 
-export const BlocksProvider = React.memo((
-  { children }: { children: React.ReactNode }): React.ReactElement => {
+export const BlocksProvider = React.memo(({ children }: { children: React.ReactNode }): React.ReactElement => {
     const { api, isApiReady, systemName } = useContext(ApiContext);
     const [blocks, setBlocks] = useState<Block[]>([]);
     const [ backwarding, setBackwarding ] = useState<boolean>(false);

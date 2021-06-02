@@ -3,7 +3,7 @@ import { Button, Input, message, Modal, Select, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
-import { handleTxResults, ApiContext, useAccounts } from '../../core';
+import { handleTxResults, ApiContext, AccountsContext } from '../../core';
 import { CodeRx } from '@polkadot/api-contract';
 import keyring from '@polkadot/ui-keyring';
 import BN from 'bn.js';
@@ -59,7 +59,8 @@ export const UploadContract: FC<{
   const { api, tokenDecimal } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
-  const { accounts } = useAccounts();
+  const { accounts } = useContext(AccountsContext);
+
   const [ { address, name, endowment, gasLimit }, setState ] = useState<{ address: string, name: string, endowment: number, gasLimit: number }>({
     address: accounts[0]?.address,
     name: 'xxx',

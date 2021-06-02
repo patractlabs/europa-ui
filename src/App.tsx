@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext } from 'react';
 import { ApiContext, PaginationProvider } from './core';
 import { Header } from './pages/header/Header';
-import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
 import { Setting } from './pages/setting/Setting';
 import { Developer } from './pages/developer/Developer';
@@ -20,6 +20,9 @@ const Main: FC = (): ReactElement => {
       <BrowserRouter>
         <Header />
         <Switch>
+          <Route exact path="/">
+            <Redirect to="/explorer" />
+          </Route>
           <Route path='/explorer' exact>
             <Explorer />
           </Route>

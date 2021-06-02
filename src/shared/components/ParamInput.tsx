@@ -27,11 +27,11 @@ const Label = styled.div`
 
 
 export const ParamInput: FC<{
-  style?: CSSProperties;
   label: string;
   onChange: (address: string)  => void;
+  defaultValue?: any;
+  style?: CSSProperties;
   unit?: string;
-  defaultValue?: string;
 }> = ({ style, defaultValue, onChange, label, unit }): ReactElement => {
 
   return (

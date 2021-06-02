@@ -1,11 +1,11 @@
-import React, { FC, ReactElement, useState, useCallback } from 'react';
+import React, { FC, ReactElement, useState, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { AddressInput, Style } from '../../shared';
 import { Button, message as messageService } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
-import { handleTxResults, useAccounts } from '../../core';
+import { AccountsContext, handleTxResults } from '../../core';
 import keyring from '@polkadot/ui-keyring';
 import Params from './Params';
 
@@ -85,7 +85,8 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [ result, setResult ] = useState<any>();
   // const [ params, setParams ] = useState<{ [key: string]: string}>({});
   const [params, setParams] = useState<any[]>([]);
-  const { accounts } = useAccounts();
+  const { accounts } = useContext(AccountsContext);
+
   // const { tokenDecimal } = useContext(ApiContext);
 
   // const queryEstimatedWeight = useCallback(

@@ -3,9 +3,9 @@
 
 import type { KeyringOption$Type, KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
 
-import React, { FC, ReactElement } from 'react';
+import React, { FC, ReactElement, useContext } from 'react';
 import { Select } from 'antd';
-import { useAccounts } from '../../core';
+import { AccountsContext } from '../../core';
 
 interface Props {
   className?: string;
@@ -33,7 +33,7 @@ interface Props {
 const { Option } = Select;
 
 const InputAddress: FC<Props>  = ({ defaultValue, onChange, placeholder }): ReactElement => {
-  const { accounts } = useAccounts();
+  const { accounts } = useContext(AccountsContext);
 
   return (
     

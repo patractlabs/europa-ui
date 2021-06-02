@@ -1,8 +1,8 @@
-import React, { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { CreateAccount } from './CreateAccount';
 import keyring from '@polkadot/ui-keyring';
-import { AccountInfo, useAccounts } from '../../core';
+import { AccountInfo, AccountsContext } from '../../core';
 import { ImportAccount } from './ImportAccount';
 
 const Wrapper = styled.div`
@@ -66,7 +66,7 @@ const Account: FC<{
 export const Accounts: FC = (): ReactElement => {
   const [ isCreateModalOpen, setCreateModalOpen ] = useState<boolean>(false);
   const [ isImportModalOpen, setImportModalOpen ] = useState<boolean>(false);
-  const { accounts } = useAccounts();
+  const { accounts } = useContext(AccountsContext);
 
   return (
     <Wrapper>

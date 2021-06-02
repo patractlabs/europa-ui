@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { ApiContext } from '../../core';
 import Param from '../../react-params/Param';
+import UIParams from '../../react-params';
 
 const Wrapper = styled.div`
 `;
@@ -18,17 +19,16 @@ const StyledSelected = styled(Select)`
 `;
 
 export const Constructor: FC<{
+  defaultValue?: AbiMessage; 
   abiMessages: AbiMessage[];
   onMessageChange: (message: AbiMessage) => void;
   onParamsChange: (params: any[]) => void;
-}> = ({ abiMessages, onMessageChange, onParamsChange }): ReactElement => {
-  const [ message, setMessage ] = useState<AbiMessage>(abiMessages[0]);
+}> = ({ abiMessages, onMessageChange, onParamsChange, defaultValue }): ReactElement => {
+  const a = useState(() => {console.log('init', defaultValue); return 1;});
+  const [ message, setMessage ] = useState<AbiMessage | undefined>(defaultValue);
   const { api } = useContext(ApiContext);
-  const _args = useRef<{ [key: string]: any }>(abiMessages[0].args.reduce((args: { [key: string]: any }, arg) => {
-    args[arg.name] = null;
-    return args;
-  }, {}));
 
+  console.log('render')
   const _onMessageChange = useCallback(value => {
     const message = abiMessages.find(m => m.identifier === value)!;
     const args = message.args.reduce((args: { [key: string]: any }, arg) => {
@@ -36,11 +36,10 @@ export const Constructor: FC<{
       return args;
     }, {});
 
-    _args.current = args;
     setMessage(message);
     onMessageChange(message);
     onParamsChange(Object.keys(args).map(key => args[key]));
-  }, [abiMessages, onParamsChange, onMessageChange]);
+  }, [abiMessages, onMessageChange, onParamsChange]);
 
   return (
     <Wrapper>
@@ -55,7 +54,17 @@ export const Constructor: FC<{
           )
         }
       </StyledSelected>
+      
       {
+        !!message &&
+          <UIParams
+            isRoot={true}
+            onChange={value => onParamsChange(value.map(v => v.value))}
+            params={message.args}
+            registry={api.registry}
+          />
+      }
+      {/* {
         message?.args.map(arg =>
           <Param
             key={arg.name}
@@ -66,11 +75,11 @@ export const Constructor: FC<{
               const newArgs = {..._args.current, [arg.name]: value.value };
           
               _args.current = newArgs;
-              onParamsChange(Object.keys(newArgs).map(key => _args.current[key]))
+              // onParamsChange(Object.keys(newArgs).map(key => _args.current[key]))
             }}
           />
         )
-      }
+      } */}
     </Wrapper>
   );
 };

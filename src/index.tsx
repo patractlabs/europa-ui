@@ -3,12 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { BlocksProvider, ApiProvider } from './core';
+import { AccountsProvider } from './core/provider/accounts.provider';
 
 ReactDOM.render(
   <React.StrictMode>
     <ApiProvider>
       <BlocksProvider>
-        <App />
+        <AccountsProvider>
+          <App />
+        </AccountsProvider>
       </BlocksProvider>
     </ApiProvider>
   </React.StrictMode>,
