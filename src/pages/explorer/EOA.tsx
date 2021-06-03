@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
+import { Transfer, ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -12,7 +12,9 @@ const Wrapper = styled.div`
     background-color: white;
   }
 `;
-
+const HeaderLabel = styled.span`
+  color: ${Style.color.label.default};
+`;
 const Value = styled(ValueDefault)`
   font-size: 18px;
   font-weight: bold;
@@ -29,7 +31,7 @@ const Title = styled.h2`
     margin-left: 12px;
     font-size: 14px;
     font-weight: 400;
-    color: #8C8B8C;
+    color: ${Style.color.label.default};
   }
 `;
 
@@ -84,7 +86,7 @@ export const EOA: FC = (): ReactElement => {
           <LabelDefault>Balance</LabelDefault>
         </div>
         <ValueLine>
-          <Value>{ address }</Value>
+          <span>{ address }</span>
           <Value>{ balance?.toString() }</Value>
         </ValueLine>
       </TitleWithBottomBorder>
@@ -97,44 +99,34 @@ export const EOA: FC = (): ReactElement => {
         dataSource={selectedExtrinsics}
         columns={[
           {
-            title: <span>Hash</span>,
+            title: <HeaderLabel>Hash</HeaderLabel>,
             width: '20%',
             key: 'hash',
             render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
           },
           {
-            title: <span>height</span>,
+            title: <HeaderLabel>Block Number</HeaderLabel>,
             width: '15%',
             key: 'from',
             render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
           },
           {
-            title: <span>from</span>,
-            width: '15%',
-            key: 'from',
-            render: (_, record) => record.from === address ?
-              <span>{ record.from }</span>
-              : <Link to={`/explorer/eoa/${record.from}`}>{ formatAddress(record.from) }</Link>,
+            title: <div style={{display: 'flex'}}><span style={{ width: '183px', color: Style.color.label.default }}>From</span><span>To</span></div>,
+            width: '35%',
+            key: 'transfer',
+            render: (_, record) => <Transfer signer={address} record={record} />
           },
           {
-            title: <span>to</span>,
-            width: '15%',
-            key: 'to',
-            render: (_, record) => record.to === address ?
-              <span>{ record.to }</span>
-              : <Link to={`/explorer/eoa/${record.to}`}>{ formatAddress(record.to) }</Link>,
-          },
-          {
-            title: <span>Value</span>,
+            title: <HeaderLabel>Value</HeaderLabel>,
             width: '15%',
             key: 'value',
             render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
           },
           {
-            title: <span>Txn Fee</span>,
+            title: <HeaderLabel>Txn Fee</HeaderLabel>,
             width: '15%',
             key: 'txn fee',
-            render: (_, record) => <span>-</span>,
+            render: () => <span>-</span>,
           },
         ]}
       />

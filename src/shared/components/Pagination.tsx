@@ -13,7 +13,7 @@ export const PaginationR: FC = (): ReactElement => {
 
   return (
     <PaginationStyled>
-      <Pagination defaultCurrent={1} current={pageIndex} total={total} pageSize={pageSize} onChange={ index => setPageIndex(index)} ></Pagination>
+      <Pagination showSizeChanger={false} defaultCurrent={1} current={pageIndex} total={total} pageSize={pageSize} onChange={ index => setPageIndex(index)} ></Pagination>
     </PaginationStyled>
   );
 };

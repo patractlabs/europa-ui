@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, Extrinsic } from '../../core';
-import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue } from '../../shared';
+import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue, Transfer } from '../../shared';
 
 const Wrapper = styled.div`
   
@@ -30,47 +30,40 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
   return (
     <Wrapper>
       <Table
-        className="asdfaaaaaaaaaa"
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
         pagination={false}
         dataSource={extrinsics}
         columns={[
           {
-            title: <span>Hash</span>,
+            title: <span>Extrinsic Hash</span>,
             width: '20%',
             key: 'hash',
             render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
           },
           {
-            title: <span>height</span>,
+            title: <span>Block Number</span>,
             width: '15%',
             key: 'from',
             render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{record.height}</Link>,
           },
           {
-            title: <span>from</span>,
-            width: '15%',
-            key: 'from',
-            render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{formatAddress(record.signer?.toString())}</Link>,
-          },
-          {
-            title: <span>to</span>,
-            width: '15%',
-            key: 'to',
-            render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{formatAddress(lookForDestAddress(record))}</Link>,
+            title: <div style={{display: 'flex'}}><span style={{ width: '183px' }}>From</span><span>To</span></div>,
+            width: '35%',
+            key: 'transfer',
+            render: (_, record) => <Transfer record={record} />
           },
           {
             title: <span>Value</span>,
             width: '15%',
             key: 'value',
-            render: (_, record) => <Link to={`/event/tx/${record.hash.toString()}`}>{lookForTranferedValue(record)}</Link>,
+            render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
           },
           {
             title: <span>Txn Fee</span>,
             width: '15%',
             key: 'txn fee',
-            render: (_, record) => <Link to={`/event/tx/${record.hash.toString()}`}>{}</Link>,
+            render: (_, record) => <span>{}</span>,
           },
         ]}
       />

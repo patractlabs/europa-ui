@@ -21,7 +21,7 @@ export const lookForDestAddress = (extrinsic: Extrinsic): string => {
     }
   } catch (e) { }
 
-  return '-';
+  return '';
 };
 
 export const lookForTranferedValue = (extrinsic: Extrinsic): string => {

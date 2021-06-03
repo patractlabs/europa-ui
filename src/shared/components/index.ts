@@ -7,4 +7,5 @@ export * from './Extrinsics';
 export * from './BreadCrumb';
 export * from './AddressInput';
 export * from './ParamInput';
+export * from './Transfer';
 export * from './Args';

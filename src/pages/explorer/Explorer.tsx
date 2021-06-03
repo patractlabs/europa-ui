@@ -2,16 +2,16 @@ import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, u
 import styled from 'styled-components';
 import EnterSVG from '../../assets/imgs/enter.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
+import EventsSVG from '../../assets/imgs/events.svg';
 import { Table } from 'antd';
-import { formatAddress, lookForDestAddress } from '../../shared/util';
 import { ApiContext, Block, BlocksContext } from '../../core';
 import { Link } from "react-router-dom";
 import { Style } from '../../shared/styled/const';
+import { Transfer } from '../../shared';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
 
-  
   .viewing-block {
     position: fixed;
     
@@ -135,6 +135,17 @@ const SpaceFill = styled.div`
   height: 78px;
 `;
 
+const Events = styled.div`
+  display: flex;
+  align-items: center;
+
+  > img {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+  }
+`;
+
 const NavigationHighlight = styled.div`
   position: relative;
   z-index: 10;
@@ -153,7 +164,9 @@ const BlockInfo: FC<{currentBlock?: Block}> = ({ currentBlock }): ReactElement =
         <img src={EnterSVG} alt=""/>
         <BlockName>
           <span>Block</span>
-          <h4>{currentBlock?.height}</h4>
+          <h4>
+            <Link to={`/explorer/block/${currentBlock?.blockHash}`}>{currentBlock?.height}</Link>
+          </h4>
         </BlockName>
       </Left>
       <p>
@@ -232,28 +245,23 @@ export const Explorer: FC = (): ReactElement => {
               dataSource={block ? block.extrinsics : []}
               columns={[
                 {
-                  title: <span>Hash</span>,
                   width: '50%',
                   key: 'hash',
                   render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{record.hash?.toString()}</Link>,
                 },
                 {
-                  title: <span>from</span>,
-                  width: '17%',
-                  key: 'from',
-                  render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{formatAddress(record.signer?.toString())}</Link>,
+                  width: '35%',
+                  key: 'transfer',
+                  render: (_, record) => <Transfer record={record} />
                 },
                 {
-                  title: <span>to</span>,
-                  width: '17%',
-                  key: 'to',
-                  render: (_, record) => <Link to={`/explorer/eoa/${record.args[0]?.toString() || ''}`}>{formatAddress(lookForDestAddress(record))}</Link>,
-                },
-                {
-                  title: <span>Events</span>,
                   width: '15%',
                   key: 'events',
-                  render: (_, record) => <Link to={`/event/tx/${record.hash.toString()}`}>{record.events?.length}</Link>,
+                  render: (_, record) =>
+                    <Events>
+                      <img src={EventsSVG} alt=""/>
+                      <Link to={`/extrinsic/${record.hash.toString()}/events`}>Events</Link>
+                    </Events>
                 },
               ]}
             />

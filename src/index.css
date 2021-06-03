@@ -1,4 +1,66 @@
 @import '~antd/dist/antd.css';
+
+@font-face {
+  font-family: 'WorkSans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('./assets/font/WorkSans-Light.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: italic;
+  font-weight: 300;
+  src: url('./assets/font/WorkSans-LightItalic.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./assets/font/WorkSans-Regular.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: italic;
+  font-weight: 400;
+  src: url('./assets/font/WorkSans-RegularItalic.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./assets/font/WorkSans-Medium.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: italic;
+  font-weight: 500;
+  src: url('./assets/font/WorkSans-MediumItalic.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./assets/font/WorkSans-SemiBold.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: italic;
+  font-weight: 600;
+  src: url('./assets/font/WorkSans-SemiBoldItalic.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('./assets/font/WorkSans-Bold.ttf');
+}
+@font-face {
+  font-family: 'WorkSans';
+  font-style: italic;
+  font-weight: 700;
+  src: url('./assets/font/WorkSans-BoldItalic.ttf');
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -11,6 +73,7 @@ html {
   box-sizing: inherit;
   padding: 0px;
   margin: 0px;
+  font-family: WorkSans;
 }
 p {
   margin: 0px;
@@ -21,6 +84,7 @@ ul {
 a {
   text-decoration: none;
   color: #DBAA66;
+  font-weight: 600;
 }
 a:hover {
   color: #DBAA66;
