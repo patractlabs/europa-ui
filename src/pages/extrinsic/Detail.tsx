@@ -2,6 +2,7 @@ import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } fro
 import styled from 'styled-components';
 import { ApiContext, BlocksContext, Extrinsic } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
+import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
 import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine } from '../../shared';
@@ -30,8 +31,8 @@ const ExtrinsicLeft = styled.div`
 const ExtrinsicRight = styled.div`
   width: 50%;
 `;
-const Success = styled.label`
-  color: ${Style.color.success};
+const Result = styled.label<{ err: boolean }>`
+  color: ${props => props.err ? '#EE737E' : Style.color.success};
   font-size: 24px;
   margin-left: 10px;
   height: 24px;
@@ -159,8 +160,17 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
             <ExtrinsicInfo>
               <ExtrinsicLeft>
                 <KeyValueLine>
-                  <img style={{ height: '24px', width: '24px' }} src={SuccessSvg} alt=""/>
-                  <Success>Success</Success>
+                  {
+                    trace &&
+                      <img style={{ height: '24px', width: '24px' }} src={trace.ext_result.Err ? FailSvg : SuccessSvg} alt=""/>
+
+                  }
+                  {
+                    trace &&
+                      <Result err={!!trace.ext_result.Err}>{
+                        trace.ext_result.Err ? 'Fail' : 'Success'
+                      }</Result>
+                  }
                 </KeyValueLine>
                 <KeyValueLine>
                   <Label>Timestamp</Label>

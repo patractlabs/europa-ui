@@ -343,15 +343,12 @@ export const Header: FC = (): ReactElement => {
       .reduce((all: Extrinsic[], block) => all.concat(block.extrinsics), [])
       .find(extrinsic => extrinsic.hash.toString() === search)
     
-
-    console.log('find ex', extrinsic, search)
     if (extrinsic) {
       setSearch('');
       return h.push(`/extrinsic/${extrinsic.hash.toString()}/details`);
     }
 
     message.info('nothing found!')
-  
   }, [blocks, search, h]);
 
   useMemo(() => {

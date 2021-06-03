@@ -15,11 +15,11 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
   useEffect(() => {
     const _seed = mnemonicGenerate(12);
 
-    console.log('seed', _seed);
     try {
       setAddress(keyring.createFromUri(_seed, {}, DEFAULT_TYPE).address);
 
     } catch (e) { console.log('e',e) }
+
     setSeed(_seed);
   }, []);
 
