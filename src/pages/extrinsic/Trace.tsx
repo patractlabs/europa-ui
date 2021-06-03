@@ -7,6 +7,7 @@ import { store, ApiContext, BlocksContext, useContracts } from '../../core';
 import { hexToU8a } from '@polkadot/util';
 import { Abi } from '@polkadot/api-contract';
 import type { Codec } from '@polkadot/types/types';
+import { Link } from 'react-router-dom';
 
 const depthColors = [
   '#BEAC92',
@@ -18,9 +19,10 @@ const depthColors = [
   '#81CBB5',
 ];
 
-const Wrapper = styled.div<{ depth: number }>`
+const Wrapper = styled.div<{ err: boolean, depth: number }>`
   margin-top: 10px;
   position: relative;
+  background-color: ${props => props.err ? Style.color.bg.error : ''};
   margin-left: ${props => (props.depth - 1) * 20}px;
 `;
 const BorderBase = styled.div<{ depth: number }>`
@@ -32,7 +34,7 @@ const BorderBase = styled.div<{ depth: number }>`
   opacity: 0.2;
 `;
 const Contract = styled.div<{ depth: number }>`
-  border: 1px solid ${Style.color.border};
+  border: 1px solid ${Style.color.border.default};
   border-left: 4px solid ${props => depthColors[props.depth - 1 % depthColors.length]};
   `;
 const MainInfo = styled.div`
@@ -55,14 +57,30 @@ const GasUsed = styled.div`
 
 `;
 const Detail = styled.div`
-  border-top: 1px solid ${Style.color.border};
+  border-top: 1px solid ${Style.color.border.default};
   padding: 20px;
+`;
+const DetailBase = styled.div`
   display: flex;
 `;
+
+const Error = styled.div`
+  color: ${Style.color.label.error};
+  display: flex;
+  margin-top: 14px;
+`;
+const ErrorTrap = styled.div`
+  margin-left: 8px;
+  flex: 1;
+  border: 1px solid ${Style.color.border.error};
+  background-color: #FFF9FA;
+  padding: 12px;
+`;
+
 const Toggle = styled.div<{ expanded: boolean }>`
   padding: 0px 20px;
   cursor: pointer;
-  border-top: 1px solid ${Style.color.border};
+  border-top: 1px solid ${Style.color.border.default};
   height: 36px;
   color: ${Style.color.primary};
   
@@ -82,7 +100,7 @@ const Toggle = styled.div<{ expanded: boolean }>`
   }
 `;
 const Args = styled.div`
-  border: 1px solid ${Style.color.border};
+  border: 1px solid ${Style.color.border.default};
   border-radius: 4px;
   height: 144px;
   background: #F6F5F7;
@@ -130,19 +148,20 @@ export const ContractTrace: FC<{
   const { contracts } = useContracts(api, blocks);
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
-  const abi = useMemo(() => {
-    const contract = contracts.find(contracts => contracts.address === trace.self_account);
+  const contract = useMemo(() => contracts.find(contracts => contracts.address === trace.self_account), [contracts, trace]);
 
+  const abi = useMemo(() => {
     if (!contract) {
       return;
     }
 
     store.loadAll();
+
     return store.getCode(contract.codeHash)?.contractAbi;
-  }, [contracts, trace.self_account]);
+  }, [contract]);
 
   return (
-    <Wrapper depth={trace.depth}>
+    <Wrapper err={!!trace.ext_result.Err} depth={trace.depth}>
       <BorderBase depth={trace.depth} />
       <Contract depth={trace.depth}>
         <MainInfo>
@@ -159,7 +178,13 @@ export const ContractTrace: FC<{
           <Line>
             <Left>
               <LabelDefault>To</LabelDefault>
-              <ValueDefault>{trace.self_account}</ValueDefault>
+              <ValueDefault>
+                <Link to={`/explorer/contract/${contract?.address.toString()}`}>
+                  {store.getCode(contract?.codeHash || '')?.json.name}
+                  &nbsp;:&nbsp;
+                  {trace.self_account}
+                </Link>
+              </ValueDefault>
             </Left>
             <Right>
               <GasLeft>
@@ -175,43 +200,69 @@ export const ContractTrace: FC<{
         </MainInfo>
         {
           showDetail &&
-          <Detail>
-            <Left>
-              <Line>
-                <LabelDefault>Function</LabelDefault>
-                <ValueDefault>{
-                  abi ? getIdentifer(abi, trace.selector) : trace.selector
-                }</ValueDefault>
-              </Line>
-              <Line>
-                <LabelDefault>Args</LabelDefault>
-                <div>
-                  <Args>{
-                    abi ?
-                      getArgs(abi, trace.selector, trace.args).map((arg, index) =>
-                        <div key={index}>{arg.toString()}</div>
-                      )
-                      :
-                      trace.args
-                  }</Args>
-                  {
-                    !abi &&
-                      <Button>Decode Parameters</Button>
-                  }
-                </div>
-              </Line>
-            </Left>
-            <Right>
-              <Line>
-                <LabelDefault>Trap Reason</LabelDefault>
-                <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>
-              </Line>
-              <Line>
-                <LabelDefault>Env trace</LabelDefault>
-                <Args>{JSON.stringify(trace.env_trace)}</Args>
-              </Line>
-            </Right>
-          </Detail>
+            <Detail>
+              <DetailBase>
+                <Left>
+                  <Line>
+                    <LabelDefault>Function</LabelDefault>
+                    <ValueDefault>{
+                      abi ? getIdentifer(abi, trace.selector) : trace.selector
+                    }</ValueDefault>
+                  </Line>
+                  <Line>
+                    <LabelDefault>Args</LabelDefault>
+                    <div>
+                      <Args>{
+                        abi ?
+                          getArgs(abi, trace.selector, trace.args).map((arg, index) =>
+                            <div key={index}>{arg.toString()}</div>
+                          )
+                          :
+                          trace.args
+                      }</Args>
+                      {
+                        !abi &&
+                          <Button>Decode Parameters</Button>
+                      }
+                    </div>
+                  </Line>
+                </Left>
+                <Right>
+                  <Line>
+                    <LabelDefault>Trap Reason</LabelDefault>
+                    <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>
+                  </Line>
+                  <Line>
+                    <LabelDefault>Env trace</LabelDefault>
+                    <Args>{JSON.stringify(trace.env_trace)}</Args>
+                  </Line>
+                </Right>
+              </DetailBase>
+              {
+                !!trace.ext_result.Err &&
+                  <Error>
+                    <span>Wasm Error</span>
+                    <ErrorTrap>
+                      <div style={{ display: 'flex' }}>
+                        <span style={{ width: '40px', marginRight: '10px' }}>Code</span>
+                        <div>
+                          { trace.wasm_error.Trap.code }
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex' }}>
+                        <span style={{ width: '40px', marginRight: '10px' }}>Trap</span>
+                        <div>
+                          {
+                            trace.wasm_error.Trap.trace.map((t, index) =>
+                              <div key={index}>{t}</div>
+                            )
+                          }
+                        </div>
+                      </div>
+                    </ErrorTrap>
+                  </Error>
+              }
+            </Detail>
         }
         <Toggle expanded={showDetail} onClick={() => setShowDetail(!showDetail)}>
           <div>

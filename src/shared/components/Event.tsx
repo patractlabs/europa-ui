@@ -56,14 +56,11 @@ export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
       const args = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
         .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
 
-      console.log('args', args, 'event', event.event.section + '+' + event.event.method);
       return {
         [args[index] ? args[index] : `${index}`]: value.toJSON(),
       } as unknown as Obj;
     });
   }, [metadata, event.event]);
-
-  // console.log('event', event.event.data.toHuman(), 'args', args);
 
   return (
     <Wrapper>

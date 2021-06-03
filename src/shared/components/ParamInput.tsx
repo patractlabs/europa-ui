@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   padding: 4px 16px;
   height: 48px;
   background: #FFFFFF;
-  border: 1px solid ${Style.color.border};
+  border: 1px solid ${Style.color.border.default};
 
   input.ant-input {
     font-size: 14px;

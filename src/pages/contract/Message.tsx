@@ -85,7 +85,6 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [ expanded, setExpanded ] = useState(false);
   const [ sender, setSender ] = useState<string>('');
   const [ result, setResult ] = useState<any>();
-  // const [ params, setParams ] = useState<{ [key: string]: string}>({});
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
 
@@ -101,12 +100,13 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
 
   const send = useCallback(async () => {
     console.log('send', params, sender);
-    // const fields = Object.keys(params).map(key => params[key]);
     if (!message.isMutating) {
       const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
       // const a = new BN(query.output?.toString() ||'');
       // console.log(a.div(new BN(10).pow(new BN(tokenDecimal))).toString());
-      setResult(query.output?.toHuman());
+      console.log('output', query.output?.toHuman());
+      
+      setResult(`${query.output?.toHuman()}`);
       return;
     }
 
@@ -140,15 +140,6 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     );
   }, [params, sender, contract, message, accounts]);
 
-  // useEffect(() => {
-  //   const params = message.args.reduce((p: { [key: string]: string}, arg) => {
-  //     p[arg.name] = '';
-  //     return p;
-  //   }, {});
-  //   setParams(params);
-  // }
-  // , [message]);
-
   return (
     <Wrapper>
       <MessageSignature onClick={() => setExpanded(!expanded)}>
@@ -172,14 +163,6 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
                   }
                   registry={contract.abi.registry}
                 />
-                // message.args.map(arg =>
-                //   <div key={arg.name} className="data-input">
-                //     <Param defaultValue={{ isValid: true, value: undefined }} arg={arg}  onChange={value => setParams({
-                //       ...params,
-                //       [arg.name]: value as string
-                //     })} />
-                //   </div>
-                // )
               }
               
               {
@@ -193,10 +176,13 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
               <Button onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
             </Exec>
-            <Result>
-              <span className="type">{ message.returnType?.displayName }: </span>
-              <span className="value">{ result }</span>
-            </Result>
+            {
+              !message.isMutating &&
+                <Result>
+                  <span className="type">{ message.returnType?.displayName }: </span>
+                  <span className="value">{ result }</span>
+                </Result>
+            }
           </Call>
       }
     </Wrapper>

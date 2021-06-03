@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { UploadContract } from './Upload';
-import { BlocksContext, ApiContext, useContracts } from '../../core';
+import { store, BlocksContext, ApiContext, useContracts } from '../../core';
 
 const Wrapper = styled.div`
 `;
@@ -18,17 +18,22 @@ export const Contracts: FC = (): ReactElement => {
     <Wrapper>
       <Button onClick={() => toggleUpload(true)}>Upload Contract</Button>
       <div>
-        contracts
+        <h3>Contracts</h3>
         <div>
           {
             contracts.map(contract =>
               <div key={contract.address}>
+                <span>
+                  {store.getCode(contract.codeHash)?.json.name} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                </span>
                 <Link to={`/explorer/contract/${contract.address}`}>
-                  {contract.address} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                  {contract.address}
                 </Link>
+                &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
                 <Link to={`/extrinsic/${contract.extrinsic.hash.toString()}/details`}>
-                  {contract.extrinsic.hash.toString()} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                  {contract.extrinsic.hash.toString()}
                 </Link>
+                &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
                 {contract.block.height}
               </div>
             )
@@ -36,17 +41,22 @@ export const Contracts: FC = (): ReactElement => {
         </div>
       </div>
       <div>
-        codes
+        <h3>Codes</h3>
         <div>
           {
             codesHash.map(code =>
               <div key={code.hash}>
+                <span>
+                  {store.getCode(code.hash)?.json.name} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                </span>
                 <Link to={`/explorer/code-hash/${code.hash}`}>
-                  {code.hash} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                    {code.hash}
                 </Link>
+                &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
                 <Link to={`/extrinsic/${code.extrinsic.hash.toString()}/details`}>
-                  {code.extrinsic.hash.toString()} &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
+                  {code.extrinsic.hash.toString()}
                 </Link>
+                &nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;
                 {code.block.height}
               </div>
             )

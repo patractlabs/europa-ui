@@ -44,7 +44,6 @@ const Arg: FC<{ style?: CSSProperties, arg: Obj }> = ({ arg, style }): ReactElem
 };
 
 export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
-
   args = args instanceof Array ?
     args :
     Object.keys(args).map(key =>
@@ -52,8 +51,6 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
         [key]: (args as Obj)[key]
       })
     );
-
-  // console.log('args', args);
 
   return (
     <Wrapper>

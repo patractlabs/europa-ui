@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import LogoSVG from '../../assets/imgs/Europa.svg';
 import CloseSVG from '../../assets/imgs/close.svg';
@@ -7,6 +7,8 @@ import MoreSVG from '../../assets/imgs/more-option.svg';
 import SearchSVG from '../../assets/imgs/search.svg';
 import { BreadCrumb, Divide } from '../../shared';
 import { Style } from '../../shared';
+import { BlocksContext, Extrinsic } from '../../core';
+import { message } from 'antd';
 
 const Wrapper = styled.div`
   display: flex;
@@ -112,6 +114,10 @@ const Search = styled.div`
   margin-right: 20px;
   height: 36px;
 
+  > input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #FFFFFF;
+    opacity: 0.7;
+  }
   > input {
     background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
     width: 300px;
@@ -119,7 +125,7 @@ const Search = styled.div`
     border-radius: 22px;
     border: 1px solid #FFFFFF;
     outline: none;
-    padding: 10px 16px;
+    padding: 10px 50px 10px 16px;
     font-size: 14px;
     color: #FFFFFF;
     line-height: 16px;
@@ -320,20 +326,37 @@ export const Header: FC = (): ReactElement => {
   const [ showSiderBg, toggoleSiderBg ] = useState<boolean>(false);
   const [ divides, setDivides ] = useState<Divide[]>([]);
   const { pathname } = useLocation();
+  const [ search, setSearch ] = useState('');
+  const { blocks } = useContext(BlocksContext);
+  const h = useHistory();
+
+
+  const onSearch = useCallback(() => {
+    const block = blocks.find(block => block.blockHash === search);
+
+    if (block) {
+      setSearch('');
+      return h.push(`/explorer/block/${block.blockHash}`);
+    }
+
+    const extrinsic = blocks
+      .reduce((all: Extrinsic[], block) => all.concat(block.extrinsics), [])
+      .find(extrinsic => extrinsic.hash.toString() === search)
+    
+
+    console.log('find ex', extrinsic, search)
+    if (extrinsic) {
+      setSearch('');
+      return h.push(`/extrinsic/${extrinsic.hash.toString()}/details`);
+    }
+
+    message.info('nothing found!')
+  
+  }, [blocks, search, h]);
 
   useMemo(() => {
     setDivides(pathRegs.find(reg => reg.reg.test(pathname))?.divides || []);
   }, [setDivides, pathname]);
-
-  const onTabClicked = useCallback((tab: TabStructure) => {
-    setDivides([
-      {
-        name: tab.title,
-        link: tab.link[0] === '/' ? tab.link.slice(1) : tab.link,
-      }
-    ]);
-    toggoleSider(false);
-  }, []);
 
   useEffect(() => {
     if (showSider) {
@@ -363,7 +386,7 @@ export const Header: FC = (): ReactElement => {
           TabGroupOne.map(tab => (
             <Tab key={tab.title}>
               <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={() => onTabClicked(tab)}>
+              <Link to={tab.link} onClick={() => toggoleSider(false)}>
                 {tab.title}
               </Link>
             </Tab>
@@ -376,7 +399,7 @@ export const Header: FC = (): ReactElement => {
           TabGroupTwo.map(tab => (
             <Tab key={tab.title}>
               <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={() => onTabClicked(tab)}>
+              <Link to={tab.link} onClick={() => toggoleSider(false)}>
                 {tab.title}
               </Link>
             </Tab>
@@ -391,8 +414,8 @@ export const Header: FC = (): ReactElement => {
       <BreadCrumb divides={divides} />
     </HeaderLeft>
     <Search>
-      <input />
-      <img src={SearchSVG} alt="" />
+      <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
+      <img onClick={onSearch} src={SearchSVG} alt="" />
     </Search>
   </Wrapper>
   );

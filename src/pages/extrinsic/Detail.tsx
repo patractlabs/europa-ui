@@ -62,6 +62,16 @@ export interface Trace {
       data: string;
       flags: number;
     }
+    Err: {
+      error: {
+        Module: {
+          error: number;
+          index: number;
+          message: Object;
+        }
+      };
+      origin: string;
+    }
   },
   gas_left: number,
   gas_limit: number,
