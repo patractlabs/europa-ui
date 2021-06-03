@@ -1,11 +1,12 @@
-import { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { Style } from '../styled/const';
+import { Args, Obj } from './Args';
+import { ApiContext } from '../../core';
 
 const Wrapper = styled.div`
-  border-bottom: 1px solid ${Style.color.border};
 `;
 const InfoLine = styled.div`
   cursor: pointer;
@@ -30,18 +31,39 @@ const Detail = styled.div`
   background: #EEECE9;
   padding: 20px 21px;
 `;
-const DetailLine = styled.div`
-
-`;
-const DetailTitle = styled.div`
-
-`;
-const DetailContent = styled.div`
-
-`;
 
 export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
+  const { metadata } = useContext(ApiContext);
+
+  const args = useMemo(() => {
+    type Module = {
+      name: string;
+      events: {
+        name: string;
+        args: string[];
+        documantion: string;
+      }[];
+    };
+
+    let modules: Module[] = [];
+
+    try {
+      modules = (metadata.toJSON().metadata as any)['v13'].modules as Module[];
+    } catch (e) {}
+
+    return event.event.data.map((value, index) => {
+      const args = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
+        .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
+
+      console.log('args', args, 'event', event.event.section + '+' + event.event.method);
+      return {
+        [args[index] ? args[index] : `${index}`]: value.toJSON(),
+      } as unknown as Obj;
+    });
+  }, [metadata, event.event]);
+
+  // console.log('event', event.event.data.toHuman(), 'args', args);
 
   return (
     <Wrapper>
@@ -57,14 +79,7 @@ export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
       {
         expanded &&
           <Detail>
-            {
-              event.event.data.map(value =>
-                <DetailLine key={value.hash.toString()}>
-                  <DetailTitle>{}</DetailTitle>
-                  <DetailContent>{value.toString()}</DetailContent>
-                </DetailLine>
-              )
-            }
+            <Args args={args} />
           </Detail>
       }
     </Wrapper>

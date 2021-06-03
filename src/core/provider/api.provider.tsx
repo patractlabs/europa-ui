@@ -1,5 +1,6 @@
 import React, { Context, useEffect, useState } from 'react';
 import { ApiRx, WsProvider } from '@polkadot/api';
+import type { Metadata } from '@polkadot/metadata';
 import keyring from '@polkadot/ui-keyring';
 import { zip } from 'rxjs';
 
@@ -11,6 +12,7 @@ const ApiContext: Context<{
   tokenSymbol: string;
   systemName: string;
   wsProvider: WsProvider;
+  metadata: Metadata;
 }> = React.createContext({
   isApiReady: false,
 } as any);
@@ -30,11 +32,13 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     tokenSymbol,
     systemName,
     genesisHash,
+    metadata,
   }, setProperties ] = useState<{
     tokenDecimal: number;
     tokenSymbol: string;
     systemName: string;
     genesisHash: string;
+    metadata: Metadata;
   }>({} as any);
 
   useEffect(() => {
@@ -108,9 +112,13 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         ss58Format,
         tokenDecimals,
         tokenSymbol,
-      }, _systemName ] = await zip(
+      },
+        _systemName,
+        metadata,
+      ] = await zip(
         _api.rpc.system.properties(),
         _api.rpc.system.name(),
+        _api.rpc.state.getMetadata(),
       ).toPromise();
 
       keyring.loadAll({
@@ -120,14 +128,15 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         isDevelopment: true,
       });
 
+      // console.log('metadata', metadata.keys(), metadata.values(), metadata.toHuman(), metadata.toJSON(), metadata.asV13, metadata.get('modules'), metadata.getAtIndex(0))
       const decimals = tokenDecimals.toHuman() as string[];
-
       api = _api;
       setProperties({
         systemName: _systemName.toString(),
         genesisHash: _api.genesisHash.toString(),
         tokenDecimal: parseInt(decimals[0]),
         tokenSymbol: tokenSymbol.toString(),
+        metadata,
       });
       setWsProvider(wsProvider);
       setIsReady(true);
@@ -145,6 +154,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     tokenSymbol,
     systemName,
     wsProvider,
+    metadata,
   } }>{children}</ApiContext.Provider>;
 });
 
