@@ -65,7 +65,7 @@ const Caller = styled.div`
   > .caller {
     font-size: 16px;
     font-weight: bold;
-    color: #2A292B;
+    color: ${Style.color.label.primary};
     padding-bottom: 8px;
   }
 `;
@@ -76,7 +76,7 @@ const Result = styled.div`
   > .type {
     font-size: 16px;
     font-weight: bold;
-    color: #2A292B;
+    color: ${Style.color.label.primary};
   }
 `;
 

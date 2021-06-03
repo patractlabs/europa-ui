@@ -12,12 +12,13 @@ import ParamComp from './ParamComp';
 import translate from './translate';
 import { createValue } from './values';
 import styled from 'styled-components';
+import { Style } from '../shared';
 
 const Wrapper = styled.div`
   > .param {
     font-size: 16px;
     font-weight: bold;
-    color: #2A292B;
+    color: ${Style.color.label.primary};
     padding-bottom: 8px;
   }
 `;

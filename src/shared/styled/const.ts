@@ -17,6 +17,9 @@ export const Style = {
     },
     button: {
       primary: '#BEAC92'
+    },
+    icon: {
+      fail: '#EE737E',
     }
   }
 };

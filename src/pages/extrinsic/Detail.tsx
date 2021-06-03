@@ -32,7 +32,7 @@ const ExtrinsicRight = styled.div`
   width: 50%;
 `;
 const Result = styled.label<{ err: boolean }>`
-  color: ${props => props.err ? '#EE737E' : Style.color.success};
+  color: ${props => props.err ? Style.color.icon.fail : Style.color.success};
   font-size: 24px;
   margin-left: 10px;
   height: 24px;
