@@ -32,18 +32,35 @@ const isComplexed = (value: any): boolean => {
   return typeof value === 'object' && value !== null;
 };
 
-const Arg: FC<{ style?: CSSProperties, arg: Obj }> = ({ arg, style }): ReactElement => {
+const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, style, index }): ReactElement => {
   return (
     <div style={style}>
       {
-        Object.keys(arg).map(key =>
-          <Item key={key}>
-            <div className="key">{key}</div>
+        arg instanceof Array ? 
+          <Item>
+            <div className="key">{index}</div>
             <div className="value">{
-              isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{arg[key]}</span>
+              <Args args={arg} />
             }</div>
           </Item>
-        )
+          :
+          isComplexed(arg) ?
+            Object.keys(arg).map(key =>
+              <Item key={key}>
+                <div className="key">{key}</div>
+                <div className="value">{
+                  isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{arg[key]}</span>
+                }</div>
+              </Item>
+            )
+            :
+            <Item>
+              <div className="key">{index}</div>
+              <div className="value">{
+                <span>{arg}</span>
+              }</div>
+            </Item>
+
       }
     </div>
   );
@@ -62,7 +79,9 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
     <Wrapper>
       {
         args.map((arg, index) =>
-          <Arg style={{  }} key={index} arg={arg} />
+          <div>
+            <Arg key={index} arg={arg} index={index} />
+          </div>
         )
       }
     </Wrapper>

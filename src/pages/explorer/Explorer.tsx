@@ -247,7 +247,7 @@ export const Explorer: FC = (): ReactElement => {
                 {
                   width: '50%',
                   key: 'hash',
-                  render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{record.hash?.toString()}</Link>,
+                  render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{record.method.section}.{record.method.method}</Link>,
                 },
                 {
                   width: '35%',

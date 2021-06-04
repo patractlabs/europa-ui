@@ -10,6 +10,7 @@ import type { AnyTuple } from '@polkadot/types/types';
 
 export type Extrinsic = GenericExtrinsic<AnyTuple> & {
   events: EventRecord[];
+  successed: boolean;
 }
 
 export type Block  = SignedBlock & {
@@ -50,14 +51,17 @@ const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
     api.query.system.events.at(blockHash),
   ).toPromise();
 
-  const extrinsics: Extrinsic[] = block.block.extrinsics.map((extrinsic, index) =>
-    Object.assign(extrinsic, {
-      events: events.filter(({ phase }) =>
-        phase.isApplyExtrinsic &&
-          phase.asApplyExtrinsic.eq(index)
-      ),
+  const extrinsics: Extrinsic[] = block.block.extrinsics.map((extrinsic, index) => {
+    const _events = events.filter(({ phase }) =>
+      phase.isApplyExtrinsic &&
+        phase.asApplyExtrinsic.eq(index)
+    );
+
+    return Object.assign(extrinsic, {
+      events: _events,
+      successed: !!_events.find(event => event.event.section === 'system' && event.event.method === 'ExtrinsicSuccess'),
     })
-  );
+  });
 
   return {
     block,
