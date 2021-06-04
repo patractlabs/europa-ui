@@ -9,3 +9,4 @@ export * from './AddressInput';
 export * from './ParamInput';
 export * from './Transfer';
 export * from './Args';
+export * from './InfoHeader';

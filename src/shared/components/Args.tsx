@@ -75,8 +75,6 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
       })
     );
 
-  console.log('aasd', args);
-  
   return (
     <Wrapper>
       {

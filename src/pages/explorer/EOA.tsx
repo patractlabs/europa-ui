@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder } from '../../shared';
+import { Transfer, ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder, InfoHeader } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -80,17 +80,24 @@ export const EOA: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <TitleWithBottomBorder>
-        <div className="label-line">
-          <LabelDefault>Address</LabelDefault>
-          <LabelDefault>Balance</LabelDefault>
-        </div>
-        <ValueLine>
-          <span>{ address }</span>
-          <Value>{ balance?.toString() }</Value>
-        </ValueLine>
-      </TitleWithBottomBorder>
-      <Title><label>Extrinsics</label> <span>Total { total } Extrinsics</span></Title>
+      <InfoHeader pairs={
+        [
+          {
+            label: 'Address',
+            render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{address}</span>
+          },
+          {
+            label: 'Balance',
+            align: 'right',
+            render:
+              <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
+          },
+        ]
+      }/>
+      <Title>
+        <label>Extrinsics</label>
+        <span>Total { total } Extrinsics</span>
+      </Title>
       <Table
         style={{ marginBottom: '16px' }}
         rowKey={record => record.hash.toString()}

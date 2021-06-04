@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import styled from 'styled-components';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
-import { LabelDefault, TitleWithBottomBorder, contentBase, formatAddress, Style, ValueLine, Tabs } from '../../shared';
+import { contentBase, formatAddress, Style, Tabs, InfoHeader } from '../../shared';
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
@@ -13,6 +13,7 @@ const Wrapper = styled.div`
   ${contentBase}
 `;
 const Uploader = styled.div`
+  font-size: 16px;
   >span {
     margin: 0px 5px;
     color: ${Style.color.label.primary};
@@ -57,20 +58,24 @@ export const CodeHash: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <TitleWithBottomBorder>
-        <div className="label-line">
-          <LabelDefault>Code Hash</LabelDefault>
-          <LabelDefault>Uploader</LabelDefault>
-        </div>
-        <ValueLine>
-          <div>{ codeHash }</div>
-          <Uploader>
-            <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
-            <span>at</span>
-            <Link to={`/explorer/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
-          </Uploader>
-        </ValueLine>
-      </TitleWithBottomBorder>
+      <InfoHeader pairs={
+        [
+          {
+            label: 'Code Hash',
+            render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{codeHash}</span>
+          },
+          {
+            label: 'Uploader',
+            align: 'right',
+            render:
+              <Uploader>
+                <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
+                <span>at</span>
+                <Link to={`/explorer/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
+              </Uploader>
+          },
+        ]
+      }/>
 
       <TabTitle>
         <Tabs

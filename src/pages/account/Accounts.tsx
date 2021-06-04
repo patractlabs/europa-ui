@@ -10,6 +10,7 @@ import MnemonicSvg from '../../assets/imgs/mnemonic.svg';
 import DeleteSvg from '../../assets/imgs/delete.svg';
 import ImportSvg from '../../assets/imgs/import-account.svg';
 import { Tooltip } from 'antd';
+import { Link } from 'react-router-dom';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -142,7 +143,11 @@ const Account: FC<{
   return (
     <AccountWrapper>
       <div className="name">{account.name}</div>
-      <div className="address">{account.address}</div>
+      <div className="address">
+        <Link to={`/explorer/eoa/${account.address}`}>
+          {account.address}
+        </Link>
+      </div>
       <div className="balance">{account.balance}</div>
       {
         !account.isTesting &&

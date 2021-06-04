@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
-import { contentBase, formatAddress, LabelDefault, Style, Tabs, TitleWithBottomBorder, ValueLine } from '../../shared';
+import { contentBase, formatAddress, InfoHeader, LabelDefault, Style, Tabs, TitleWithBottomBorder, ValueLine } from '../../shared';
 import { BlocksContext, ApiContext, useContracts, useBalance } from '../../core';
 import { Functions } from './Functions';
 import { ContractExtrinsics } from './ContractExtrinsics';
@@ -37,22 +37,29 @@ export const Contract: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <TitleWithBottomBorder>
-        <div className="label-line">
-          <LabelDefault>Address</LabelDefault>
-          <LabelDefault>Creator</LabelDefault>
-          <LabelDefault>Balance</LabelDefault>
-        </div>
-        <ValueLine>
-          <div>{ address }</div>
-          <Uploader>
-            <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
-            <span>at</span>
-            <Link to={`/explorer/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
-          </Uploader>
-          <div>{ balance?.toString() } DOT</div>
-        </ValueLine>
-      </TitleWithBottomBorder>
+      <InfoHeader pairs={
+        [
+          {
+            label: 'Address',
+            render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{address}</span>
+          },
+          {
+            label: 'Creator',
+            render:
+              <Uploader>
+                <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
+                <span>at</span>
+                <Link to={`/explorer/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
+              </Uploader>
+          },
+          {
+            label: 'Balance',
+            align: 'right',
+            render:
+              <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
+          },
+        ]
+      }/>
       <Content>
         <Tabs
           options={[
