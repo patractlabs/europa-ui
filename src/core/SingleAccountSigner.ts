@@ -6,7 +6,6 @@ import type { Signer, SignerResult } from '@polkadot/api/types';
 import type { KeyringPair } from '@polkadot/keyring/types';
 import type { Registry, SignerPayloadJSON, SignerPayloadRaw } from '@polkadot/types/types';
 import { TypeRegistry } from '@polkadot/types/create';
-
 import { assert, hexToU8a, u8aToHex } from '@polkadot/util';
 
 let id = 0;

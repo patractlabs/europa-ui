@@ -1,5 +1,6 @@
 import { FC, CSSProperties, ReactElement } from 'react';
 import styled from 'styled-components';
+import { Style } from '../styled/const';
 
 const Wrapper = styled.div`
 `;
@@ -8,11 +9,16 @@ const Item = styled.div`
   display: flex;
 
   > .key {
+    padding: 20px;
+    border: 1px solid ${Style.color.border.default};
     width: 140px;
     height: 100%;
     line-height: 100%;
   }
   > .value {
+    border: 1px solid ${Style.color.border.default};
+    padding: 20px;
+    overflow: hidden;
     flex: 1;
     line-height: 100%;
   }

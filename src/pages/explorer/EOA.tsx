@@ -111,7 +111,7 @@ export const EOA: FC = (): ReactElement => {
             render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
           },
           {
-            title: <div style={{display: 'flex'}}><span style={{ width: '183px', color: Style.color.label.default }}>From</span><span>To</span></div>,
+            title: <div style={{display: 'flex'}}><span style={{ width: '193px', color: Style.color.label.default }}>From</span><span>To</span></div>,
             width: '35%',
             key: 'transfer',
             render: (_, record) => <Transfer signer={address} record={record} />

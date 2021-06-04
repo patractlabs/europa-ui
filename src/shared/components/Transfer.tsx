@@ -15,7 +15,7 @@ const Wrapper = styled.div`
     height: 20px;
   }
   > .from, > .to {
-    width: 123px;
+    width: 133px;
   }
 `;
 

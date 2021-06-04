@@ -1,12 +1,14 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import { hexToU8a } from '@polkadot/util';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, Extrinsic } from '../../core';
+import { store, ApiContext, BlocksContext, Extrinsic, useContracts } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine } from '../../shared';
+import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine, Obj, Args } from '../../shared';
 import { ContractTrace } from './Trace';
+import { Abi } from '@polkadot/api-contract';
 
 const Wrapper = styled.div`
 `;
@@ -48,9 +50,9 @@ type ExtendedExtrinsic = Extrinsic & {
   height: number;
   index: number;
   timestamp: string;
-  gasLimit: string;
-  gasUsed: string;
-  fee: string;
+  // gasLimit: string;
+  // gasUsed: string;
+  // fee: string;
 };
 
 export interface Trace {
@@ -95,10 +97,58 @@ export interface Trace {
   },
 }
 
+const decodeData = (extrinsic: Extrinsic, abi: Abi | undefined, name: string, data: string): string | Obj[] => {
+  console.log('s', extrinsic.method.section, extrinsic.method.method);
+  
+  if (
+    !abi ||
+    name !== 'data' ||
+    extrinsic.method.section.toLowerCase() !== 'contracts' ||
+    (
+      extrinsic.method.method.toLowerCase() !== 'call' &&
+      extrinsic.method.method.toLowerCase() !== 'instantiate' &&
+      extrinsic.method.method.toLowerCase() !== 'instantiatewithcode'
+    )
+  ) {
+    return data;
+  }
+
+  const fun = abi.constructors.find(message => message.selector.toString() === data.slice(0, 10)) ||
+    abi.messages.find(message => message.selector.toString() === data.slice(0, 10));
+  
+  if (!fun) {
+    return data;
+  }
+
+  try {
+    const message = fun.fromU8a(hexToU8a(`0x${data.slice(10)}`));
+
+    return message.args.map((arg, index) => ({
+      [message.message.args[index].name]: arg.toHuman()
+    })) as unknown as Obj[];
+  } catch (e) {}
+
+  return data;
+};
 export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
-  const { wsProvider } = useContext(ApiContext);
+  const { api, wsProvider } = useContext(ApiContext);
   const [ trace, setTrace ] = useState<Trace>();
+  const [ fetched, setFetched ] = useState(false);
+  const { metadata } = useContext(ApiContext);
+  const { contracts } = useContracts(api, blocks);
+
+  const contract = useMemo(() => contracts.find(contracts => contracts.address === trace?.self_account), [contracts, trace]);
+  const abi = useMemo(() => {
+    if (!contract) {
+      return;
+    }
+
+    store.loadAll();
+
+    return store.getCode(contract.codeHash)?.contractAbi;
+  }, [contract]);
+
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
     
@@ -117,9 +167,9 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
         height: _block.height,
         index,
         timestamp: setTimeExtrinsic?.args[0].toString(),
-        gasLimit: '',
-        gasUsed: '',
-        fee: '',
+        // gasLimit: '',
+        // gasUsed: '',
+        // fee: '',
       });
 
       return true;
@@ -128,19 +178,57 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     return _extrinsic;
   }, [hash, blocks]);
 
+  const args = useMemo(() => {
+    if (!extrinsic || !contract) {
+      return [];
+    }
+
+    type Module = {
+      name: string;
+      calls: {
+        name: string;
+        args: {
+          name: string;
+          type: string;
+        }[];
+        documantion: string;
+      }[];
+    };
+
+    let modules: Module[] = [];
+
+    try {
+      modules = (metadata.toJSON().metadata as any)['v13'].modules as Module[];
+    } catch (e) {}
+
+    const args = modules
+      .find(module => module.name.toLowerCase() === extrinsic.method.section.toLowerCase())?.calls
+      .find(call => call.name.split('_').join('').toLowerCase() === extrinsic.method.method.toLowerCase())?.args || [];
+
+    // console.log('args', args, 'modules', modules, extrinsic.method.section.toLowerCase(), extrinsic.method.method.toLowerCase(),modules
+    // .find(module => module.name.toLowerCase() === extrinsic.method.section.toLowerCase())?.calls);
+    
+    return extrinsic.args.map((arg, index) => ({
+      [args[index] ? args[index].name : `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString()),
+    } as unknown as Obj));
+  }, [metadata, extrinsic, contract, abi]);
+
   useEffect(() => {
     if (!extrinsic) {
       return;
     }
 
+    setFetched(false);
     wsProvider.send('contractsExt_tracing', [
       extrinsic.height, extrinsic.index      
     ]).then(({ trace }: { trace: Trace}) => {
       console.log('trace', trace);
       setTrace(trace.depth ? trace : undefined);
+      setFetched(true);
     }, (e: any) => {
       console.log('e', e);
       setTrace(undefined);
+      setFetched(true);
     });
   }, [wsProvider, extrinsic]);
 
@@ -161,21 +249,23 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               <ExtrinsicLeft>
                 <KeyValueLine>
                   {
-                    trace &&
-                      <img style={{ height: '24px', width: '24px' }} src={trace.ext_result.Err ? FailSvg : SuccessSvg} alt=""/>
+                    fetched &&
+                      <img style={{ height: '24px', width: '24px' }} src={!!trace && !!trace.ext_result.Err ? FailSvg : SuccessSvg} alt=""/>
 
                   }
                   {
-                    trace &&
-                      <Result err={!!trace.ext_result.Err}>{
-                        trace.ext_result.Err ? 'Fail' : 'Success'
+                    fetched &&
+                      <Result err={!!trace && !!trace.ext_result.Err}>{
+                        !!trace && !!trace.ext_result.Err ? 'Fail' : 'Success'
                       }</Result>
                   }
                 </KeyValueLine>
                 <KeyValueLine>
-                  <Label>Timestamp</Label>
-                  <ValueDefault>{ extrinsic.timestamp }</ValueDefault>
+                  <Label>Method</Label>
+                  <ValueDefault>{ extrinsic.method.section }.{extrinsic.method.method}</ValueDefault>
                 </KeyValueLine>
+              </ExtrinsicLeft>
+              <ExtrinsicRight>
                 <KeyValueLine>
                   <img style={{ width: '16px', height: '16px', marginRight: '4px' }} src={BlockSvg} alt="" />
                   <Label>
@@ -185,22 +275,18 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                     <Link to={`/block/${extrinsic.blockHash}`}>{extrinsic.height}</Link>
                   </ValueDefault>
                 </KeyValueLine>
-              </ExtrinsicLeft>
-              <ExtrinsicRight>
                 <KeyValueLine>
-                  <Label>Gas Limit</Label>
-                  <ValueDefault>{ extrinsic.gasLimit }</ValueDefault>
-                </KeyValueLine>
-                <KeyValueLine>
-                  <Label>Gas Used by extrinsic</Label>
-                  <ValueDefault>{ extrinsic.gasUsed }</ValueDefault>
-                </KeyValueLine>
-                <KeyValueLine>
-                  <Label>Extrinsic fee</Label>
-                  <ValueDefault>{ extrinsic.fee }</ValueDefault>
+                  <Label>Timestamp</Label>
+                  <ValueDefault>{ extrinsic.timestamp }</ValueDefault>
                 </KeyValueLine>
               </ExtrinsicRight>
             </ExtrinsicInfo>
+            <div>
+              {
+                args &&
+                  <Args args={args} />
+              }
+            </div>
           </div>
       }
       {
