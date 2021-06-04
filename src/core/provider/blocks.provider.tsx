@@ -143,7 +143,8 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
         () => {},
       ).then(() =>
         api.derive.chain.subscribeNewHeads().subscribe(async header => {
-          console.log('new header: ', header.number.toNumber(), header.toHuman());
+          console.log('new header: height=' + header.number.toNumber());
+          console.log(header.toHuman());
 
           const { block, extrinsics } = await retriveBlock(
             api,

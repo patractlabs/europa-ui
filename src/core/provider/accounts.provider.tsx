@@ -69,7 +69,7 @@ export const AccountsProvider = React.memo(({ children }: { children: React.Reac
       ).subscribe((accounts) => {
         accounts = accounts.filter((account) => !!account);
         setAccounts(accounts);
-        console.log('retrieve accounts', accounts);
+        console.log('Stored Accounts:', accounts);
       }, e => console.log('eee', e));
   
       return () => sub.unsubscribe();

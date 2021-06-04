@@ -106,7 +106,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     });
 
     apiRx.on('ready', async (_api: ApiRx) => {
-      console.log('api ready', _api);
+      console.log('api ready!');
 
       const [ {
         ss58Format,
@@ -141,9 +141,9 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
       setWsProvider(wsProvider);
       setIsReady(true);
     });
-    apiRx.on('error', error => console.log('api error', error));
-    apiRx.on('connected', () => console.log('api connected'));
-    apiRx.on('disconnected', () => console.log('api disconnected'));
+    apiRx.on('error', error => console.log('api error!', error));
+    apiRx.on('connected', () => console.log('api connected!'));
+    apiRx.on('disconnected', () => console.log('api disconnected!'));
   }, []);
 
   return <ApiContext.Provider value={ {

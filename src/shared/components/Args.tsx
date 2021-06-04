@@ -49,7 +49,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
               <Item key={key}>
                 <div className="key">{key}</div>
                 <div className="value">{
-                  isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{arg[key]}</span>
+                  isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
                 }</div>
               </Item>
             )
@@ -57,7 +57,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
             <Item>
               <div className="key">{index}</div>
               <div className="value">{
-                <span>{arg}</span>
+                <span>{`${arg}`}</span>
               }</div>
             </Item>
 
@@ -75,6 +75,8 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
       })
     );
 
+  console.log('aasd', args);
+  
   return (
     <Wrapper>
       {

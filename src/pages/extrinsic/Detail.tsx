@@ -117,9 +117,6 @@ const decodeData = (extrinsic: Extrinsic, abi: Abi | undefined, name: string, da
 
   try {
     const message = fun.fromU8a(hexToU8a(`0x${data.slice(10)}`));
-    console.log('argsssssss', message.args.map((arg, index) => ({
-      [message.message.args[index].name]: arg.toHuman()
-    })));
 
     return message.args.map((arg, index) => ({
       [message.message.args[index].name]: arg.toHuman()
