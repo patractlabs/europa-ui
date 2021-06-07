@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, Extrinsic } from '../../core';
-import { PaginationLine, PaginationR, PageSize, formatAddress, lookForDestAddress, lookForTranferedValue, Transfer } from '../../shared';
+import { PaginationLine, PaginationR, PageSize, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
 
 const Wrapper = styled.div`
   

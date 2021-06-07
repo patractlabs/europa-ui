@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
-import { contentBase, formatAddress, InfoHeader, LabelDefault, Style, Tabs, TitleWithBottomBorder, ValueLine } from '../../shared';
+import { contentBase, formatAddress, InfoHeader, Style, Tabs } from '../../shared';
 import { BlocksContext, ApiContext, useContracts, useBalance } from '../../core';
 import { Functions } from './Functions';
 import { ContractExtrinsics } from './ContractExtrinsics';

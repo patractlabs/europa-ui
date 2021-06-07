@@ -178,21 +178,6 @@ export const Accounts: FC = (): ReactElement => {
   return (
     <Wrapper>
       <AccountsArea>
-        <Title>Default Accounts</Title>
-        
-        <ListHeader>
-          <span className="name">Name</span>
-          <span className="address">Address</span>
-          <span className="balance">Balance</span>
-        </ListHeader>
-
-        {
-          accounts.filter(account => !!account.isTesting).map(account =>
-            <Account account={account} key={account.address} />
-          )
-        }
-      </AccountsArea>
-      <AccountsArea>
         <Title>
           <span>New Accounts</span>
           <ButtonGroup>
@@ -215,6 +200,21 @@ export const Accounts: FC = (): ReactElement => {
         
         {
           accounts.filter(account => !account.isTesting).map(account =>
+            <Account account={account} key={account.address} />
+          )
+        }
+      </AccountsArea>
+      <AccountsArea>
+        <Title>Default Accounts</Title>
+        
+        <ListHeader>
+          <span className="name">Name</span>
+          <span className="address">Address</span>
+          <span className="balance">Balance</span>
+        </ListHeader>
+
+        {
+          accounts.filter(account => !!account.isTesting).map(account =>
             <Account account={account} key={account.address} />
           )
         }

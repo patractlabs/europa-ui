@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder, InfoHeader } from '../../shared';
+import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, contentBase, InfoHeader } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -14,10 +14,6 @@ const Wrapper = styled.div`
 `;
 const HeaderLabel = styled.span`
   color: ${Style.color.label.default};
-`;
-const Value = styled(ValueDefault)`
-  font-size: 18px;
-  font-weight: bold;
 `;
 const Title = styled.h2`
   padding: 20px;
@@ -47,7 +43,7 @@ export const EOA: FC = (): ReactElement => {
   const { address } = useParams<{ address: string }>();
   const { blocks } = useContext(BlocksContext);
   const { api } = useContext(ApiContext);
-  const { pageIndex, pageSize, setTotal, total } = useContext(PaginationContext);
+  const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
   const { balance } = useBalance(api, address);
 
   const extrinsics: ExtenedExtrinsic[] = useMemo(() =>
@@ -96,7 +92,6 @@ export const EOA: FC = (): ReactElement => {
       }/>
       <Title>
         <label>Extrinsics</label>
-        <span>Total { total } Extrinsics</span>
       </Title>
       <Table
         style={{ marginBottom: '16px' }}
