@@ -202,6 +202,10 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
       .find(module => module.name.toLowerCase() === extrinsic.method.section.toLowerCase())?.calls
       .find(call => call.name.split('_').join('').toLowerCase() === extrinsic.method.method.toLowerCase())?.args || [];
 
+    console.log('args', args, extrinsic.args.map(arg => arg.toString()), extrinsic.args.map((arg, index) => ({
+      [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString()),
+    } as unknown as Obj)));
+    
     return extrinsic.args.map((arg, index) => ({
       [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString()),
     } as unknown as Obj));

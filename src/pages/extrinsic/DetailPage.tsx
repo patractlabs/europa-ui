@@ -15,7 +15,7 @@ const Content = styled.div`
 const TabArea = styled.div`
   height: 48px;
   padding-top: 8px;
-  background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
+  background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
   color: white;
 `;
 

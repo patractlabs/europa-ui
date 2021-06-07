@@ -48,7 +48,7 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
             render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{record.height}</Link>,
           },
           {
-            title: <div style={{display: 'flex'}}><span style={{ width: '193px' }}>From</span><span>To</span></div>,
+            title: <div style={{display: 'flex'}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
             width: '35%',
             key: 'transfer',
             render: (_, record) => <Transfer record={record} />

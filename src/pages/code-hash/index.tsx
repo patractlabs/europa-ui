@@ -29,14 +29,14 @@ const UploadButton = styled(Button)`
   padding: 0px 24px;
   height: 40px;
   border-radius: 26px;
-  border: 1px solid #BEAC92;
+  border: 1px solid ${Style.color.button.primary};
   font-size: 14px;
   font-weight: bold;
   color: ${Style.color.primary};
 
   &:hover {
     color: ${Style.color.primary};
-    border: 1px solid #BEAC92;
+    border: 1px solid ${Style.color.button.primary};
   }
 `;
 

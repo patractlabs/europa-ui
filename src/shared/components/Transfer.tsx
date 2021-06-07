@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Extrinsic } from '../../core';
 import { formatAddress, lookForDestAddress } from '../util';
 import TransferArrowSVG from '../../assets/imgs/transfer-arrow.svg';
+import Identicon from '@polkadot/react-identicon';
+import { Style } from '../styled';
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,27 +17,49 @@ const Wrapper = styled.div`
     height: 20px;
   }
   > .from, > .to {
-    width: 133px;
+    width: 155px;
+  }
+  > .to {
+    color: ${Style.color.label.default};
   }
 `;
+const AddressWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Address: FC<{ address: string; signer?: string }> = ({ address, signer }): ReactElement => {
+  return (
+    <AddressWrapper>
+      <Identicon
+          style={{ marginRight: '10px' }}
+          value={address}
+          size={20}
+          theme='polkadot'
+        />
+        {
+          signer === address ? 
+            <span>{formatAddress(address)}</span>
+            :
+            <Link to={`/explorer/eoa/${address}`}>
+              {formatAddress(address)}
+            </Link>
+        }
+    </AddressWrapper>
+  );
+};
 
 export const Transfer: FC<{ signer?: string; style?: CSSProperties, record: Extrinsic }> = ({ signer, style, record }): ReactElement => {
   return (
     <Wrapper style={style}>
       <div className="from">
-        {
-          signer === record.signer.toString() ? 
-            <span>{formatAddress(record.signer.toString())}</span> :
-            <Link to={`/explorer/eoa/${record.signer.toString()}`}>{formatAddress(record.signer.toString())}</Link>
-        }
+        <Address address={record.signer.toString()} signer={signer} />
       </div>
       <img src={TransferArrowSVG} alt="" />
       <div className="to">
         {
           lookForDestAddress(record) ?
-            signer === lookForDestAddress(record) ? 
-              <span>{formatAddress(lookForDestAddress(record))}</span> :
-              <Link to={`/explorer/eoa/${lookForDestAddress(record)}`}>{formatAddress(lookForDestAddress(record))}</Link>
+            <Address address={lookForDestAddress(record)} signer={signer} />
             :
             <span>-</span>
         }

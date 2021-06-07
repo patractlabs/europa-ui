@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, ValueLine, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder, InfoHeader } from '../../shared';
+import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, ValueDefault, LabelDefault, contentBase, TitleWithBottomBorder, InfoHeader } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -118,7 +118,7 @@ export const EOA: FC = (): ReactElement => {
             render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
           },
           {
-            title: <div style={{display: 'flex'}}><span style={{ width: '193px', color: Style.color.label.default }}>From</span><span>To</span></div>,
+            title: <div style={{display: 'flex', color: Style.color.label.default}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
             width: '35%',
             key: 'transfer',
             render: (_, record) => <Transfer signer={address} record={record} />

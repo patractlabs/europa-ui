@@ -10,7 +10,7 @@ import type { Codec } from '@polkadot/types/types';
 import { Link } from 'react-router-dom';
 
 const depthColors = [
-  '#BEAC92',
+  Style.color.button.primary,
   '#DFC49A',
   '#95BEEB',
   '#AA94DC',

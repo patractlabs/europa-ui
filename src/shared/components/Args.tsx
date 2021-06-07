@@ -5,19 +5,19 @@ import { Style } from '../styled/const';
 const Wrapper = styled.div`
 `;
 
-const Item = styled.div`
+const Item = styled.div<{ hasChild: boolean }>`
   display: flex;
 
   > .key {
     padding: 20px;
     border: 1px solid ${Style.color.border.default};
     width: 140px;
-    height: 100%;
-    line-height: 100%;
+    display: flex;
+    align-items: center;
   }
   > .value {
+    padding: ${props => props.hasChild ? '0px' : '20px'};
     border: 1px solid ${Style.color.border.default};
-    padding: 20px;
     overflow: hidden;
     flex: 1;
     line-height: 100%;
@@ -37,7 +37,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
     <div style={style}>
       {
         arg instanceof Array ? 
-          <Item>
+          <Item hasChild={true}>
             <div className="key">{index}</div>
             <div className="value">{
               <Args args={arg} />
@@ -46,7 +46,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
           :
           isComplexed(arg) ?
             Object.keys(arg).map(key =>
-              <Item key={key}>
+              <Item key={key} hasChild={isComplexed(arg[key])}>
                 <div className="key">{key}</div>
                 <div className="value">{
                   isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
@@ -54,7 +54,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
               </Item>
             )
             :
-            <Item>
+            <Item hasChild={false}>
               <div className="key">{index}</div>
               <div className="value">{
                 <span>{`${arg}`}</span>
@@ -79,8 +79,8 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
     <Wrapper>
       {
         args.map((arg, index) =>
-          <div>
-            <Arg key={index} arg={arg} index={index} />
+          <div key={index}>
+            <Arg arg={arg} index={index} />
           </div>
         )
       }

@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   height: 68px;
-  background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
+  background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
 `;
 const HeaderLeft = styled.div`
   display: flex;
@@ -119,7 +119,7 @@ const Search = styled.div`
     opacity: 0.7;
   }
   > input {
-    background: linear-gradient(90deg, #BEAC92 0%, ${Style.color.primary} 100%);
+    background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
     width: 300px;
     height: 100%;
     border-radius: 22px;
