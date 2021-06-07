@@ -4,14 +4,14 @@ import { of, zip } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ApiRx } from '@polkadot/api';
 
-interface DeployedContract {
+export interface DeployedContract {
   codeHash: string;
   address: string;
   extrinsic: Extrinsic;
   block: Block;
 }
 
-interface DeployedCode {
+export interface DeployedCode {
   hash: string;
   extrinsic: Extrinsic;
   block: Block;

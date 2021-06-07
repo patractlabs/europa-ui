@@ -5,7 +5,7 @@ import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
 import { Setting } from './pages/setting/Setting';
 import { Developer } from './pages/developer/Developer';
-import { Contracts } from './pages/contract/Contracts';
+import { ContractsPage } from './pages/contract';
 import { Events } from './pages/events/Events';
 import { ExtrinsicPage } from './pages/extrinsic';
 import { Blocks } from './pages/blocks/Blocks';
@@ -52,7 +52,7 @@ const Main: FC = (): ReactElement => {
             <Events />
           </Route>
           <Route path='/contract'>
-            <Contracts />
+            <ContractsPage />
           </Route>
           <Route path='/developer'>
             <Developer />

@@ -23,12 +23,6 @@ const Title = styled.h2`
     color: ${Style.color.label.primary};
     font-weight: bold;
   }
-  > span {
-    margin-left: 12px;
-    font-size: 14px;
-    font-weight: 400;
-    color: ${Style.color.label.default};
-  }
 `;
 
 type ExtenedExtrinsic = Extrinsic & {
