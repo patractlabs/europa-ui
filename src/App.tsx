@@ -6,7 +6,7 @@ import { Explorer } from './pages/explorer/Explorer';
 import { Setting } from './pages/setting/Setting';
 import { Developer } from './pages/developer/Developer';
 import { ContractsPage } from './pages/contract';
-import { Events } from './pages/events/Events';
+import { EventsPage } from './pages/events';
 import { ExtrinsicPage } from './pages/extrinsic';
 import { Blocks } from './pages/blocks/Blocks';
 import { Accounts } from './pages/account/Accounts';
@@ -43,13 +43,15 @@ const Main: FC = (): ReactElement => {
             <Accounts />
           </Route>
           <Route path='/block'>
-            <Blocks />
+            <PaginationProvider>
+              <Blocks />
+            </PaginationProvider>
           </Route>
           <Route path='/extrinsic'>
             <ExtrinsicPage />
           </Route>
           <Route path='/event'>
-            <Events />
+            <EventsPage />
           </Route>
           <Route path='/contract'>
             <ContractsPage />
