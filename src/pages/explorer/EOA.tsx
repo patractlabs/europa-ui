@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PaginationLine, Style, contentBase, InfoHeader } from '../../shared';
+import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -94,17 +94,16 @@ export const EOA: FC = (): ReactElement => {
         <label>Extrinsics</label>
       </Title>
       <Table
-        style={{ marginBottom: '16px' }}
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
         pagination={false}
         dataSource={selectedExtrinsics}
         columns={[
           {
-            title: <HeaderLabel>Hash</HeaderLabel>,
+            title: <HeaderLabel style={{ marginLeft: '4px' }}>Hash</HeaderLabel>,
             width: '20%',
             key: 'hash',
-            render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
+            render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
           },
           {
             title: <HeaderLabel>Block Number</HeaderLabel>,
@@ -132,10 +131,10 @@ export const EOA: FC = (): ReactElement => {
           },
         ]}
       />
-      <PaginationLine>
+      <PageLine style={{ marginTop: '16px' }}>
         <PageSize />
         <PaginationR />
-      </PaginationLine>
+      </PageLine>
     </Wrapper>
   );
 

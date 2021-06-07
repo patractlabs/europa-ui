@@ -1,6 +1,6 @@
 export * from './PageSize';
 export * from './Pagination';
-export * from './PaginationLine';
+export * from './PageLine';
 export * from './Tabs';
 export * from './Events';
 export * from './Extrinsics';
@@ -10,3 +10,4 @@ export * from './ParamInput';
 export * from './Transfer';
 export * from './Args';
 export * from './InfoHeader';
+export * from './PageLine';

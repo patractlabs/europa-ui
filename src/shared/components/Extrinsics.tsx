@@ -3,12 +3,16 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, Extrinsic } from '../../core';
-import { PaginationLine, PaginationR, PageSize, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
+import { PageLine, PaginationR, PageSize, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
+import { Style } from '../styled';
 
 const Wrapper = styled.div`
   
   .ant-table-thead > tr > th {
-    background-color: white;
+    background: ${Style.color.primary};
+    color: white;
+    width: 98px;
+    font-weight: 600;
   }
 `;
 
@@ -36,10 +40,10 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
         dataSource={extrinsics}
         columns={[
           {
-            title: <span>Extrinsic Hash</span>,
+            title: <span style={{ marginLeft: '4px' }}>Extrinsic Hash</span>,
             width: '20%',
             key: 'hash',
-            render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
+            render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
           },
           {
             title: <span>Block Number</span>,
@@ -67,10 +71,10 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
           },
         ]}
       />
-      <PaginationLine>
+      <PageLine style={{ marginTop: '16px', padding: '0px 20px' }}>
         <PageSize />
         <PaginationR />
-      </PaginationLine>
+      </PageLine>
     </Wrapper>
   );
 };

@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useContracts, ApiContext, BlocksContext, PaginationContext } from '../../core';
-import { PageSize, PaginationLine, PaginationR } from '../../shared';
+import { PageSize, PageLine, PaginationR } from '../../shared';
 
 const Wrapper = styled.div`
   background-color: white;
@@ -52,10 +52,10 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
           },
         ]}
       />
-      <PaginationLine>
+      <PageLine style={{ marginTop: '16px' }}>
         <PageSize />
         <PaginationR />
-      </PaginationLine>
+      </PageLine>
     </Wrapper>
   );
 };

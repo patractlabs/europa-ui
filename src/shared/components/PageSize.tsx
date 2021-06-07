@@ -19,6 +19,9 @@ const NumberInput = styled.div`
   align-items: center;
   padding: 6px 4px 6px 8px;
   margin: 0px 10px;
+  > span {
+    font-weight: 600;
+  }
 `;
 
 const StepHolder = styled.div`

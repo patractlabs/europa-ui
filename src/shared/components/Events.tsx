@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { PaginationContext } from '../../core';
-import { PaginationLine, PaginationR, PageSize } from '..';
+import { PageLine, PaginationR, PageSize } from '..';
 import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
@@ -26,10 +26,10 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
           <Event key={index} event={event} />
         )
       }
-      <PaginationLine>
+      <PageLine style={{ marginTop: '16px' }}>
         <PageSize />
         <PaginationR />
-      </PaginationLine>
+      </PageLine>
     </Wrapper>
   );
 };
