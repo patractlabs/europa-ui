@@ -56,7 +56,10 @@ const Main: FC = (): ReactElement => {
           <Route path='/contract'>
             <ContractsPage />
           </Route>
-          <Route path='/developer'>
+          <Route exact path="/developer">
+            <Redirect to="/developer/ChainState" />
+          </Route>
+          <Route path='/developer/:part'>
             <Developer />
           </Route>
           <Route path='/setting'>

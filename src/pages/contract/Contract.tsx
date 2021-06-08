@@ -10,9 +10,6 @@ import { ContractEvents } from './ContractEvents';
 const Wrapper = styled.div`
   ${contentBase}
 `;
-const Content = styled.div`
-  margin-top: 20px;
-`;
 const Uploader = styled.div`
   >span {
     margin: 0px 5px;
@@ -60,17 +57,16 @@ export const Contract: FC = (): ReactElement => {
           },
         ]
       }/>
-      <Content>
-        <Tabs
-          options={[
-            { name: 'Functions', value: TabChoice.Functions },
-            { name: 'Extrinsics', value: TabChoice.Extrinsics },
-            { name: 'Events', value: TabChoice.Events },
-          ]}
-          defaultValue={TabChoice.Functions}
-          onChange={choice => setTabChoice(choice)}
-        ></Tabs>
-      </Content>
+      <Tabs
+        style={{ marginTop: '20px' }}
+        options={[
+          { name: 'Functions', value: TabChoice.Functions },
+          { name: 'Extrinsics', value: TabChoice.Extrinsics },
+          { name: 'Events', value: TabChoice.Events },
+        ]}
+        defaultValue={TabChoice.Functions}
+        onChange={choice => setTabChoice(choice)}
+      ></Tabs>
       <Functions show={tabChoice === TabChoice.Functions} contractAddress={address} />
       <ContractExtrinsics show={tabChoice === TabChoice.Extrinsics} contractAddress={address} />
       <ContractEvents show={tabChoice === TabChoice.Events} contractAddress={address} />
