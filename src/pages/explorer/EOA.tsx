@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, PageSize, PaginationR, formatAddress, lookForDestAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
+import { Transfer, formatAddress, lookForDestAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -125,10 +125,7 @@ export const EOA: FC = (): ReactElement => {
           },
         ]}
       />
-      <PageLine style={{ marginTop: '16px' }}>
-        <PageSize />
-        <PaginationR />
-      </PageLine>
+      <PageLine style={{ marginTop: '16px' }} />
     </Wrapper>
   );
 

@@ -3,9 +3,7 @@ import styled from 'styled-components';
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import { BlocksContext, PaginationContext } from '../../core';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 import { PageLine, Style } from '../../shared';
-
 
 const Wrapper = styled.div`
     .ant-table-thead > tr > th {
@@ -24,7 +22,6 @@ export const Blocks: FC = (): ReactElement => {
     () => blocks.slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
     [blocks, pageIndex, pageSize]
   )
-  
 
   useEffect(() => setTotal(blocks.length), [blocks, setTotal]);
 
@@ -41,27 +38,25 @@ export const Blocks: FC = (): ReactElement => {
             title: 'Block Number',
             width: '20%',
             key: 'block-number',
-            render: (_, record) => <Link to={`/explorer/${record.blockHash}`}>{record.height}</Link>,
+            render: (_, record) => <Link to={`/explorer/block/${record.blockHash}`}>{record.height}</Link>,
           },
           {
             title: 'Timestamp',
             width: '25%',
             key: 'time',
-            render: (_, record) => <span>{record.extrinsics.reduce((a: EventRecord[], b) => a.concat(b.events), []).find(e => e.event.section === 'timestamp' && e.event.method === 'set')?.event.data[0].toString()}</span>
+            render: (_, record) => <span>{(new Date(parseInt(record.extrinsics.find(extrinsic => extrinsic.method.section === 'timestamp' && extrinsic.method.method === 'set')?.method.args[0].toString() || ''))).toUTCString()}</span>
           },
           {
             title: 'Hash',
             width: '35%',
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/${record.blockHash}`}>{record.blockHash}</Link>,
-              
+            render: (_, record) => <Link to={`/explorer/block/${record.blockHash}`}>{record.blockHash}</Link>,
           },
           {
             title: 'Extrinsic Counts',
             width: '20%',
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/${record.blockHash}`}>{record.extrinsics.length}</Link>,
-              
+            render: (_, record) => <span>{record.extrinsics.length}</span>,
           },
         ]}
       />

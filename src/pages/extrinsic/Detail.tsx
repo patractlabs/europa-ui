@@ -6,9 +6,10 @@ import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { Style, LabelDefault, TitleWithBottomBorder, ValueDefault, KeyValueLine, Obj, Args } from '../../shared';
+import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args } from '../../shared';
 import { ContractTrace } from './Trace';
 import { Abi } from '@polkadot/api-contract';
+import { Col, Row } from 'antd';
 
 const Wrapper = styled.div`
 `;
@@ -23,15 +24,9 @@ const ExtrinsicHash = styled(TitleWithBottomBorder)`
     margin-left: 20px;
   }
 `;
-const ExtrinsicInfo = styled.div`
+const ExtrinsicInfo = styled(Row)`
   padding: 20px;
   display: flex;
-`;
-const ExtrinsicLeft = styled.div`
-  width: 50%;
-`;
-const ExtrinsicRight = styled.div`
-  width: 50%;
 `;
 const Result = styled.label<{ err: boolean }>`
   color: ${props => props.err ? Style.color.icon.fail : Style.color.success};
@@ -39,10 +34,6 @@ const Result = styled.label<{ err: boolean }>`
   margin-left: 10px;
   height: 24px;
   line-height: 24px;
-`;
-
-const Label = styled(LabelDefault)`
-  margin-right: 8px;
 `;
 
 type ExtendedExtrinsic = Extrinsic & {
@@ -233,15 +224,15 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
         extrinsic &&
           <div>
             <ExtrinsicHash>
-              <Label>
+              <label>
                 Extrinsic Hash
-              </Label>
+              </label>
               <span className="hash">
                 { extrinsic.hash.toString() }
               </span>
             </ExtrinsicHash>
             <ExtrinsicInfo>
-              <ExtrinsicLeft>
+              <Col span={12}>
                 <KeyValueLine>
                   <img style={{ height: '24px', width: '24px' }} src={extrinsic.successed ? SuccessSvg : FailSvg } alt=""/>
                   <Result err={!extrinsic.successed}>{
@@ -249,25 +240,25 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                   }</Result>
                 </KeyValueLine>
                 <KeyValueLine>
-                  <Label>Method</Label>
-                  <ValueDefault>{ extrinsic.method.section }.{extrinsic.method.method}</ValueDefault>
+                  <LabelDefault>Method</LabelDefault>
+                  <ValuePrimary>{ extrinsic.method.section }.{extrinsic.method.method}</ValuePrimary>
                 </KeyValueLine>
-              </ExtrinsicLeft>
-              <ExtrinsicRight>
+              </Col>
+              <Col span={12}>
                 <KeyValueLine>
                   <img style={{ width: '16px', height: '16px', marginRight: '4px' }} src={BlockSvg} alt="" />
-                  <Label>
+                  <LabelDefault>
                     Block
-                  </Label>
-                  <ValueDefault>
+                  </LabelDefault>
+                  <ValuePrimary>
                     <Link to={`/block/${extrinsic.blockHash}`}>{extrinsic.height}</Link>
-                  </ValueDefault>
+                  </ValuePrimary>
                 </KeyValueLine>
                 <KeyValueLine>
-                  <Label>Timestamp</Label>
-                  <ValueDefault>{ (new Date(parseInt(extrinsic.timestamp))).toUTCString() }</ValueDefault>
+                  <LabelDefault>Timestamp</LabelDefault>
+                  <ValuePrimary>{ (new Date(parseInt(extrinsic.timestamp))).toUTCString() }</ValuePrimary>
                 </KeyValueLine>
-              </ExtrinsicRight>
+              </Col>
             </ExtrinsicInfo>
             <div>
               {

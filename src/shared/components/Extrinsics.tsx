@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, Extrinsic } from '../../core';
-import { PageLine, PaginationR, PageSize, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
+import { PageLine, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
 import { Style } from '../styled';
 
 const Wrapper = styled.div`
@@ -71,10 +71,7 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
           },
         ]}
       />
-      <PageLine style={{ marginTop: '16px', padding: '0px 20px' }}>
-        <PageSize />
-        <PaginationR />
-      </PageLine>
+      <PageLine style={{ marginTop: '16px', padding: '0px 20px' }} />
     </Wrapper>
   );
 };

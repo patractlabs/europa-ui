@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { Style } from './const';
 
-export const ValueDefault = styled.label`
+export const ValuePrimary = styled.label`
   color: ${Style.color.label.primary};
+  font-weight: 600;
 `;

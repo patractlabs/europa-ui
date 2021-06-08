@@ -1,4 +1,4 @@
-import React, { FC, ReactElement,useContext, useEffect, useMemo } from 'react';
+import React, { FC, ReactElement,useContext, useMemo } from 'react';
 import styled from 'styled-components';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import { PaginationProvider, BlocksContext, Extrinsic,  } from '../../core';

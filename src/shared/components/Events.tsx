@@ -1,12 +1,11 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { PaginationContext } from '../../core';
-import { PageLine, PaginationR, PageSize } from '..';
+import { PageLine } from './index';
 import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
-  background-color: white;
 `;
 
 export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }): ReactElement => {
@@ -26,10 +25,7 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
           <Event key={index} event={event} />
         )
       }
-      <PageLine style={{ marginTop: '16px' }}>
-        <PageSize />
-        <PaginationR />
-      </PageLine>
+      <PageLine style={{ marginTop: '16px' }} />
     </Wrapper>
   );
 };

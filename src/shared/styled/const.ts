@@ -14,6 +14,7 @@ export const Style = {
     bg: {
       default: '#F8F8F8',
       error: '#FEF5F6',
+      second: '#eeece9'
     },
     button: {
       primary: '#BEAC92'

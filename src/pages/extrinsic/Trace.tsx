@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { LabelDefault, Style, ValueDefault } from '../../shared';
+import { KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
 import { store, ApiContext, BlocksContext, useContracts } from '../../core';
@@ -8,6 +8,7 @@ import { hexToU8a } from '@polkadot/util';
 import { Abi } from '@polkadot/api-contract';
 import type { Codec } from '@polkadot/types/types';
 import { Link } from 'react-router-dom';
+import { Col, Row } from 'antd';
 
 const depthColors = [
   Style.color.button.primary,
@@ -43,27 +44,12 @@ const MainInfo = styled.div`
 
 const Line = styled.div`
   display: flex;
-`;
-const Left = styled.div`
-  flex: 1;
-`;
-const Right = styled.div`
-  flex: 1;
-`;
-const GasLeft = styled.div`
-
-`;
-const GasUsed = styled.div`
-
+  margin-top: 5px;
 `;
 const Detail = styled.div`
   border-top: 1px solid ${Style.color.border.default};
   padding: 20px;
 `;
-const DetailBase = styled.div`
-  display: flex;
-`;
-
 const Error = styled.div`
   color: ${Style.color.label.error};
   display: flex;
@@ -100,14 +86,15 @@ const Toggle = styled.div<{ expanded: boolean }>`
   }
 `;
 const Args = styled.div`
-  border: 1px solid ${Style.color.border.default};
-  border-radius: 4px;
+  border: 1px solid ${Style.color.button.primary};
+  border-radius: 5px;
   height: 144px;
-  background: #F6F5F7;
+  background: ${Style.color.bg.second};
   word-break: break-all;
   word-wrap: break-word;
   overflow-y: auto;
   padding: 12px;
+  flex: 1;
 `;
 
 const Button = styled.button`
@@ -165,53 +152,51 @@ export const ContractTrace: FC<{
       <BorderBase depth={trace.depth} />
       <Contract depth={trace.depth}>
         <MainInfo>
-          <Line>
-            <Left>
+          <Row style={{ marginBottom: '10px' }}>
+            <Col span={12}>
               <LabelDefault>From</LabelDefault>
               <ValueDefault>{trace.caller}</ValueDefault>
-            </Left>
-            <Right>
+            </Col>
+            <Col span={12}>
               <LabelDefault>Value</LabelDefault>
-              <ValueDefault>{trace.value}</ValueDefault>
-            </Right>
-          </Line>
-          <Line>
-            <Left>
+              <ValuePrimary>{trace.value}</ValuePrimary>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
               <LabelDefault>To</LabelDefault>
-              <ValueDefault>
+              <ValuePrimary>
                 <Link to={`/explorer/contract/${contract?.address.toString()}`}>
                   {store.getCode(contract?.codeHash || '')?.json.name}
                   &nbsp;:&nbsp;
                   {trace.self_account}
                 </Link>
-              </ValueDefault>
-            </Left>
-            <Right>
-              <GasLeft>
-                <LabelDefault>Gas Left</LabelDefault>
-                <ValueDefault>{trace.gas_left}</ValueDefault>
-              </GasLeft>
-              <GasUsed>
-                <LabelDefault>Gas used</LabelDefault>
-                <ValueDefault>-</ValueDefault>
-              </GasUsed>
-            </Right>
-          </Line>
+              </ValuePrimary>
+            </Col>
+            <Col span={3}>
+              <LabelDefault>Gas Left</LabelDefault>
+              <ValueDefault>{trace.gas_left}</ValueDefault>
+            </Col>
+            <Col span={3}>
+              <LabelDefault>Gas used</LabelDefault>
+              <ValueDefault>-</ValueDefault>
+            </Col>
+          </Row>
         </MainInfo>
         {
           showDetail &&
             <Detail>
-              <DetailBase>
-                <Left>
-                  <Line>
+              <Row>
+                <Col span={12} style={{ paddingRight: '40px' }}>
+                  <KeyValueLine>
                     <LabelDefault>Function</LabelDefault>
                     <ValueDefault>{
                       abi ? getIdentifer(abi, trace.selector) : trace.selector
                     }</ValueDefault>
-                  </Line>
+                  </KeyValueLine>
                   <Line>
                     <LabelDefault>Args</LabelDefault>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <Args>{
                         abi ?
                           getArgs(abi, trace.selector, trace.args).map((arg, index) =>
@@ -226,18 +211,18 @@ export const ContractTrace: FC<{
                       }
                     </div>
                   </Line>
-                </Left>
-                <Right>
-                  <Line>
+                </Col>
+                <Col span={12} style={{ paddingRight: '20px' }}>
+                  <KeyValueLine>
                     <LabelDefault>Trap Reason</LabelDefault>
                     <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>
-                  </Line>
+                  </KeyValueLine>
                   <Line>
                     <LabelDefault>Env trace</LabelDefault>
                     <Args>{JSON.stringify(trace.env_trace)}</Args>
                   </Line>
-                </Right>
-              </DetailBase>
+                </Col>
+              </Row>
               {
                 !!trace.ext_result.Err &&
                   <Error>

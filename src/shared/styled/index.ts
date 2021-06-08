@@ -4,4 +4,4 @@ export * from './KeyValueLine';
 export * from './LabelDefault';
 export * from './TitleWithBottom';
 export * from './ValueDefault';
-export * from './ValueLine';
+export * from './ValuePrimary';

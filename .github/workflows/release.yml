@@ -2,9 +2,8 @@ name: Publish
 
 on:
   push:
-    branch: master
-    # tags:
-    #   - 'v*'
+    tags:
+      - 're*'
 
 jobs:
   publish:
