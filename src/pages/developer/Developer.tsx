@@ -3,7 +3,7 @@ import { Link, Route, Switch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Style } from '../../shared';
 import { ChainState } from './ChainState';
-import { Extrinsics } from './Extrinsics';
+import { Extrinsic } from './Extrinsics';
 import { Log } from './Log';
 import { RpcCall } from './RpcCall';
 
@@ -101,7 +101,7 @@ export const Developer: FC = (): ReactElement => {
             <ChainState/>
           </Route>
           <Route path={tabs[1].link}>
-            <Extrinsics />
+            <Extrinsic />
           </Route>
           <Route path={tabs[2].link}>
             <RpcCall />

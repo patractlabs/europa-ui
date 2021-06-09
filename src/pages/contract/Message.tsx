@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState, useCallback, useContext } from 'react';
+import React, { FC, ReactElement, useState, useCallback, useContext, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
@@ -83,11 +83,12 @@ const Result = styled.div`
 
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
-  const [ sender, setSender ] = useState<string>('');
   const [ result, setResult ] = useState<any>();
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
+  const [ sender, setSender ] = useState<string>('');
 
+  useEffect(() => setSender(accounts[0]?.address), [accounts]);
   // const { tokenDecimal } = useContext(ApiContext);
 
   // const queryEstimatedWeight = useCallback(
@@ -99,7 +100,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   // );
 
   const send = useCallback(async () => {
-    console.log('send', params, sender);
+    console.log('send params:', params.map(p => p.toString()), ', address:', sender);
     if (!message.isMutating) {
       const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
       // const a = new BN(query.output?.toString() ||'');
