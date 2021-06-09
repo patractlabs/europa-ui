@@ -153,14 +153,39 @@ export const Submission: FC = (): ReactElement => {
   const [paramValues, setParamValues] = useState<RawParamOnChangeValue[]>([]);
   const [params, setParams] = useState<ParamsType>(getParams(api.tx[section][method.value]));
 
-  const onExec = useCallback(async () => {
+  const onUnsignedSubmit = useCallback(async () => {
+    const exec = api.tx[section][method.value];
+    const values = paramValues.map(p => p.value) as any[];
+
+    console.log('values', values.map(v => v.toString()));
+
+    exec(...values).send().pipe(
+      catchError(e => {
+        message.error(e.message || 'failed');
+        return throwError('');
+      })
+    ).subscribe(handleTxResults({
+      success() {
+        message.success('executed');
+      },
+      fail(e) {
+        console.log(e.events.map(e => e.toHuman()));
+        message.error('failed');
+      },
+      update(r) {
+        message.info(r.events.map(e => e.toHuman()));
+      }
+    }, () => {}));
+  }, [api.tx, method.value, paramValues, section]);
+
+  const onSignedSubmit = useCallback(async () => {
     const exec = api.tx[section][method.value];
     const account = accounts.find(account => account.address === sender);
     const suri = account?.mnemonic || `//${account?.name}`;
     const pair = keyring.createFromUri(suri);
     const values = paramValues.map(p => p.value) as any[];
 
-    console.log('values', values.map(v => v.toString()), tokenDecimal);
+    console.log('values', values.map(v => v.toString()));
 
     exec(...values).signAndSend(pair).pipe(
       catchError(e => {
@@ -216,8 +241,8 @@ export const Submission: FC = (): ReactElement => {
         params={params}
       />
       <Submit>
-        <Button>Submit Unsigned</Button>
-        <Button onClick={onExec}>Submit Transaction</Button>
+        <Button onClick={onUnsignedSubmit}>Submit Unsigned</Button>
+        <Button onClick={onSignedSubmit}>Submit Transaction</Button>
       </Submit>
     </Wrapper>
   );
