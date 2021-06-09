@@ -1,9 +1,6 @@
+import React, { FC, ReactElement } from 'react';
 import { Select } from 'antd';
-import React, { FC, ReactElement, useContext } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from '../../../core';
-
-const Wrapper = styled.div``;
 
 const { Option } = Select;
 const StyledSelected = styled(Select)`
@@ -13,11 +10,14 @@ const StyledSelected = styled(Select)`
     height: 48px !important;
   }
 `;
-export const Sections: FC<{ options: string[], onChange: (option: string) => void }> = ({ options, onChange }): ReactElement => {
-  const { api } = useContext(ApiContext);
+export const Sections: FC<{
+  defaultValue?: string;
+  options: string[];
+  onChange: (option: string) => void;
+}> = ({ defaultValue, options, onChange }): ReactElement => {
 
   return (
-    <StyledSelected onChange={onChange as any}>
+    <StyledSelected defaultValue={defaultValue} onChange={onChange as any}>
       {
         options.map((option, index) =>
           <Option value={option} key={index}>{option}</Option>
