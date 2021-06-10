@@ -106,7 +106,6 @@ export const Submission: FC = (): ReactElement => {
     (): [string, string] => {
       const values = paramValues.map(p => p.value) as any[];
       const exec = api.tx[section][method.value];
-      console.log('values', values);
 
       try {
         const extrinsic = exec(...values);

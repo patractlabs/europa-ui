@@ -1,8 +1,12 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Input as AntInput } from 'antd';
+import { Col, Input as AntInput, Row } from 'antd';
 import styled from 'styled-components';
-import AddSvg from '../../../assets/imgs/add.svg';
 import { ApiContext } from '../../../core';
+import { assert, isHex } from '@polkadot/util';
+import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
+import type { Call } from '@polkadot/types/interfaces/runtime';
+import { Style } from '../../../shared';
+import { CallDisplay } from './CallDisplay';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -20,53 +24,83 @@ const Input = styled.div`
     height: 40px;
   }   
 `;
-const Result = styled.div`
-   margin-top: 10px;
-  display: flex;
+const Encoded = styled.div`
+  border: 1px solid ${Style.color.border.default};
+  padding: 6px 8px;
 
-  > .info {
-    flex: 1;
+  > .span {
+    color: ${Style.color.label.default};
   }
-  > img {
-    cursor: pointer;
-    margin-left: 16px;
-    width: 40px;
-    height: 40px;
-  }   
+  
+  > .p {
+    color: ${Style.color.label.primary};
+  }
 `;
+interface ExtrinsicInfo {
+  extrinsicCall: Call | null;
+  extrinsicError: string | null;
+  extrinsicFn: SubmittableExtrinsicFunction<'rxjs'> | null;
+  extrinsicHash: string | null;
+  extrinsicHex: string | null;
+}
 
-
+const DEFAULT_INFO: ExtrinsicInfo = {
+  extrinsicCall: null,
+  extrinsicError: null,
+  extrinsicFn: null,
+  extrinsicHash: null,
+  extrinsicHex: null
+};
 export const Decode: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
-  const [ key, setKey ] = useState<string>('');
-  const [results, setResults] = useState<any[]>([]);
+  const [{ extrinsicCall, extrinsicError, extrinsicFn, extrinsicHash }, setExtrinsicInfo] = useState<ExtrinsicInfo>(DEFAULT_INFO);
 
-  const onExec = useCallback(async () => {
-    api.rpc.state.subscribeStorage([key]).subscribe(result =>
-      setResults(pre => ([result, ...pre]))
-    );
-  }, [key, api]);
+  const _setExtrinsicHex = useCallback(
+    (extrinsicHex: string): void => {
+      try {
+        assert(isHex(extrinsicHex), 'Expected a hex-encoded call');
+
+        let extrinsicCall: Call;
+
+        try {
+          // cater for an extrinsic input...
+          extrinsicCall = api.createType('Call', api.tx(extrinsicHex).method);
+        } catch (e) {
+          extrinsicCall = api.createType('Call', extrinsicHex);
+        }
+
+        const extrinsicHash = extrinsicCall.hash.toHex();
+        const { method, section } = api.registry.findMetaCall(extrinsicCall.callIndex);
+        const extrinsicFn = api.tx[section][method];
+
+        setExtrinsicInfo({ ...DEFAULT_INFO, extrinsicCall, extrinsicFn, extrinsicHash, extrinsicHex });
+      } catch (e) {
+        setExtrinsicInfo({ ...DEFAULT_INFO, extrinsicError: (e as Error).message });
+      }
+    },
+    [api]
+  );
 
   return (
     <Wrapper>
       <Input>
-        <div className="selection">
-          <AntInput onChange={e => setKey(e.target.value)} />
-        </div>
-        <img onClick={onExec} src={AddSvg} alt="" />
+        <AntInput onChange={e => _setExtrinsicHex(e.target.value)} />
       </Input>
       {
-        results.map((result, index) =>
-          <Result key={index}>
-            <div className="info">
-              {JSON.stringify(result)}
-            </div>
-            <img onClick={() =>
-              setResults([...results.slice(0, index), ...results.slice(index + 1)])
-            } src={AddSvg} alt="" />
-          </Result>
-        )
+        extrinsicFn &&
+          <Row>
+            <Col span={12}>{extrinsicFn.section}</Col>
+            <Col span={12}>{extrinsicFn.method}</Col>
+          </Row>
       }
+      {
+        extrinsicCall &&
+          <CallDisplay value={extrinsicCall} />
+      }
+      <Encoded>
+        <span>encoded call hash</span>
+        <p>{extrinsicHash}</p>
+      </Encoded>
     </Wrapper>
   );
 };
