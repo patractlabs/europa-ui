@@ -7,15 +7,15 @@ import { AccountsProvider } from './core/provider/accounts.provider';
 
 ReactDOM.render(
   <React.StrictMode>
-    <LogProvider>
-      <ApiProvider>
+    <ApiProvider>
+      <LogProvider>
         <BlocksProvider>
           <AccountsProvider>
             <App />
           </AccountsProvider>
         </BlocksProvider>
-      </ApiProvider>
-    </LogProvider>
+      </LogProvider>
+    </ApiProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
