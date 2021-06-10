@@ -106,7 +106,7 @@ export const Developer: FC = (): ReactElement => {
           <Route path={tabs[2].link}>
             <RpcCall />
           </Route>
-          <Route path={tabs[2].link}>
+          <Route path={tabs[3].link}>
             <Log />
           </Route>
         </Switch>

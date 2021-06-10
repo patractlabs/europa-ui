@@ -2,18 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { BlocksProvider, ApiProvider } from './core';
+import { BlocksProvider, ApiProvider, LogProvider } from './core';
 import { AccountsProvider } from './core/provider/accounts.provider';
 
 ReactDOM.render(
   <React.StrictMode>
-    <ApiProvider>
-      <BlocksProvider>
-        <AccountsProvider>
-          <App />
-        </AccountsProvider>
-      </BlocksProvider>
-    </ApiProvider>
+    <LogProvider>
+      <ApiProvider>
+        <BlocksProvider>
+          <AccountsProvider>
+            <App />
+          </AccountsProvider>
+        </BlocksProvider>
+      </ApiProvider>
+    </LogProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
