@@ -5,6 +5,9 @@ import { PaginationProvider, BlocksContext, Extrinsic,  } from '../../core';
 import { Events } from '../../shared';
 
 const Wrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const EventsPage: FC = (): ReactElement => {

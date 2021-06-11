@@ -6,6 +6,10 @@ import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
 `;
 
 export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }): ReactElement => {
@@ -20,12 +24,14 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
 
   return (
     <Wrapper>
-      {
-        events.map((event, index) =>
-          <Event key={index} event={event} />
-        )
-      }
-      <PageLine style={{ marginTop: '16px' }} />
+      <div>
+        {
+          events.map((event, index) =>
+            <Event key={index} event={event} />
+          )
+        }
+      </div>
+      <PageLine style={{ padding: '30px 20px' }} />
     </Wrapper>
   );
 };

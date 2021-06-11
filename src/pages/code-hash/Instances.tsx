@@ -7,6 +7,10 @@ import { PageLine } from '../../shared';
 
 const Wrapper = styled.div`
   background-color: white;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
 `;
 
 export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {

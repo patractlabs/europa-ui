@@ -8,7 +8,9 @@ import { PageLine, Style } from '../../shared';
 const Wrapper = styled.div`
   & {
     flex: 1;
-    position: relative;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
   }
   .ant-table-thead > tr > th {
     background: ${Style.color.primary};
@@ -67,10 +69,7 @@ export const Blocks: FC = (): ReactElement => {
       />
 
       <PageLine style={{
-        padding: '30px 20px',
-        position: 'absolute',
-        bottom: '0px',
-        width: '100%',
+        padding: '30px 20px'
       }}/>
     </Wrapper>
   );

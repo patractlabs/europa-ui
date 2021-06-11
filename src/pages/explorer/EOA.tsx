@@ -8,6 +8,9 @@ import { Transfer, formatAddress, lookForDestAddress, lookForTranferedValue, Pag
 const Wrapper = styled.div`
   ${contentBase}
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   .ant-table-thead > tr > th {
     background-color: white;
@@ -71,68 +74,64 @@ export const EOA: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <InfoHeader pairs={
-        [
-          {
-            label: 'Address',
-            render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{address}</span>
-          },
-          {
-            label: 'Balance',
-            align: 'right',
-            render:
-              <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
-          },
-        ]
-      }/>
-      <Title>
-        <label>Extrinsics</label>
-      </Title>
-      <Table
-        rowKey={record => record.hash.toString()}
-        locale={{emptyText: 'No Data'}}
-        pagination={false}
-        dataSource={selectedExtrinsics}
-        columns={[
-          {
-            title: <HeaderLabel style={{ marginLeft: '4px' }}>Hash</HeaderLabel>,
-            width: '20%',
-            key: 'hash',
-            render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
-          },
-          {
-            title: <HeaderLabel>Block Number</HeaderLabel>,
-            width: '15%',
-            key: 'from',
-            render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
-          },
-          {
-            title: <div style={{display: 'flex', color: Style.color.label.default}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
-            width: '35%',
-            key: 'transfer',
-            render: (_, record) => <Transfer signer={address} record={record} />
-          },
-          {
-            title: <HeaderLabel>Value</HeaderLabel>,
-            width: '15%',
-            key: 'value',
-            render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
-          },
-          {
-            title: <HeaderLabel>Txn Fee</HeaderLabel>,
-            width: '15%',
-            key: 'txn fee',
-            render: () => <span>-</span>,
-          },
-        ]}
-      />
-      <PageLine style={{ 
-        position: 'absolute',
-        marginTop: '16px',
-        bottom: '30px',
-        right: '20px',
-        left: '20px',
-      }} />
+      <div>
+        <InfoHeader pairs={
+          [
+            {
+              label: 'Address',
+              render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{address}</span>
+            },
+            {
+              label: 'Balance',
+              align: 'right',
+              render:
+                <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
+            },
+          ]
+        }/>
+        <Title>
+          <label>Extrinsics</label>
+        </Title>
+        <Table
+          rowKey={record => record.hash.toString()}
+          locale={{emptyText: 'No Data'}}
+          pagination={false}
+          dataSource={selectedExtrinsics}
+          columns={[
+            {
+              title: <HeaderLabel style={{ marginLeft: '4px' }}>Hash</HeaderLabel>,
+              width: '20%',
+              key: 'hash',
+              render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
+            },
+            {
+              title: <HeaderLabel>Block Number</HeaderLabel>,
+              width: '15%',
+              key: 'from',
+              render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
+            },
+            {
+              title: <div style={{display: 'flex', color: Style.color.label.default}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
+              width: '35%',
+              key: 'transfer',
+              render: (_, record) => <Transfer signer={address} record={record} />
+            },
+            {
+              title: <HeaderLabel>Value</HeaderLabel>,
+              width: '15%',
+              key: 'value',
+              render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
+            },
+            {
+              title: <HeaderLabel>Txn Fee</HeaderLabel>,
+              width: '15%',
+              key: 'txn fee',
+              render: () => <span>-</span>,
+            },
+          ]}
+        />
+      </div>
+      <PageLine />
     </Wrapper>
   );
 

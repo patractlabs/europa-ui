@@ -11,6 +11,9 @@ import { BlocksContext, useContracts, ApiContext, PaginationProvider } from '../
 
 const Wrapper = styled.div`
   ${contentBase}
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 const Uploader = styled.div`
   font-size: 16px;
@@ -95,7 +98,7 @@ export const CodeHash: FC = (): ReactElement => {
       }
       {
         tabChoice === TabChoice.Instances &&
-          <PaginationProvider>
+          <PaginationProvider defaultPageSize={1}>
             <Instances hash={codeHash} />
           </PaginationProvider>
       }

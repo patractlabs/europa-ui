@@ -8,7 +8,9 @@ import { Style } from '../styled';
 
 const Wrapper = styled.div`
   flex: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   .ant-table-thead > tr > th {
     background: ${Style.color.primary};
@@ -73,12 +75,7 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
           },
         ]}
       />
-      <PageLine showWhenSingle={true} style={{
-        padding: '30px 20px',
-        position: 'absolute',
-        bottom: '0px',
-        width: '100%',
-      }}/>
+      <PageLine showWhenSingle={true} style={{ padding: '30px 20px' }}/>
     </Wrapper>
   );
 };
