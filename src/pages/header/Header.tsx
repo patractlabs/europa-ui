@@ -240,14 +240,14 @@ const pathRegs = [
     ],
   },
   {
-    reg: new RegExp(`/explorer/block/${hashReg}$`),
+    reg: new RegExp(`/block/${hashReg}$`),
     divides: [
       {
-        name: 'Explorer',
-        link: '/explorer',
+        name: 'Block',
+        link: '/block',
       },
       {
-        name: 'Block',
+        name: '#BlockNumber',
       },
     ],
   },
@@ -336,7 +336,7 @@ export const Header: FC = (): ReactElement => {
 
     if (block) {
       setSearch('');
-      return h.push(`/explorer/block/${block.blockHash}`);
+      return h.push(`/block/${block.blockHash}`);
     }
 
     const extrinsic = blocks

@@ -13,6 +13,7 @@ import { Accounts } from './pages/account/Accounts';
 import { EOA } from './pages/explorer/EOA';
 import { CodeHash } from './pages/code-hash';
 import { Contract } from './pages/contract/Contract';
+import { BlockDetail } from './pages/blocks/BlockDetail';
 
 const Main: FC = (): ReactElement => {
   return (
@@ -42,10 +43,13 @@ const Main: FC = (): ReactElement => {
           <Route path='/account'>
             <Accounts />
           </Route>
-          <Route path='/block'>
+          <Route path='/block' exact>
             <PaginationProvider>
               <Blocks />
             </PaginationProvider>
+          </Route>
+          <Route path='/block/:blockHash'>
+              <BlockDetail />
           </Route>
           <Route path='/extrinsic'>
             <ExtrinsicPage />

@@ -38,7 +38,7 @@ export const Blocks: FC = (): ReactElement => {
             title: 'Block Number',
             width: '20%',
             key: 'block-number',
-            render: (_, record) => <Link to={`/explorer/block/${record.blockHash}`}>{record.height}</Link>,
+            render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
           },
           {
             title: 'Timestamp',
@@ -50,7 +50,7 @@ export const Blocks: FC = (): ReactElement => {
             title: 'Hash',
             width: '35%',
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/block/${record.blockHash}`}>{record.blockHash}</Link>,
+            render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.blockHash}</Link>,
           },
           {
             title: 'Extrinsic Counts',

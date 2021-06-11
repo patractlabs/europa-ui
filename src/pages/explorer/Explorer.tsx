@@ -180,7 +180,7 @@ const BlockInfo: FC<{
           <div className="block-name">
             <span>Block</span>
             <h4>
-              <Link to={`/explorer/block/${currentBlock?.blockHash}`}>{currentBlock?.height}</Link>
+              <Link to={`/block/${currentBlock?.blockHash}`}>{currentBlock?.height}</Link>
             </h4>
           </div>
         </div>

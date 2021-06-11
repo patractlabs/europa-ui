@@ -77,7 +77,7 @@ const Contracts: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactE
             title: <span>Deployed Block</span>,
             width: '10%',
             key: 'block',
-            render: (_, record) => <Link to={`/explorer/block/${record.block.height}`}>{record.block.height}</Link>,
+            render: (_, record) => <Link to={`/block/${record.block.height}`}>{record.block.height}</Link>,
           },
         ]}
       />
@@ -123,7 +123,7 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
             title: <span>Uploaded At Block</span>,
             width: '10%',
             key: 'block',
-            render: (_, record) => <Link to={`/explorer/block/${record.block.height}`}>{record.block.height}</Link>,
+            render: (_, record) => <Link to={`/block/${record.block.height}`}>{record.block.height}</Link>,
           },
         ]}
       />
