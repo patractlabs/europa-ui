@@ -40,7 +40,7 @@ const Main: FC = (): ReactElement => {
             <CodeHash />
           </Route>
           <Route path='/explorer/eoa/:address'>
-            <PaginationProvider>
+            <PaginationProvider defaultPageSize={3}>
               <EOA />
             </PaginationProvider>
           </Route>

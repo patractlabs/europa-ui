@@ -12,8 +12,8 @@ const PaginationLine = styled.div`
 
 export const PageLine: FC<{ style?: CSSProperties, showWhenSingle?: boolean }> = ({ style, showWhenSingle = false }): ReactElement => {
   const { total, pageSize } = useContext(PaginationContext);
-  
-  if (total > pageSize && showWhenSingle) {
+
+  if (total > pageSize || showWhenSingle) {
     return (
       <PaginationLine style={style}>
         <PageSize />

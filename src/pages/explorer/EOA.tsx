@@ -7,6 +7,7 @@ import { Transfer, formatAddress, lookForDestAddress, lookForTranferedValue, Pag
 
 const Wrapper = styled.div`
   ${contentBase}
+  flex: 1;
 
   .ant-table-thead > tr > th {
     background-color: white;
@@ -125,7 +126,13 @@ export const EOA: FC = (): ReactElement => {
           },
         ]}
       />
-      <PageLine style={{ marginTop: '16px' }} />
+      <PageLine style={{ 
+        position: 'absolute',
+        marginTop: '16px',
+        bottom: '30px',
+        right: '20px',
+        left: '20px',
+      }} />
     </Wrapper>
   );
 

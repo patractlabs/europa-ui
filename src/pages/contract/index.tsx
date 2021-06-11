@@ -47,7 +47,6 @@ const CodesWrapper = styled.div`
   flex: 1;
 `;
 
-
 const Instances: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactElement => {
 
   return (
