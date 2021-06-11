@@ -7,7 +7,9 @@ import { PageLine, formatAddress, lookForTranferedValue, Transfer } from '../../
 import { Style } from '../styled';
 
 const Wrapper = styled.div`
-  
+  flex: 1;
+  position: relative;
+
   .ant-table-thead > tr > th {
     background: ${Style.color.primary};
     color: white;
@@ -71,7 +73,12 @@ export const Extrinsics: FC<{ extrinsics: ExtendedExtrinsic[] }> = ({ extrinsics
           },
         ]}
       />
-      <PageLine style={{ marginTop: '16px', padding: '0px 20px' }} />
+      <PageLine showWhenSingle={true} style={{
+        padding: '30px 20px',
+        position: 'absolute',
+        bottom: '0px',
+        width: '100%',
+      }}/>
     </Wrapper>
   );
 };

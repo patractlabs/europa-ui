@@ -1,5 +1,6 @@
-import React, { CSSProperties, FC, ReactElement } from 'react';
+import React, { CSSProperties, FC, ReactElement, useContext } from 'react';
 import styled from 'styled-components';
+import { PaginationContext } from '../../core';
 import { PageSize } from './PageSize';
 import { PaginationR } from './Pagination';
 
@@ -9,11 +10,17 @@ const PaginationLine = styled.div`
   justify-content: space-between;
 `;
 
-export const PageLine: FC<{ style?: CSSProperties }> = ({ style }): ReactElement => {
-  return (
-    <PaginationLine style={style}>
-      <PageSize />
-      <PaginationR />
-    </PaginationLine>
-  );
+export const PageLine: FC<{ style?: CSSProperties, showWhenSingle?: boolean }> = ({ style, showWhenSingle = false }): ReactElement => {
+  const { total, pageSize } = useContext(PaginationContext);
+  
+  if (total > pageSize && showWhenSingle) {
+    return (
+      <PaginationLine style={style}>
+        <PageSize />
+        <PaginationR />
+      </PaginationLine>
+    );
+  }
+
+  return null as any;
 };

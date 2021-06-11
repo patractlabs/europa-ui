@@ -11,7 +11,6 @@ const PageSizeStyled = styled.div`
 `;
 
 const NumberInput = styled.div`
-  background: ${Style.color.bg.default};
   border-radius: 4px;
   border: 1px solid ${Style.color.button.primary};
   height: 28px;

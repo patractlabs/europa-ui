@@ -12,7 +12,6 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
 const Wrapper = styled.div`
-  background-color: ${Style.color.bg.default};
   margin-bottom: 16px;
 
   &:last-child {

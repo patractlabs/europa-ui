@@ -14,10 +14,19 @@ import { EOA } from './pages/explorer/EOA';
 import { CodeHash } from './pages/code-hash';
 import { Contract } from './pages/contract/Contract';
 import { BlockDetail } from './pages/blocks/BlockDetail';
+import styled from 'styled-components';
+import { Style } from './shared';
+
+const Wrapper = styled.div`
+  height: 100%;
+  background-color: ${Style.color.bg.default};
+  display: flex;
+  flex-direction: column;
+`;
 
 const Main: FC = (): ReactElement => {
   return (
-    <div>
+    <Wrapper>
       <BrowserRouter>
         <Header />
         <Switch>
@@ -44,7 +53,7 @@ const Main: FC = (): ReactElement => {
             <Accounts />
           </Route>
           <Route path='/block' exact>
-            <PaginationProvider>
+            <PaginationProvider defaultPageSize={10}>
               <Blocks />
             </PaginationProvider>
           </Route>
@@ -71,7 +80,7 @@ const Main: FC = (): ReactElement => {
           </Route>
         </Switch>
       </BrowserRouter>
-    </div>
+    </Wrapper>
   );
 };
 

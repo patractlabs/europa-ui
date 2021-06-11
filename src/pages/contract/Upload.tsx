@@ -65,8 +65,7 @@ const EMPTY: AbiState = {
 export const UploadContract: FC<{
   onCancel: () => void;
   onCompleted: () => void;
-  show: boolean;
-}> = ({ onCancel, onCompleted, show }): ReactElement => {
+}> = ({ onCancel, onCompleted }): ReactElement => {
   const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
@@ -192,9 +191,7 @@ export const UploadContract: FC<{
   }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
 
   return (
-    <Modal visible={show} onCancel={onCancel} footer={[
-      <Button key="deploy" onClick={deploy}>Deploy</Button>,
-    ]}>
+    <Modal visible={true} onCancel={onCancel} footer={null}>
       <Upload beforeUpload={onUpload}>
         <Button>Upload</Button>
       </Upload>
@@ -215,7 +212,7 @@ export const UploadContract: FC<{
                 value => setState(pre => ({...pre, endowment: parseInt(value)}))
               }
               label="Endowment" unit="DOT"
-            />
+            />  
             <ParamInput
               defaultValue={salt}
               style={{ borderBottomWidth: '0px' }}
@@ -238,6 +235,9 @@ export const UploadContract: FC<{
       <div>
         code bundle name
         <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
+      </div>
+      <div>
+        <Button key="deploy" onClick={deploy}>Deploy</Button>
       </div>
     </Modal>
   );

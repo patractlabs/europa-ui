@@ -12,12 +12,15 @@ const PaginationContext: React.Context<{
 
 interface Props {
   children: React.ReactNode;
+  defaultPageSize?: number;
+  defaultPageIndex?: number;
+  defaultTotal?: number;
 }
 
-const PaginationProvider = React.memo(({ children }: Props): React.ReactElement<Props> =>  {
-  const [ pageSize, setPageSize ] = useState<number>(5);
-  const [ pageIndex, setPageIndex ] = useState<number>(1);
-  const [ total, setTotal ] = useState<number>(0);
+const PaginationProvider = React.memo(({ children, defaultPageSize = 10, defaultPageIndex = 1, defaultTotal = 0 }: Props): React.ReactElement<Props> =>  {
+  const [ pageSize, setPageSize ] = useState<number>(defaultPageSize);
+  const [ pageIndex, setPageIndex ] = useState<number>(defaultPageIndex);
+  const [ total, setTotal ] = useState<number>(defaultTotal);
 
   return (
     <PaginationContext.Provider

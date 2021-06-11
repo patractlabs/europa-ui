@@ -212,7 +212,7 @@ export const ContractTrace: FC<{
                     </div>
                   </Line>
                 </Col>
-                <Col span={12} style={{ paddingRight: '20px' }}>
+                <Col span={12}>
                   <KeyValueLine>
                     <LabelDefault>Trap Reason</LabelDefault>
                     <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>

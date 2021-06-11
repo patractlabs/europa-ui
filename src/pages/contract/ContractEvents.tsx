@@ -8,7 +8,7 @@ import type { EventRecord } from '@polkadot/types/interfaces/system';
 const Wrapper = styled.div`
 `;
 
-export const ContractEvents: FC<{ show: boolean, contractAddress: string }> = ({ show, contractAddress }): ReactElement => {
+export const ContractEvents: FC<{ contractAddress: string }> = ({ contractAddress }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
 
   const events = useMemo(() =>
@@ -29,7 +29,7 @@ export const ContractEvents: FC<{ show: boolean, contractAddress: string }> = ({
   );
 
   return (
-    <Wrapper style={{ display: show ? 'block' : 'none' }}>
+    <Wrapper>
       <PaginationProvider>
         <Events events={events} />
       </PaginationProvider>

@@ -6,7 +6,11 @@ import { BlocksContext, PaginationContext } from '../../core';
 import { PageLine, Style } from '../../shared';
 
 const Wrapper = styled.div`
-    .ant-table-thead > tr > th {
+  & {
+    flex: 1;
+    position: relative;
+  }
+  .ant-table-thead > tr > th {
     background: ${Style.color.primary};
     color: white;
     width: 98px;
@@ -30,7 +34,6 @@ export const Blocks: FC = (): ReactElement => {
   return (
     <Wrapper>
       <Table
-
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
         pagination={false}
@@ -62,7 +65,13 @@ export const Blocks: FC = (): ReactElement => {
           },
         ]}
       />
-    <PageLine style={{  padding: '0px 20px' }} />  
+
+      <PageLine style={{
+        padding: '30px 20px',
+        position: 'absolute',
+        bottom: '0px',
+        width: '100%',
+      }}/>
     </Wrapper>
   );
 };

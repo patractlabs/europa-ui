@@ -9,6 +9,9 @@ import { ContractEvents } from './ContractEvents';
 
 const Wrapper = styled.div`
   ${contentBase}
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 const Uploader = styled.div`
   >span {
@@ -67,9 +70,18 @@ export const Contract: FC = (): ReactElement => {
         defaultValue={TabChoice.Functions}
         onChange={choice => setTabChoice(choice)}
       ></Tabs>
-      <Functions show={tabChoice === TabChoice.Functions} contractAddress={address} />
-      <ContractExtrinsics show={tabChoice === TabChoice.Extrinsics} contractAddress={address} />
-      <ContractEvents show={tabChoice === TabChoice.Events} contractAddress={address} />
+      {
+        tabChoice === TabChoice.Functions &&
+          <Functions contractAddress={address} />
+      }
+      {
+        tabChoice === TabChoice.Extrinsics &&
+          <ContractExtrinsics contractAddress={address} />
+      }
+      {
+        tabChoice === TabChoice.Events &&
+          <ContractEvents contractAddress={address} />
+      }
     </Wrapper>
   );
 };

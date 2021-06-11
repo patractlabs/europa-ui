@@ -17,7 +17,7 @@ const TabChoice = styled.div`
   text-align: center;
   line-height: 48px;
   height: 48px;
-  background: #EEECE9;
+  background: ${Style.color.bg.second};
   border-radius: 8px 8px 0px 0px;
   font-size: 16px;
   color: ${Style.color.label.primary};

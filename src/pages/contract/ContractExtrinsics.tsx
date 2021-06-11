@@ -5,6 +5,9 @@ import { ExtendedExtrinsic, Extrinsics } from '../../shared';
 
 const Wrapper = styled.div`
   background-color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 // const isTransfer = (extrinsic: Extrinsic, contractAddress: string): boolean => {};
@@ -12,7 +15,6 @@ export const isRelatedCall = (extrinsic: Extrinsic, contractAddress: string): bo
   if (extrinsic.method.section.toLowerCase() !== 'contracts' || extrinsic.method.method.toLowerCase() !== 'call') {
     return false;
   }
-
   
   return (extrinsic.args[0].toHuman() as { Id: string }).Id === contractAddress;
 };
@@ -32,7 +34,7 @@ export const isRelatedInstantiation = (extrinsic: Extrinsic, contractAddress: st
   return event?.event.data[1].toString() === contractAddress;
 };
 
-export const ContractExtrinsics: FC<{ show: boolean, contractAddress: string }> = ({ show, contractAddress }): ReactElement => {
+export const ContractExtrinsics: FC<{ contractAddress: string }> = ({ contractAddress }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
 
   const extrinsics: ExtendedExtrinsic[] = useMemo(
@@ -53,7 +55,7 @@ export const ContractExtrinsics: FC<{ show: boolean, contractAddress: string }> 
   );
 
   return (
-    <Wrapper style={{ display: show ? 'block' : 'none' }}>
+    <Wrapper>
       <PaginationProvider>
         <Extrinsics extrinsics={extrinsics} />
       </PaginationProvider>

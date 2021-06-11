@@ -127,7 +127,10 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
           },
         ]}
       />
-      <UploadContract onCancel={() => toggleUpload(false)} onCompleted={() => toggleUpload(false)} show={showUpload} />
+      {
+        showUpload &&
+          <UploadContract onCancel={() => toggleUpload(false)} onCompleted={() => toggleUpload(false)} />
+      }
     </div>
   );
 };

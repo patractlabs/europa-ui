@@ -4,16 +4,19 @@ import { LogContext } from '../../../core';
 import { Style } from '../../../shared';
 
 const Wrapper = styled.div`
-  border: 1px solid ${Style.color.border.default};
-  padding: 15px;
-  background-color: black;
-  color: white;
+  border: 1px solid ${Style.color.button.primary};
+  padding: 20px;
+  background-color: ${Style.color.bg.second};
   height: 450px;
   overflow-y: auto;
   overflow-x: hidden;
 
   > .line {
-    padding: 6px 0px;
+    padding-bottom: 6px;
+    word-break: break-all;
+  }
+  > .line:last-child {
+    padding-bottom: 0px;
   }
 `;
 

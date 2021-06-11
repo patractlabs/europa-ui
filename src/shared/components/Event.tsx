@@ -28,7 +28,7 @@ const DetailToggle = styled.div`
   }
 `;
 const Detail = styled.div`
-  background: #EEECE9;
+  background: ${Style.color.bg.second};
   padding: 20px 21px;
 `;
 

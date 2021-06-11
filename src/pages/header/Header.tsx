@@ -119,7 +119,7 @@ const Search = styled.div`
     opacity: 0.7;
   }
   > input {
-    background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
+    background-color: rgba(0,0,0,0);
     width: 300px;
     height: 100%;
     border-radius: 22px;
@@ -311,7 +311,7 @@ export const Header: FC = (): ReactElement => {
       reg: new RegExp('/event$'),
       divides: [
         {
-          name: 'Event',
+          name: 'Events',
         },
       ],
     },
@@ -377,23 +377,28 @@ export const Header: FC = (): ReactElement => {
     return () => clearTimeout(timer);
   }, [showSider]);
 
+  const onToggle = (): void => {
+    document.body.style.overflow = showSider ? 'initial' : 'hidden';
+    toggoleSider(show => !show);
+  };
+
   return (
   <Wrapper>
-    <SiderBg onClick={() => toggoleSider(false)} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
+    <SiderBg onClick={onToggle} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
     <Sider style={{ left: showSider ? '0px' : '-240px' }}>
       <SiderHeadr>
         <div>
           <img src={LogoSVG} alt='' />
           <span>Europa</span>
         </div>
-        <img src={CloseSVG} alt='' onClick={() => toggoleSider(false)} />
+        <img src={CloseSVG} alt='' onClick={onToggle} />
       </SiderHeadr>
       <Tabs>
         {
           TabGroupOne.map(tab => (
             <Tab key={tab.title}>
               <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={() => toggoleSider(false)}>
+              <Link to={tab.link} onClick={onToggle}>
                 {tab.title}
               </Link>
             </Tab>
@@ -406,7 +411,7 @@ export const Header: FC = (): ReactElement => {
           TabGroupTwo.map(tab => (
             <Tab key={tab.title}>
               <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={() => toggoleSider(false)}>
+              <Link to={tab.link} onClick={onToggle}>
                 {tab.title}
               </Link>
             </Tab>
@@ -416,7 +421,7 @@ export const Header: FC = (): ReactElement => {
     </Sider>
     <HeaderLeft>
       <More>
-        <img src={MoreSVG} alt="" onClick={() => toggoleSider(true)} />
+        <img src={MoreSVG} alt="" onClick={onToggle} />
       </More>
       <BreadCrumb divides={divides} />
     </HeaderLeft>

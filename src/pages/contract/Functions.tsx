@@ -15,7 +15,7 @@ enum Section {
   Execute = 'Execute',
 }
 
-export const Functions: FC<{ show: boolean, contractAddress: string }> = ({ show, contractAddress }): ReactElement => {
+export const Functions: FC<{ contractAddress: string }> = ({ contractAddress }): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
@@ -44,7 +44,7 @@ export const Functions: FC<{ show: boolean, contractAddress: string }> = ({ show
   }, [api, abi, contractAddress]);
 
   return (
-    <Wrapper style={{ display: show ? 'block' : 'none' }}>
+    <Wrapper>
       {
         (!abi || !contract) &&
           'Please upload ABI'
