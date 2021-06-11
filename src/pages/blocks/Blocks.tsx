@@ -19,7 +19,9 @@ export const Blocks: FC = (): ReactElement => {
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
 
   const selectedBlocks = useMemo(
-    () => blocks.slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
+    () => [...blocks]
+      .reverse()
+      .slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
     [blocks, pageIndex, pageSize]
   )
 

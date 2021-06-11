@@ -1,5 +1,5 @@
 import { FC, ReactElement } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -24,7 +24,7 @@ const Wrapper = styled.div`
 `;
 
 export interface Divide {
-  name: string;
+  name: string | ((pathname: string) => string) | ((pathname: string) => Promise<string>);
   link?: string;
 }
 
@@ -35,6 +35,7 @@ export interface Divide {
 export const BreadCrumb: FC<{
   divides: Divide[];
 }> = ({ divides }): ReactElement => {
+  const { pathname } = useLocation();
 
   if (!divides.length) {
     return <Wrapper />;
@@ -52,11 +53,19 @@ export const BreadCrumb: FC<{
               index === divides.length - 1 ?
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a>
-                  {divide.name}
+                  {
+                    typeof divide.name === 'string' ?
+                      divide.name :
+                      divide.name(pathname)
+                  }
                 </a>
                 :
                 <Link to={divide.link || ''}>
-                  {divide.name}
+                  {
+                    typeof divide.name === 'string' ?
+                      divide.name :
+                      divide.name(pathname)
+                  }
                 </Link>
             }
           </div>

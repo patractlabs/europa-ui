@@ -193,133 +193,6 @@ const TabGroupTwo: TabStructure[] = [
 
 const hashReg = '(.+)';
 const addressReg = '(.+)';
-const pathRegs = [
-  {
-    reg: new RegExp('/explorer$'),
-    divides: [
-      {
-        name: 'Explorer',
-        link: '/explorer',
-      },
-    ],
-  },
-  {
-    reg: new RegExp(`/explorer/code-hash/${hashReg}$`),
-    divides: [
-      {
-        name: 'Explorer',
-        link: '/explorer',
-      },
-      {
-        name: 'Code Hash',
-      },
-    ],
-  },
-  {
-    reg: new RegExp(`/explorer/eoa/${addressReg}$`),
-    divides: [
-      {
-        name: 'Explorer',
-        link: '/explorer',
-      },
-      {
-        name: 'EOA',
-      },
-    ],
-  },
-  {
-    reg: new RegExp(`/explorer/contract/${addressReg}$`),
-    divides: [
-      {
-        name: 'Explorer',
-        link: '/explorer',
-      },
-      {
-        name: 'Contract',
-      },
-    ],
-  },
-  {
-    reg: new RegExp(`/block/${hashReg}$`),
-    divides: [
-      {
-        name: 'Block',
-        link: '/block',
-      },
-      {
-        name: '#BlockNumber',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/account$'),
-    divides: [
-      {
-        name: 'Account',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/block$'),
-    divides: [
-      {
-        name: 'Block',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/extrinsic$'),
-    divides: [
-      {
-        name: 'Extrinsic',
-      },
-    ],
-  },
-  {
-    reg: new RegExp(`/extrinsic/${hashReg}/(.+)$`),
-    divides: [
-      {
-        name: 'Extrinsic',
-        link: '/extrinsic',
-      },
-      {
-        name: 'Details',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/event$'),
-    divides: [
-      {
-        name: 'Event',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/contract$'),
-    divides: [
-      {
-        name: 'Contract',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/developer$'),
-    divides: [
-      {
-        name: 'Developer',
-      },
-    ],
-  },
-  {
-    reg: new RegExp('/setting$'),
-    divides: [
-      {
-        name: 'Setting',
-      },
-    ],
-  },
-]
 
 export const Header: FC = (): ReactElement => {
   const [ showSider, toggoleSider ] = useState<boolean>(false);
@@ -330,6 +203,144 @@ export const Header: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const h = useHistory();
 
+  
+  const pathRegs: {
+    reg: RegExp;
+    divides: Divide[];
+  }[] = [
+    {
+      reg: new RegExp('/explorer$'),
+      divides: [
+        {
+          name: 'Explorer',
+          link: '/explorer',
+        },
+      ],
+    },
+    {
+      reg: new RegExp(`/explorer/code-hash/${hashReg}$`),
+      divides: [
+        {
+          name: 'Explorer',
+          link: '/explorer',
+        },
+        {
+          name: 'Code Hash',
+        },
+      ],
+    },
+    {
+      reg: new RegExp(`/explorer/eoa/${addressReg}$`),
+      divides: [
+        {
+          name: 'Explorer',
+          link: '/explorer',
+        },
+        {
+          name: 'EOA',
+        },
+      ],
+    },
+    {
+      reg: new RegExp(`/explorer/contract/${addressReg}$`),
+      divides: [
+        {
+          name: 'Explorer',
+          link: '/explorer',
+        },
+        {
+          name: 'Contract',
+        },
+      ],
+    },
+    {
+      reg: new RegExp(`/block/${hashReg}$`),
+      divides: [
+        {
+          name: 'Block',
+          link: '/block',
+        },
+        {
+          name: (pathname) => {
+            const reg = new RegExp(`/block/(${hashReg})$`);
+            const result = reg.exec(pathname);
+            const blockHash =  result ? `${result[1]}` : '';
+            const height = blocks.find(block => block.blockHash === blockHash)?.height;
+
+            return  `#${height}`;
+          },
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/account$'),
+      divides: [
+        {
+          name: 'Account',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/block$'),
+      divides: [
+        {
+          name: 'Block',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/extrinsic$'),
+      divides: [
+        {
+          name: 'Extrinsic',
+        },
+      ],
+    },
+    {
+      reg: new RegExp(`/extrinsic/${hashReg}/(.+)$`),
+      divides: [
+        {
+          name: 'Extrinsic',
+          link: '/extrinsic',
+        },
+        {
+          name: 'Details',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/event$'),
+      divides: [
+        {
+          name: 'Event',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/contract$'),
+      divides: [
+        {
+          name: 'Contract',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/developer$'),
+      divides: [
+        {
+          name: 'Developer',
+        },
+      ],
+    },
+    {
+      reg: new RegExp('/setting$'),
+      divides: [
+        {
+          name: 'Setting',
+        },
+      ],
+    },
+  ]
 
   const onSearch = useCallback(() => {
     const block = blocks.find(block => block.blockHash === search);

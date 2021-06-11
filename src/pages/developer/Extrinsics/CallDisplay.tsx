@@ -59,12 +59,10 @@ function extractState (value: IExtrinsic | IMethod, withHash?: boolean, withSign
       : null;
   }
 
-  console.log('asdfa', hash, params, signature, signatureType, values.map(v => v.value.toHuman()))
   return { hash, params, signature, signatureType, values };
 }
 
 export const CallDisplay: FC<{ value: IExtrinsic | IMethod }> = ({ value }): ReactElement => {
-  const { api } = useContext(ApiContext);
   const [ params, setParams] = useState<Obj[]>([]);
 
   useEffect(() => {
