@@ -66,11 +66,14 @@ const Main: FC = (): ReactElement => {
           <Route path='/event'>
             <EventsPage />
           </Route>
-          <Route path='/contract'>
+          <Route exact path="/contract">
+            <Redirect to="/contract/codes" />
+          </Route>
+          <Route path='/contract/:part'>
             <ContractsPage />
           </Route>
           <Route exact path="/developer">
-            <Redirect to="/developer/ChainState" />
+            <Redirect to="/developer/chainState" />
           </Route>
           <Route path='/developer/:part'>
             <Developer />

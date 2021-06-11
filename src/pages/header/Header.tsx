@@ -9,6 +9,9 @@ import { BreadCrumb, Divide } from '../../shared';
 import { Style } from '../../shared';
 import { BlocksContext, Extrinsic } from '../../core';
 import { message } from 'antd';
+import { ActiveTab as ContractActiveTab } from '../contract';
+import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
+import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
 
 const Wrapper = styled.div`
   display: flex;
@@ -208,7 +211,7 @@ export const Header: FC = (): ReactElement => {
     divides: Divide[];
   }[] = useMemo(() => [
     {
-      reg: new RegExp('/explorer$'),
+      reg: new RegExp('^/explorer$'),
       divides: [
         {
           name: 'Explorer',
@@ -217,7 +220,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`/explorer/code-hash/${hashReg}$`),
+      reg: new RegExp(`^/explorer/code-hash/${hashReg}$`),
       divides: [
         {
           name: 'Explorer',
@@ -229,7 +232,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`/explorer/eoa/${addressReg}$`),
+      reg: new RegExp(`^/explorer/eoa/${addressReg}$`),
       divides: [
         {
           name: 'Explorer',
@@ -241,7 +244,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`/explorer/contract/${addressReg}$`),
+      reg: new RegExp(`^/explorer/contract/${addressReg}$`),
       divides: [
         {
           name: 'Explorer',
@@ -253,7 +256,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`/block/${hashReg}$`),
+      reg: new RegExp(`^/block/${hashReg}$`),
       divides: [
         {
           name: 'Block',
@@ -261,7 +264,7 @@ export const Header: FC = (): ReactElement => {
         },
         {
           name: (pathname) => {
-            const reg = new RegExp(`/block/(${hashReg})$`);
+            const reg = new RegExp(`^/block/(${hashReg})$`);
             const result = reg.exec(pathname);
             const blockHash =  result ? `${result[1]}` : '';
             const height = blocks.find(block => block.blockHash === blockHash)?.height;
@@ -272,7 +275,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp('/account$'),
+      reg: new RegExp('^/account$'),
       divides: [
         {
           name: 'Account',
@@ -280,7 +283,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp('/block$'),
+      reg: new RegExp('^/block$'),
       divides: [
         {
           name: 'Block',
@@ -288,7 +291,7 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp('/extrinsic$'),
+      reg: new RegExp('^/extrinsic$'),
       divides: [
         {
           name: 'Extrinsic',
@@ -296,19 +299,30 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`/extrinsic/${hashReg}/(.+)$`),
+      reg: new RegExp(`^/extrinsic/${hashReg}/(.+)$`),
       divides: [
         {
           name: 'Extrinsic',
           link: '/extrinsic',
         },
         {
-          name: 'Details',
+          name: (pathname) => {
+            const reg = new RegExp(`^/extrinsic/${hashReg}/(.+)$`);
+            const result = reg.exec(pathname);
+            const part =  result ? `${result[2]}` : '';
+            const map: { [key: string]: string } = {
+              [ExtrinsicActiveTab.Details]: 'Details',
+              [ExtrinsicActiveTab.Events]: 'Events',
+              [ExtrinsicActiveTab.State]: 'State',
+            }
+
+            return  map[part] || '';
+          },
         },
       ],
     },
     {
-      reg: new RegExp('/event$'),
+      reg: new RegExp('^/event$'),
       divides: [
         {
           name: 'Events',
@@ -316,23 +330,53 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp('/contract$'),
+      reg: new RegExp('^/contract/(.+)$'),
       divides: [
         {
-          name: 'Contract',
+          name: 'Contracts',
+          link: '/contract'
         },
+        {
+          name: (pathname) => {
+            const reg = new RegExp(`^/contract/(.+)$`);
+            const result = reg.exec(pathname);
+            const part =  result ? `${result[1]}` : '';
+            const map: { [key: string]: string } = {
+              [ContractActiveTab.Codes]: 'Codes',
+              [ContractActiveTab.Instances]: 'Instances'
+            }
+
+            return  map[part] || '';
+          },
+        }
       ],
     },
     {
-      reg: new RegExp('/developer$'),
+      reg: new RegExp('^/developer/(.+)$'),
       divides: [
         {
           name: 'Developer',
+          link: '/developer'
         },
+        {
+          name: (pathname) => {
+            const reg = new RegExp(`^/developer/(.+)$`);
+            const result = reg.exec(pathname);
+            const part =  result ? `${result[1]}` : '';
+            const map: { [key: string]: string } = {
+              [DeveloperActiveTab.ChainState]: 'Chain State',
+              [DeveloperActiveTab.Extrinsic]: 'Extrinsic',
+              [DeveloperActiveTab.RpcCall]: 'Rpc Call',
+              [DeveloperActiveTab.Log]: 'Log',
+            }
+
+            return  map[part] || '';
+          },
+        }
       ],
     },
     {
-      reg: new RegExp('/setting$'),
+      reg: new RegExp('^/setting$'),
       divides: [
         {
           name: 'Setting',

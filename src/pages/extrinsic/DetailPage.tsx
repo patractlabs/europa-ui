@@ -45,10 +45,10 @@ const Tab = styled.div`
   }
 `;
 
-enum ActiveTab {
-  details = 'details',
-  events = 'events',
-  state = 'state',
+export enum ActiveTab {
+  Details = 'details',
+  Events = 'events',
+  State = 'state',
 }
 
 export const ExtrinsicDetailPage: FC = (): ReactElement => {
@@ -56,19 +56,19 @@ export const ExtrinsicDetailPage: FC = (): ReactElement => {
   const tabs = useMemo(() => {
     return [
       {
-        tab: ActiveTab.details,
+        tab: ActiveTab.Details,
         title: 'Details',
         link: `/extrinsic/${hash}/details`,
         path: '/extrinsic/:hash/details',
       },
       {
-        tab: ActiveTab.events,
+        tab: ActiveTab.Events,
         title: 'Events',
         link: `/extrinsic/${hash}/events`,
         path: '/extrinsic/:hash/events',
       },
       {
-        tab: ActiveTab.state,
+        tab: ActiveTab.State,
         title: 'State',
         link: `/extrinsic/${hash}/state`,
         path: '/extrinsic/:hash/state',

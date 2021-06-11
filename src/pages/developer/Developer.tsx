@@ -28,7 +28,6 @@ const Tabs = styled.div`
 
   .active a {
     color: ${Style.color.primary};
-;
   }
 `;
 const Tab = styled.div`
@@ -43,33 +42,33 @@ const Tab = styled.div`
   }
 `;
 
-enum TabChoice {
-  ChainState = 'ChainState',
-  Extrinsic = 'Extrinsic',
-  RpcCall = 'RpcCall',
-  Log = 'Log',
+export enum ActiveTab {
+  ChainState = 'chainState',
+  Extrinsic = 'extrinsic',
+  RpcCall = 'rpcCall',
+  Log = 'log',
 }
 
 const tabs = [
   {
-    tab: TabChoice.ChainState,
+    tab: ActiveTab.ChainState,
     title: 'ChainState',
-    link: `/developer/${TabChoice.ChainState}`,
+    link: `/developer/${ActiveTab.ChainState}`,
   },
   {
-    tab: TabChoice.Extrinsic,
+    tab: ActiveTab.Extrinsic,
     title: 'Extrinsic',
-    link: `/developer/${TabChoice.Extrinsic}`,
+    link: `/developer/${ActiveTab.Extrinsic}`,
   },
   {
-    tab: TabChoice.RpcCall,
+    tab: ActiveTab.RpcCall,
     title: 'RpcCall',
-    link: `/developer/${TabChoice.RpcCall}`,
+    link: `/developer/${ActiveTab.RpcCall}`,
   },
   {
-    tab: TabChoice.Log,
+    tab: ActiveTab.Log,
     title: 'Log',
-    link: `/developer/${TabChoice.Log}`,
+    link: `/developer/${ActiveTab.Log}`,
   }
 ];
 
@@ -94,9 +93,6 @@ export const Developer: FC = (): ReactElement => {
 
       <Content>
         <Switch>
-          <Route path="/develop">
-            <ChainState/>
-          </Route>
           <Route path={tabs[0].link}>
             <ChainState/>
           </Route>

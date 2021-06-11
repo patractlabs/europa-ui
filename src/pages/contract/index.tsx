@@ -1,9 +1,9 @@
 import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { UploadContract } from './Upload';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode } from '../../core';
-import { formatAddress, Style, Tabs } from '../../shared';
+import { formatAddress, Style } from '../../shared';
 import { Table } from 'antd';
 
 const Wrapper = styled.div`
@@ -35,11 +35,6 @@ const Button = styled.button`
   font-size: 14px;
   padding: 0px 24px;
   color: ${Style.color.primary};
-`;
-const TabTitle = styled.div`
-  padding-left: 80px;
-  background: ${Style.color.primary};
-  display: flex;
 `;
 
 const Contracts: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactElement => {
@@ -84,7 +79,6 @@ const Contracts: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactE
     </div>
   );
 };
-
 
 const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
@@ -134,39 +128,88 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
     </div>
   );
 };
-enum TabChoice {
-  Codes = 'Codes',
-  Contracts = 'Contracts',
+
+export enum ActiveTab {
+  Codes = 'codes',
+  Instances = 'instances',
 }
+
+const TabArea = styled.div`
+  height: 48px;
+  padding-top: 8px;
+  background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
+  color: white;
+`;
+const Tabs = styled.div`
+  padding: 0px 68px;
+  display: flex;
+  
+  >.active {
+    background-color: white;
+  }
+
+  .active a {
+    color: ${Style.color.primary};
+  }
+`;
+
+const Tab = styled.div`
+  width: 133px;
+  text-align: center;
+  line-height: 40px;
+  font-size: 16px;
+  
+
+  a {
+    color: white; 
+  }
+`;
+
+const tabs = [
+  {
+    tab: ActiveTab.Codes,
+    title: 'Codes',
+    link: `/contract/${ActiveTab.Codes}`,
+  },
+  {
+    tab: ActiveTab.Instances,
+    title: 'Instances',
+    link: `/contract/${ActiveTab.Instances}`,
+  },
+];
 
 export const ContractsPage: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts, codesHash } = useContracts(api, blocks);
-  const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
+  const { part } = useParams<{ part: string }>();
 
   useEffect(() => store.loadAll(), []);
 
   return (
     <Wrapper>
-      <TabTitle>
-        <Tabs
-          options={[
-            { name: 'Codes', value: TabChoice.Codes },
-            { name: 'Instances', value: TabChoice.Contracts },
-          ]}
-          defaultValue={TabChoice.Codes}
-          onChange={choice => setTabChoice(choice)}
-        ></Tabs>
-      </TabTitle>
-      {
-        tabChoice === TabChoice.Codes &&
+      <TabArea>
+        <Tabs>
+          {
+            tabs.map(tab =>
+              <Tab key={tab.tab} className={ tab.tab === part ? 'active' : ''}>
+                <Link to={tab.link}>
+                  {tab.title}
+                </Link>
+              </Tab>
+            )
+          }
+        </Tabs>
+      </TabArea>
+      
+      <Switch>
+        <Route path={tabs[0].link}>
           <Codes codes={codesHash} />
-      }
-      {
-        tabChoice === TabChoice.Contracts &&
+        </Route>
+        <Route path={tabs[1].link}>
           <Contracts contracts={contracts} />
-      }
+        </Route>
+      </Switch>
     </Wrapper>
   );
 };
