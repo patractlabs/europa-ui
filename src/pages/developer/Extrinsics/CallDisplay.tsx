@@ -1,6 +1,5 @@
-import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
+import React, { FC, ReactElement, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext } from '../../../core';
 import { Args, Obj } from '../../../shared';
 import { Enum, getTypeDef, GenericCall } from '@polkadot/types';
 import type { Codec, IExtrinsic, IMethod, TypeDef } from '@polkadot/types/types';

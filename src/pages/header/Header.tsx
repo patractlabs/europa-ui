@@ -202,12 +202,11 @@ export const Header: FC = (): ReactElement => {
   const [ search, setSearch ] = useState('');
   const { blocks } = useContext(BlocksContext);
   const h = useHistory();
-
   
   const pathRegs: {
     reg: RegExp;
     divides: Divide[];
-  }[] = [
+  }[] = useMemo(() => [
     {
       reg: new RegExp('/explorer$'),
       divides: [
@@ -340,7 +339,7 @@ export const Header: FC = (): ReactElement => {
         },
       ],
     },
-  ]
+  ], [blocks]);
 
   const onSearch = useCallback(() => {
     const block = blocks.find(block => block.blockHash === search);
@@ -364,7 +363,7 @@ export const Header: FC = (): ReactElement => {
 
   useMemo(() => {
     setDivides(pathRegs.find(reg => reg.reg.test(pathname))?.divides || []);
-  }, [setDivides, pathname]);
+  }, [setDivides, pathname, pathRegs]);
 
   useEffect(() => {
     if (showSider) {

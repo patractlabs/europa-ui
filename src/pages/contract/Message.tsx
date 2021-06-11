@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState, useCallback, useContext, useMemo, useEffect } from 'react';
+import React, { FC, ReactElement, useState, useCallback, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';

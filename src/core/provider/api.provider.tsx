@@ -36,7 +36,7 @@ const startEuropa = () => {
   try {
     const childProcess: typeof ChildProcess = requireModule('child_process');
     const path: typeof Path = requireModule('path');
-    const fs = requireModule('fs');
+    // const fs = requireModule('fs');
     const binPath = path.resolve('C:\\work\\projects\\europa-ui\\bin-deps', 'europa-win.exe');
     
     console.log(`bin path:`, binPath);

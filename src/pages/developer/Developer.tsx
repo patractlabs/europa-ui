@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement } from 'react';
 import { Link, Route, Switch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Style } from '../../shared';

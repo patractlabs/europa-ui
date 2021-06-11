@@ -85,7 +85,7 @@ const createMethods = (api: ApiRx, sectionName: string) => {
 };
 
 export const Submission: FC = (): ReactElement => {
-  const { api, tokenDecimal } = useContext(ApiContext);
+  const { api } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [sender, setAccountId] = useState<string>();
   const [ section, setSection ] = useState<string>(createOptions(api)[0]);
