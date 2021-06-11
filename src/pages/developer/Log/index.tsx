@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   height: 450px;
   overflow-y: auto;
   overflow-x: hidden;
+  height: 100%;
 
   > .line {
     padding-bottom: 6px;

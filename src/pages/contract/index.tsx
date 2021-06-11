@@ -7,6 +7,10 @@ import { formatAddress, Style } from '../../shared';
 import { Table } from 'antd';
 
 const Wrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
   .ant-table-thead > tr > th {
     color: ${Style.color.label.default};
     background-color: white;
@@ -36,11 +40,18 @@ const Button = styled.button`
   padding: 0px 24px;
   color: ${Style.color.primary};
 `;
+const InstancesWrapper = styled.div`
+  flex: 1;
+`;
+const CodesWrapper = styled.div`
+  flex: 1;
+`;
 
-const Contracts: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactElement => {
+
+const Instances: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactElement => {
 
   return (
-    <div>
+    <InstancesWrapper>
       <Title>
         <label>All Contracts</label>
       </Title>
@@ -76,7 +87,7 @@ const Contracts: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactE
           },
         ]}
       />
-    </div>
+    </InstancesWrapper>
   );
 };
 
@@ -84,7 +95,7 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
 
   return (
-    <div>      
+    <CodesWrapper>
       <Title>
         <label>All Code Hashes</label>
         <Button onClick={() => toggleUpload(true)}>Upload & deploy contract</Button>
@@ -125,7 +136,7 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
         showUpload &&
           <UploadContract onCancel={() => toggleUpload(false)} onCompleted={() => toggleUpload(false)} />
       }
-    </div>
+    </CodesWrapper>
   );
 };
 
@@ -207,7 +218,7 @@ export const ContractsPage: FC = (): ReactElement => {
           <Codes codes={codesHash} />
         </Route>
         <Route path={tabs[1].link}>
-          <Contracts contracts={contracts} />
+          <Instances contracts={contracts} />
         </Route>
       </Switch>
     </Wrapper>

@@ -8,9 +8,13 @@ import { Log } from './Log';
 import { RpcCall } from './RpcCall';
 
 const Wrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 const Content = styled.div`
   padding: 20px;
+  flex: 1;
 `;
 const TabArea = styled.div`
   height: 48px;
