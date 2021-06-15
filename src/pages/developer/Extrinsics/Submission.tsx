@@ -101,7 +101,7 @@ export const Submission: FC = (): ReactElement => {
   }>(methods[0]);
   const [paramValues, setParamValues] = useState<RawParamOnChangeValue[]>([]);
   const [params, setParams] = useState<ParamsType>(getParams(api.tx[section][method.value]));
-  
+
   const [extrinsicHex, extrinsicHash] = useMemo(
     (): [string, string] => {
       const values = paramValues.map(p => p.value) as any[];

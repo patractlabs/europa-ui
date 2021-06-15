@@ -32,7 +32,7 @@ jobs:
           repo: "patractlabs/europa"
           version: "tags/test-ci"
           file: ${{ matrix.binFileName }}
-          target: build/${{ matrix.binFileName }}
+          target: resources/${{ matrix.binFileName }}
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1

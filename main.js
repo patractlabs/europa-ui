@@ -17,18 +17,25 @@ function createWindow () {
     },
   })
 
-  win.loadFile('./build/index.html')
+  win.openDevTools({mode:'detach'})
+
+  if (process.env.NODE_ENV === 'development') {
+    win.loadFile('./build/index.html')
+  } else {
+    win.loadFile('./build/index.html')
+  }
 }
 
 app.whenReady().then(() => {
-  // let binPath = path.resolve(__dirname, 'bin-deps', 'europa_win.exe');
+  let binPath = path.resolve(__dirname, 'resources', 'europa-win.exe');
   // if (process.platform === 'linux') {
   //   binPath = path.resolve(__dirname, 'bin-deps', 'europa_linux_amd64');
   // }
   
-  // console.log(`bin path:`, binPath);
-  // console.log(`platform:`, process.platform);
-  // console.log('files:', fs.readdirSync(path.resolve(__dirname, 'bin-deps')));
+  // childProcess.spawn(binPath);
+  console.log(`bin path:`, binPath);
+  console.log(`platform:`, process.platform);
+  console.log('files:', fs.readdirSync(path.resolve(__dirname, 'build')));
   // childProcess.execFile(binPath, ['--tmp']);
 
   createWindow()

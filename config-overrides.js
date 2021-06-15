@@ -1,7 +1,7 @@
 const { override, addWebpackAlias  } = require('customize-cra');
-const { alias, configPaths} = require('react-app-rewire-alias');
-const path = require('path')
-const resolve = dir => path.join(__dirname, '.', dir)
+// const { alias, configPaths} = require('react-app-rewire-alias');
+// const path = require('path');
+// const resolve = dir => path.join(__dirname, '.', dir)
 
 const supportMjs = () => (webpackConfig) => {
   webpackConfig.module.rules.push({
@@ -31,5 +31,15 @@ module.exports = override(
   //   };
   //   return config;
   // }
+  
+  (config) => {
+    console.error('env', process.env.NODE_ENV);
+    if (process.env.NODE_ENV === 'production') {
+      config.output.publicPath = './';
+    }
+    config.node.__filename = false;
+    config.node.__dirname = false;
+    return config;
+  }
 );
 

@@ -4,8 +4,9 @@ import type { Metadata } from '@polkadot/metadata';
 import keyring from '@polkadot/ui-keyring';
 import { zip } from 'rxjs';
 import { requireModule } from '../../shared';
-import * as ChildProcess from 'child_process';
-import * as Path from 'path';
+import type * as ChildProcess from 'child_process';
+import type * as Path from 'path';
+import type * as FS from 'fs';
 
 const ApiContext: Context<{
   api: ApiRx;
@@ -36,14 +37,15 @@ const startEuropa = () => {
   try {
     const childProcess: typeof ChildProcess = requireModule('child_process');
     const path: typeof Path = requireModule('path');
-    // const fs = requireModule('fs');
-    const binPath = path.resolve('C:\\work\\projects\\europa-ui\\bin-deps', 'europa-win.exe');
-    
+    const fs: typeof FS = requireModule('fs');
+    let binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-win.exe');
+
+    if (process.platform === 'linux') {
+      binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa');
+    }
     console.log(`bin path:`, binPath);
     console.log(`platform:`, process.platform);
-    // console.log('files:', fs.readdirSync(path.resolve(__dirname, 'build')));
-    // console.log('files:', fs.readdirSync(path.resolve(__dirname, 'resources')));
-    // console.log('files:', fs.readdirSync(path.resolve(__dirname, 'bin-deps')));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
   
     return childProcess.spawn(binPath);
   } catch(e) {
