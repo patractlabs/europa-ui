@@ -131,9 +131,8 @@ export const EOA: FC = (): ReactElement => {
           ]}
         />
       </div>
-      <PageLine />
+      <PageLine style={{ marginTop: '16px' }} />
     </Wrapper>
   );
 
 };
-

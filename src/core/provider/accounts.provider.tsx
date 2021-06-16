@@ -37,7 +37,8 @@ function transformAccounts (accounts: SubjectInfo): AccountJson[] {
   }));
 }
 
-export const AccountsProvider = React.memo(({ children }: { children: React.ReactNode }): React.ReactElement => {
+export const AccountsProvider = React.memo(
+  ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const { api, tokenDecimal, isApiReady } = useContext(ApiContext);
     const [ accounts, setAccounts ] = useState<AccountInfo[]>([]);
 
