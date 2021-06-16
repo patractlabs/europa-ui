@@ -6,6 +6,12 @@ import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
+  > .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+  }
   flex: 1;
   display: flex;
   justify-content: space-between;
@@ -24,14 +30,14 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
 
   return (
     <Wrapper>
-      <div>
+      <div className="content">
         {
           events.map((event, index) =>
             <Event key={index} event={event} />
           )
         }
       </div>
-      <PageLine style={{ padding: '30px 20px' }} />
+      <PageLine style={{ paddingTop: '30px' }} />
     </Wrapper>
   );
 };

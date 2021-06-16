@@ -1,11 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import { BlocksContext, Extrinsic, PaginationProvider } from '../../core';
 import { Events } from '../../shared';
-
-const Wrapper = styled.div`
-`;
 
 export const ExtrinsicEvents: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
@@ -19,10 +15,8 @@ export const ExtrinsicEvents: FC = (): ReactElement => {
   );
 
   return (
-    <Wrapper>
-      <PaginationProvider>
-        <Events events={events} />
-      </PaginationProvider>
-    </Wrapper>
+    <PaginationProvider defaultPageSize={3} >
+      <Events events={events} />
+    </PaginationProvider>
   );
 };

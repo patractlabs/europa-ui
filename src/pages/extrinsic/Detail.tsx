@@ -12,6 +12,7 @@ import { Abi } from '@polkadot/api-contract';
 import { Col, Row } from 'antd';
 
 const Wrapper = styled.div`
+  padding: 20px;
 `;
 const ExtrinsicHash = styled(TitleWithBottomBorder)`
   color: ${Style.color.label.default};

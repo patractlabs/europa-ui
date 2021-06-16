@@ -7,6 +7,7 @@ import { Args, Obj } from './Args';
 import { ApiContext } from '../../core';
 
 const Wrapper = styled.div`
+  border-bottom: 1px solid ${Style.color.border.default};
 `;
 const InfoLine = styled.div`
   cursor: pointer;

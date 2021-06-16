@@ -7,11 +7,18 @@ import { ExtrinsicDetail } from './Detail';
 import { ExtrinsicEvents } from './Events';
 
 const Wrapper = styled.div`
-`;
+  background-color: ${Style.color.bg.default};
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  `;
+
 const Content = styled.div`
   padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
-
 const TabArea = styled.div`
   height: 48px;
   padding-top: 8px;
