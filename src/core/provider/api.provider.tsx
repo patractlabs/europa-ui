@@ -41,7 +41,7 @@ const startEuropa = () => {
     const fs: typeof FS = requireModule('fs');
     const os: typeof OS = requireModule('os');
     const platform = os.platform().toLowerCase();
-    const resources = path.resolve(__dirname, '../app.asar.unpacked/resources');
+    const resources = path.resolve(__dirname, '../../app.asar.unpacked/resources');
     let binPath = path.resolve(resources, 'europa-win.exe');
   
     if (platform === 'linux') {
@@ -55,6 +55,7 @@ const startEuropa = () => {
     console.log(`dir:`, __dirname);
     console.log('files:', fs.readdirSync(path.resolve(__dirname)));
     console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
     console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
 
     return childProcess.spawn(binPath);
