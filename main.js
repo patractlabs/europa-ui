@@ -1,7 +1,7 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
-const childProcess = require('child_process');
 const fs = require('fs');
+const os = require('os');
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -27,16 +27,21 @@ function createWindow () {
 }
 
 app.whenReady().then(() => {
-  let binPath = path.resolve(__dirname, 'resources', 'europa-win.exe');
-  // if (process.platform === 'linux') {
-  //   binPath = path.resolve(__dirname, 'bin-deps', 'europa_linux_amd64');
-  // }
-  
-  // childProcess.spawn(binPath);
-  console.log(`bin path:`, binPath);
-  console.log(`platform:`, process.platform);
-  console.log('files:', fs.readdirSync(path.resolve(__dirname, 'build')));
-  // childProcess.execFile(binPath, ['--tmp']);
+  const platform = os.platform().toLowerCase();
+  let binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-win.exe');
+
+  if (platform === 'linux') {
+    binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa');
+  } else if (platform === 'darwin') {
+    binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-darwin');
+  }
+
+  console.log(`platform:`, platform);
+  console.log(`bin:`, binPath);
+  console.log(`dir:`, __dirname);
+  console.log('files:', fs.readdirSync(path.resolve(__dirname)));
+  console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
+  console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
 
   createWindow()
 

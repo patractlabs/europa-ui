@@ -41,14 +41,14 @@ const startEuropa = () => {
     const fs: typeof FS = requireModule('fs');
     const os: typeof OS = requireModule('os');
     const platform = os.platform().toLowerCase();
-    let binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-win.exe');
-
+    let binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-win.exe');
+  
     if (platform === 'linux') {
-      binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa');
+      binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa');
     } else if (platform === 'darwin') {
-      binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-darwin');
+      binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-darwin');
     }
-
+  
     console.log(`platform:`, platform);
     console.log(`bin:`, binPath);
     console.log(`dir:`, __dirname);
