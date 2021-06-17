@@ -41,12 +41,13 @@ const startEuropa = () => {
     const fs: typeof FS = requireModule('fs');
     const os: typeof OS = requireModule('os');
     const platform = os.platform().toLowerCase();
-    let binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-win.exe');
+    const resources = path.resolve(__dirname, '../app.asar.unpacked/resources');
+    let binPath = path.resolve(resources, 'europa-win.exe');
   
     if (platform === 'linux') {
-      binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa');
+      binPath = path.resolve(resources, 'europa-linux');
     } else if (platform === 'darwin') {
-      binPath = path.resolve(__dirname, '../app.asar.unpacked/resources', 'europa-darwin');
+      binPath = path.resolve(resources, 'europa-darwin');
     }
   
     console.log(`platform:`, platform);
@@ -55,7 +56,7 @@ const startEuropa = () => {
     console.log('files:', fs.readdirSync(path.resolve(__dirname)));
     console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
     console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
-  
+
     return childProcess.spawn(binPath);
   } catch(e) {
     console.log('eeeeeeeeeee', e);

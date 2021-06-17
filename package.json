@@ -60,7 +60,9 @@
   },
   "build": {
     "asarUnpack": [
-      "resources/europa-win.exe"
+      "resources/europa-win.exe",
+      "resources/europa-linux",
+      "resources/europa-darwin"
     ],
     "appId": "ui.europa.patract",
     "productName": "Europa-UI",
