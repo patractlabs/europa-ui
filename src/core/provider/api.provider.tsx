@@ -49,12 +49,12 @@ const startEuropa = () => {
       binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-darwin');
     }
 
-    console.log(`bin path:`, binPath);
+    console.log(`platform:`, platform);
+    console.log(`bin:`, binPath);
     console.log(`dir:`, __dirname);
-    console.log(`platform:`, process.platform);
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
     console.log('files:', fs.readdirSync(path.resolve(__dirname)));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
   
     return childProcess.spawn(binPath);
   } catch(e) {
