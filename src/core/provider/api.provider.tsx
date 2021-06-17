@@ -7,6 +7,7 @@ import { requireModule } from '../../shared';
 import type * as ChildProcess from 'child_process';
 import type * as Path from 'path';
 import type * as FS from 'fs';
+import type * as OS from 'os';
 
 const ApiContext: Context<{
   api: ApiRx;
@@ -38,11 +39,16 @@ const startEuropa = () => {
     const childProcess: typeof ChildProcess = requireModule('child_process');
     const path: typeof Path = requireModule('path');
     const fs: typeof FS = requireModule('fs');
+    const os: typeof OS = requireModule('os');
+    const platform = os.platform().toLowerCase();
     let binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-win.exe');
 
-    if (process.platform === 'linux') {
+    if (platform === 'linux') {
       binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa');
+    } else if (platform === 'darwin') {
+      binPath = path.resolve(__dirname, '../../app.asar.unpacked/resources', 'europa-darwin');
     }
+
     console.log(`bin path:`, binPath);
     console.log(`dir:`, __dirname);
     console.log(`platform:`, process.platform);
