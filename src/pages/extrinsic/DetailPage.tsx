@@ -5,6 +5,7 @@ import { PaginationProvider } from '../../core';
 import { Style } from '../../shared';
 import { ExtrinsicDetail } from './Detail';
 import { ExtrinsicEvents } from './Events';
+import { States } from './States';
 
 const Wrapper = styled.div`
   background-color: ${Style.color.bg.default};
@@ -110,7 +111,7 @@ export const ExtrinsicDetailPage: FC = (): ReactElement => {
           </Route>
           <Route path={tabs[2].path}>
             <PaginationProvider>
-              <div>{tabs[2].title}</div>
+              <States hash={hash} />
             </PaginationProvider>
           </Route>
         </Switch>

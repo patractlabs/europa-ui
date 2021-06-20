@@ -219,7 +219,9 @@ export const ContractTrace: FC<{
                   </KeyValueLine>
                   <Line>
                     <LabelDefault>Env trace</LabelDefault>
-                    <Args>{JSON.stringify(trace.env_trace)}</Args>
+                    <Args>
+                      <pre>{JSON.stringify(trace.env_trace, null, 2)}</pre>
+                    </Args>
                   </Line>
                 </Col>
               </Row>
