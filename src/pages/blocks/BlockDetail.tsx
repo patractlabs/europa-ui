@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { ApiContext, Block, BlocksContext, PaginationProvider } from '../../core';
 import { Events, Extrinsics, Style, Tabs } from '../../shared';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
+import States from './States';
 
 const Wrapper = styled.div`
   .info-table .ant-table-tbody > tr > td {
@@ -39,7 +40,6 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
   }));
   const events = extrinsics.reduce((events: EventRecord[], extrinsic) => events.concat(extrinsic.events), []);
 
-
   return (
     <div>
       <Tabs
@@ -69,13 +69,12 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
   
       {
         tabChoice === TabChoice.States &&
-          <div>States</div>
+          <States block={block} />
       }
     </div>
 
   );
 };
-
 
 export const BlockDetail: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);

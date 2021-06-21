@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
+import { KeyValueLine, LabelDefault, Obj, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
 import { store, ApiContext, BlocksContext, useContracts } from '../../core';
@@ -9,6 +9,7 @@ import { Abi } from '@polkadot/api-contract';
 import type { Codec } from '@polkadot/types/types';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'antd';
+import { Args as ArgsDisplay } from '../../shared';
 
 const depthColors = [
   Style.color.button.primary,
@@ -219,8 +220,15 @@ export const ContractTrace: FC<{
                   </KeyValueLine>
                   <Line>
                     <LabelDefault>Env trace</LabelDefault>
-                    <Args>
+                    {/* <Args>
                       <pre>{JSON.stringify(trace.env_trace, null, 2)}</pre>
+                    </Args> */}
+                    <Args>
+                      {
+                        trace.env_trace.map((env, index) =>
+                          <ArgsDisplay key={index} args={env} />
+                        )
+                      }
                     </Args>
                   </Line>
                 </Col>

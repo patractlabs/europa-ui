@@ -58,7 +58,7 @@ const Main: FC = (): ReactElement => {
             </PaginationProvider>
           </Route>
           <Route path='/block/:blockHash'>
-              <BlockDetail />
+            <BlockDetail />
           </Route>
           <Route path='/extrinsic'>
             <ExtrinsicPage />

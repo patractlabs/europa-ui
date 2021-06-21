@@ -57,7 +57,7 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
     wsProvider.send('europa_extrinsicStateChanges', [
       extrinsic.height, extrinsic.index      
     ]).then((mutations: StateMutation[]) => {
-      console.log('aaa', mutations);
+      console.log('mutations', mutations);
 
       setMutations(
         mutations.map(mutation => ({
