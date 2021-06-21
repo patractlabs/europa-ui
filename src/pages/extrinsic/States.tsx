@@ -1,6 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ApiContext, BlocksContext, Extrinsic } from '../../core';
+import { Args, Obj } from '../../shared';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -25,6 +26,7 @@ type ExtendedExtrinsic = Extrinsic & {
 export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { wsProvider } = useContext(ApiContext);
+  const [ mutations, setMutations ] = useState<Obj[]>([]);
 
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
@@ -54,16 +56,28 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
 
     wsProvider.send('europa_extrinsicStateChanges', [
       extrinsic.height, extrinsic.index      
-    ]).then(a => {
-      console.log('aaa', a);
+    ]).then((mutations: StateMutation[]) => {
+      console.log('aaa', mutations);
+
+      setMutations(
+        mutations.map(mutation => ({
+          [mutation.type]: mutation.data
+        }))
+      );
+
     }, (e: any) => {
       console.log('e', e);
+      setMutations([]);
     });
   }, [extrinsic, wsProvider]);
 
   return (
     <Wrapper>
-      
+      {
+        mutations.map((mutation, index) =>
+          <Args key={index} args={mutation} />
+        )
+      }     
     </Wrapper>
   );
 };
