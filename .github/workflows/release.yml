@@ -22,7 +22,7 @@ jobs:
             appPostFix: ".AppImage"
 
           - os: windows-latest
-            artifactName: "^europa.*win\.exe$"
+            artifactName: "^europa.*win\\.exe$"
             targetName: "europa.exe"
             appPostFix: ".exe"
 
