@@ -44,3 +44,20 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+# publish
+version=1.0.0
+1. update .github/workflows/release.yml
+```
+  - os: ${os}
+    artifact-version: "xxx"
+    artifact-name: "xxx"
+```
+
+2. update package.json
+version="${version}"
+
+3. git tag v${version}
+
+4. git push origin tag v${version}
