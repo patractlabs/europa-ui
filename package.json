@@ -1,6 +1,6 @@
 {
   "name": "europa-ui",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "main.js",
   "private": true,
   "dependencies": {
@@ -61,11 +61,6 @@
     "rename:artifact": "node ./.github/workflows/rename-artifact"
   },
   "build": {
-    "asarUnpack": [
-      "resources/europa-win.exe",
-      "resources/europa-linux",
-      "resources/europa-darwin"
-    ],
     "appId": "ui.europa.patract",
     "productName": "Europa-UI",
     "copyright": "© 2021 Patract Labs Co., Limited, All Rights Reserved.",
