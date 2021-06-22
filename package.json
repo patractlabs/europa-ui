@@ -56,7 +56,8 @@
     "pack:mac:dir": "electron-builder --mac --dir",
     "pack:mac": "electron-builder --mac",
     "pack:linux:dir": "electron-builder --linux --dir",
-    "pack:linux": "electron-builder --linux"
+    "pack:linux": "electron-builder --linux",
+    "rename": "node ./.github/workflows/rename"
   },
   "build": {
     "asarUnpack": [

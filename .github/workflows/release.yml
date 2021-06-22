@@ -1,3 +1,5 @@
+config:
+  artifactVersion: "v0.3.20"
 name: Publish
 
 on:
@@ -15,20 +17,17 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifactVersion: "v0.3.20"
-            artifactName: "europa-v0.3.20-x86_64-ubuntu"
+            artifactName: "^europa.*ubuntu$"
             targetName: "europa"
             appPostFix: ".AppImage"
 
           - os: windows-latest
-            artifactVersion: "v0.3.20"
-            artifactName: "europa-v0.3.20-x86_64-win.exe"
+            artifactName: "^europa.*win\.exe$"
             targetName: "europa.exe"
             appPostFix: ".exe"
 
           # - os: macos-latest
-          #   artifactVersion: "v0.3.20"
-          #   artifactName: "europa-xxx"
+          #   artifactName: "^europa.*darwin$"
           #   targetName: "europa"
           #   appPostFix: ".dmg"
 
@@ -48,13 +47,18 @@ jobs:
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
 
-      - uses: dsaltares/fetch-gh-release-asset@master
+      - name: Download Release Asset
+        id: download_release_asset
+        uses: i3h/download-release-asset@v1
         with:
-          repo: "atenjin/europa"
-          version: "tags/${{matrix.artifactVersion}}"
+          owner: atenjin
+          repo: europa
+          tag: ${config.artifactVersion}
           file: ${{ matrix.artifactName }}
-          target: resources/${{ matrix.targetName }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: rename & mv artifact
+        run: yarn run rename
 
       - name: Build Electron app
         uses: samuelmeuli/action-electron-builder@v1
