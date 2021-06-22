@@ -17,17 +17,17 @@ jobs:
           - os: ubuntu-latest
             artifactName: "^europa.*ubuntu$"
             targetName: "europa"
-            appPostFix: ".AppImage"
+            appPostFix: "-x86_64-linux.AppImage"
 
           - os: windows-latest
             artifactName: "^europa.*win\\.exe$"
             targetName: "europa.exe"
-            appPostFix: ".exe"
+            appPostFix: "-x86_64-win.exe"
 
           # - os: macos-latest
           #   artifactName: "^europa.*darwin$"
           #   targetName: "europa"
-          #   appPostFix: ".dmg"
+          #   appPostFix: "-x86_64-darwin.dmg"
 
     steps:
       - uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
 
-      - name: Download Release Asset
+      - name: Download release artifact
         id: download_release_asset
         uses: i3h/download-release-asset@v1
         with:
@@ -55,7 +55,7 @@ jobs:
           file: ${{ matrix.artifactName }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: rename & mv artifact
+      - name: Rename & mv artifact
         run: yarn run rename
 
       - name: Build Electron app
@@ -79,8 +79,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/Europa-UI-${{ github.ref }}${{ matrix.appPostFix }}
-          asset_name: Europa-${{ github.ref }}${{ matrix.appPostFix }}
+          file: dist/Europa-UI-${{ startsWith(github.ref, 'refs/tags/v') }}${{ matrix.appPostFix }}
+          asset_name: Europa-${{ startsWith(github.ref, 'refs/tags/') }}${{ matrix.appPostFix }}
           tag: ${{ github.ref }}
           body: "release"
           prerelease: true

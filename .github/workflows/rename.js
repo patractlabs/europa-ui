@@ -3,8 +3,7 @@ const path = require('path');
 
 const dir = path.resolve(__dirname, `../../`);
 const file = fs.readdirSync(dir).find(file => /^europa-/.test(file));
-const postfix = file.split('.')[file.split('.').length - 1]
-const newFile = `europa${postfix ? '.' + postfix : ''}`;
+const newFile = file.endsWith('.exe') ? 'europa.exe' : 'europa';
 
 console.log(`rename file: ${file} -> ${newFile}`)
 
