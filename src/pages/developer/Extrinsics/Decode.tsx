@@ -53,7 +53,7 @@ const DEFAULT_INFO: ExtrinsicInfo = {
 };
 export const Decode: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
-  const [{ extrinsicCall, extrinsicError, extrinsicFn, extrinsicHash }, setExtrinsicInfo] = useState<ExtrinsicInfo>(DEFAULT_INFO);
+  const [{ extrinsicCall, extrinsicFn, extrinsicHash }, setExtrinsicInfo] = useState<ExtrinsicInfo>(DEFAULT_INFO);
 
   const _setExtrinsicHex = useCallback(
     (extrinsicHex: string): void => {

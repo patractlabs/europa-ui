@@ -2,7 +2,7 @@ import { FC, ReactElement, useContext, useEffect, useState } from 'react';
 import { Block, ApiContext } from '../../core';
 import { Args, Obj } from '../../shared';
 import { from, zip } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 interface StateMutation {
   type: 'Put' | 'PutChild' | 'KillChild' | 'ClearPrefix' | 'ClearChildPrefix' | 'Append';

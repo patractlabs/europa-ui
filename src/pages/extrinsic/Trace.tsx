@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { KeyValueLine, LabelDefault, Obj, Style, ValueDefault, ValuePrimary } from '../../shared';
+import { KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
 import { store, ApiContext, BlocksContext, useContracts } from '../../core';
