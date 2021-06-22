@@ -2,8 +2,10 @@ name: Publish
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 're*'
+      - 'v*'
 
 jobs:
   publish:
@@ -13,38 +15,70 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            command: yarn run pack:linux
-            binFileName: "europa_linux_amd64"
-            appName: "Europa-UI-1.0.0.AppImage"
-          # - os: windows-latest
-          #   command: yarn run pack:win
-          #   binFileName: "europa_win.exe"
-          #   appName: "Europa-UI Setup 1.0.0.exe"
+            artifact-version: "v0.3.20"
+            artifact-name: "europa-v0.3.20-x86_64-ubuntu"
+            target-name: "europa"
+            appPostFix: ".AppImage"
+
+          - os: windows-latest
+            artifact-version: "v0.3.20"
+            artifact-name: "europa-v0.3.20-x86_64-win.exe"
+            target-name: "europa.exe"
+            appPostFix: ".exe"
+
+          # - os: macos-latest
+          #   artifact-version: "v0.3.20"
+          #   artifact-name: "europa-xxx"
+          #   target-name: "europa"
+          #   appPostFix: ".dmg"
 
     steps:
       - uses: actions/checkout@v2
+      
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
+      
       - run: yarn
+
+      - name: Prepare for app notarization (macOS)
+        if: startsWith(matrix.os, 'macos')
+        # Import Apple API key for app notarization on macOS
+        run: |
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+
       - uses: dsaltares/fetch-gh-release-asset@master
         with:
-          repo: "patractlabs/europa"
-          version: "tags/test-ci"
-          file: ${{ matrix.binFileName }}
-          target: resources/${{ matrix.binFileName }}
+          repo: "atenjin/europa"
+          version: "tags/${{version}}"
+          file: ${{ matrix.artifact-name }}
+          target: resources/${{ matrix.target-name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build/release Electron app
+
+      - name: Build Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      # - run: ${{ matrix.command }}
+
+          # macOS code signing certificate
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          # macOS notarization API key
+          API_KEY_ID: ${{ secrets.api_key_id }}
+          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+
       - name: Upload applications to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/${{ matrix.appName }}
-          asset_name: ${{ matrix.appName }}
+          file: dist/Europa-UI-${{ github.ref }}${{ matrix.appPostFix }}
+          asset_name: Europa-${{ github.ref }}${{ matrix.appPostFix }}
           tag: ${{ github.ref }}
-          overwrite: true
-          body: "Hello Electron"
+          body: "release"
+          prerelease: true

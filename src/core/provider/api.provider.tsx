@@ -42,12 +42,10 @@ const startEuropa = () => {
     const os: typeof OS = requireModule('os');
     const platform = os.platform().toLowerCase();
     const resources = path.resolve(__dirname, '../../app.asar.unpacked/resources');
-    let binPath = path.resolve(resources, 'europa-win.exe');
+    let binPath = path.resolve(resources, 'europa.exe');
   
-    if (platform === 'linux') {
-      binPath = path.resolve(resources, 'europa-linux');
-    } else if (platform === 'darwin') {
-      binPath = path.resolve(resources, 'europa-darwin');
+    if (platform === 'linux' || platform === 'darwin') {
+      binPath = path.resolve(resources, 'europa');
     }
   
     console.log(`platform:`, platform);

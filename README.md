@@ -44,13 +44,3 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
-
-
-tx states
-git 子项目
-ci 
-下周发布初版
-链的底层
-链的合约
-链的语言  
-@font-face{font-family:"WorkSans";font-style:normal;font-weight:300;src:url(static/media/WorkSans-Light.9576eabb.ttf)}
