@@ -5,7 +5,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*'
+      - v*
 
 jobs:
   publish:
@@ -17,17 +17,20 @@ jobs:
           - os: ubuntu-latest
             artifactName: "^europa.*ubuntu$"
             targetName: "europa"
-            appPostFix: "-x86_64-linux.AppImage"
+            platform: "x86_64-linux"
+            appType: "AppImage" 
 
           - os: windows-latest
             artifactName: "^europa.*win\\.exe$"
             targetName: "europa.exe"
-            appPostFix: "-x86_64-win.exe"
+            platform: "x86_64-win"
+            appType: "exe" 
 
           # - os: macos-latest
           #   artifactName: "^europa.*darwin$"
           #   targetName: "europa"
-          #   appPostFix: "-x86_64-darwin.dmg"
+          #   platform: "x86_64-darwin"
+          #   appType: "dmg" 
 
     steps:
       - uses: actions/checkout@v2
@@ -75,12 +78,15 @@ jobs:
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
 
+      - name: Rename artifact name
+        run: yarn run rename:artifact
+
       - name: Upload applications to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/Europa-UI-${{ startsWith(github.ref, 'refs/tags/v') }}${{ matrix.appPostFix }}
-          asset_name: Europa-${{ startsWith(github.ref, 'refs/tags/') }}${{ matrix.appPostFix }}
+          file: dist/europa
+          asset_name: Europa-${{ github.ref }}-${{ matrix.platform }}.${{ matrix.appType }}
           tag: ${{ github.ref }}
           body: "release"
           prerelease: true

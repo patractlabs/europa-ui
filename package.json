@@ -1,6 +1,6 @@
 {
   "name": "europa-ui",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "main": "main.js",
   "private": true,
   "dependencies": {
@@ -57,7 +57,8 @@
     "pack:mac": "electron-builder --mac",
     "pack:linux:dir": "electron-builder --linux --dir",
     "pack:linux": "electron-builder --linux",
-    "rename": "node ./.github/workflows/rename"
+    "rename": "node ./.github/workflows/rename",
+    "rename:artifact": "node ./.github/workflows/rename-artifact"
   },
   "build": {
     "asarUnpack": [
