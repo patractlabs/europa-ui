@@ -23,6 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /dist
-/resources/europa-win.exe
-/resources/europa-linux
-/resources/europa-darwin
+/resources/europa.exe
+/resources/europa

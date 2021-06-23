@@ -78,15 +78,27 @@ jobs:
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
 
-      - name: Rename artifact name
+      - name: Rename artifact
         run: yarn run rename:artifact
+      
+      - name: Executable artifact
+        run: chmod +X dist/europa
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
+
+      - name: Extract tag name
+        id: tag
+        uses: actions/github-script@0.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            return context.payload.ref.replace(/\/refs\/tags\//, '');
 
       - name: Upload applications to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/europa
-          asset_name: Europa-${{ github.ref }}-${{ matrix.platform }}.${{ matrix.appType }}
-          tag: ${{ github.ref }}
+          asset_name: Europa-${{ steps.tag.outputs.result }}-${{ matrix.platform }}.${{ matrix.appType }}
+          tag: ${{ steps.tag.outputs.result }}
           body: "release"
           prerelease: true

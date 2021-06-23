@@ -1,6 +1,6 @@
 import { ApiRx } from '@polkadot/api';
 import { useEffect, useState } from 'react';
-import { Balance } from '@polkadot/types/interfaces';
+import type { Balance } from '@polkadot/types/interfaces';
 
 export const useBalance = (api: ApiRx, address: string) => {
   const [ balance, setBalance ] = useState<Balance>();
