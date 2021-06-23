@@ -17,11 +17,11 @@ jobs:
             platform: "x86_64-linux"
             appType: "AppImage" 
 
-          - os: windows-latest
-            artifactName: "^europa.*win\\.exe$"
-            targetName: "europa.exe"
-            platform: "x86_64-win"
-            appType: "exe" 
+          # - os: windows-latest
+          #   artifactName: "^europa.*win\\.exe$"
+          #   targetName: "europa.exe"
+          #   platform: "x86_64-win"
+          #   appType: "exe" 
 
           # - os: macos-latest
           #   artifactName: "^europa.*darwin$"
