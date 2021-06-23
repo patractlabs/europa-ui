@@ -62,6 +62,10 @@ jobs:
         run: chmod +x resources/europa
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
 
+      - name: echo
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
+        run: ls -al ./resources
+
       - name: Build Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
