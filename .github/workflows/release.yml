@@ -57,9 +57,9 @@ jobs:
 
       - name: Rename & mv artifact
         run: yarn run rename
-      
+
       - name: Executable artifact
-        run: chmod +X resources/europa
+        run: chmod +x resources/europa
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
 
       - name: Build Electron app
