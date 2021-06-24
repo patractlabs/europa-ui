@@ -3,11 +3,6 @@ import { ApiRx, WsProvider } from '@polkadot/api';
 import type { Metadata } from '@polkadot/metadata';
 import keyring from '@polkadot/ui-keyring';
 import { zip } from 'rxjs';
-import { requireModule } from '../../shared';
-import type * as ChildProcess from 'child_process';
-import type * as Path from 'path';
-import type * as FS from 'fs';
-import type * as OS from 'os';
 
 const ApiContext: Context<{
   api: ApiRx;
@@ -18,7 +13,6 @@ const ApiContext: Context<{
   systemName: string;
   wsProvider: WsProvider;
   metadata: Metadata;
-  europa?: ChildProcess.ChildProcessWithoutNullStreams;
 }> = React.createContext({
   isApiReady: false,
 } as any);
@@ -30,42 +24,8 @@ interface Props {
 
 export let api: ApiRx;
 
-const startEuropa = () => {
-  if (!requireModule.isElectron) {
-    return;
-  }
-
-  try {
-    const childProcess: typeof ChildProcess = requireModule('child_process');
-    const path: typeof Path = requireModule('path');
-    const fs: typeof FS = requireModule('fs');
-    const os: typeof OS = requireModule('os');
-    const platform = os.platform().toLowerCase();
-    const resources = path.resolve(__dirname, '../../app.asar.unpacked/resources');
-    let binPath = path.resolve(resources, 'europa.exe');
-  
-    if (platform === 'linux' || platform === 'darwin') {
-      binPath = path.resolve(resources, 'europa');
-    }
-  
-    console.log(`platform:`, platform);
-    console.log(`bin:`, binPath);
-    console.log(`dir:`, __dirname);
-    console.log('files:', fs.readdirSync(path.resolve(__dirname)));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
-    console.log('files:', fs.readdirSync(resources));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
-
-    return childProcess.spawn(binPath);
-  } catch(e) {
-    console.log('eeeeeeeeeee', e);
-  }
-}
-
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
   const [ isApiReady, setIsReady ] = useState<boolean>(false);
-  const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
   const [ wsProvider, setWsProvider ] = useState<WsProvider>(undefined as any);
   const [ {
     tokenDecimal,
@@ -82,9 +42,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
   }>({} as any);
 
   useEffect(() => {
-    const europa = startEuropa();
-    setEuropa(europa);
-
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
     // const wsProvider = new WsProvider('ws://192.168.2.142:9944');
     const apiRx = new ApiRx({
@@ -198,7 +155,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     systemName,
     wsProvider,
     metadata,
-    europa,
   } }>{children}</ApiContext.Provider>;
 });
 

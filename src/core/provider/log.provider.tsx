@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { requireModule } from '../../shared';
-import { ApiContext } from './api.provider';
+import { EuropaManageContext } from './europa.provider';
 
 const LogContext: React.Context<{
   logs: string[];
@@ -15,7 +15,7 @@ interface Props {
 
 const LogProvider = React.memo(({ children }: Props): React.ReactElement<Props> =>  {
   const [ logs, setLogs ] = useState<string[]>([]);
-  const { europa } = useContext(ApiContext);
+  const { europa } = useContext(EuropaManageContext);
 
   const clear = useCallback(() => {
     setLogs([]);

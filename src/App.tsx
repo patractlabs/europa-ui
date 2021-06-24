@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useContext } from 'react';
-import { ApiContext, PaginationProvider } from './core';
+import React, { FC, ReactElement } from 'react';
+import { PaginationProvider } from './core';
 import { Header } from './pages/header/Header';
 import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
@@ -14,6 +14,7 @@ import { EOA } from './pages/explorer/EOA';
 import { CodeHash } from './pages/code-hash';
 import { Contract } from './pages/contract/Contract';
 import { BlockDetail } from './pages/blocks/BlockDetail';
+import Startup from './pages/startup';
 import styled from 'styled-components';
 import { Style } from './shared';
 
@@ -27,76 +28,77 @@ const Wrapper = styled.div`
 const Main: FC = (): ReactElement => {
   return (
     <Wrapper>
-      <BrowserRouter>
-        <Header />
-        <Switch>
-          <Route exact path="/">
-            <Redirect to="/explorer" />
-          </Route>
-          <Route path='/explorer' exact>
-            <Explorer />
-          </Route>
-          <Route path='/explorer/code-hash/:codeHash'>
-            <CodeHash />
-          </Route>
-          <Route path='/explorer/eoa/:address'>
-            <PaginationProvider>
-              <EOA />
-            </PaginationProvider>
-          </Route>
-          <Route path='/explorer/contract/:address'>
-            <PaginationProvider>
-              <Contract />
-            </PaginationProvider>
-          </Route>
-          <Route path='/account'>
-            <Accounts />
-          </Route>
-          <Route path='/block' exact>
-            <PaginationProvider defaultPageSize={10}>
-              <Blocks />
-            </PaginationProvider>
-          </Route>
-          <Route path='/block/:blockHash'>
-            <BlockDetail />
-          </Route>
-          <Route path='/extrinsic'>
-            <ExtrinsicPage />
-          </Route>
-          <Route path='/event'>
-            <EventsPage />
-          </Route>
-          <Route exact path="/contract">
-            <Redirect to="/contract/codes" />
-          </Route>
-          <Route path='/contract/:part'>
-            <ContractsPage />
-          </Route>
-          <Route exact path="/developer">
-            <Redirect to="/developer/chainState" />
-          </Route>
-          <Route path='/developer/:part'>
-            <Developer />
-          </Route>
-          <Route path='/setting'>
-            <Setting />
-          </Route>
-        </Switch>
-      </BrowserRouter>
+      <Header />
+      <Switch>
+        <Route exact path="/">
+          <Startup />
+        </Route>
+        <Route path='/explorer' exact>
+          <Explorer />
+        </Route>
+        <Route path='/explorer/code-hash/:codeHash'>
+          <CodeHash />
+        </Route>
+        <Route path='/explorer/eoa/:address'>
+          <PaginationProvider>
+            <EOA />
+          </PaginationProvider>
+        </Route>
+        <Route path='/explorer/contract/:address'>
+          <PaginationProvider>
+            <Contract />
+          </PaginationProvider>
+        </Route>
+        <Route path='/account'>
+          <Accounts />
+        </Route>
+        <Route path='/block' exact>
+          <PaginationProvider defaultPageSize={10}>
+            <Blocks />
+          </PaginationProvider>
+        </Route>
+        <Route path='/block/:blockHash'>
+          <BlockDetail />
+        </Route>
+        <Route path='/extrinsic'>
+          <ExtrinsicPage />
+        </Route>
+        <Route path='/event'>
+          <EventsPage />
+        </Route>
+        <Route exact path="/contract">
+          <Redirect to="/contract/codes" />
+        </Route>
+        <Route path='/contract/:part'>
+          <ContractsPage />
+        </Route>
+        <Route exact path="/developer">
+          <Redirect to="/developer/chainState" />
+        </Route>
+        <Route path='/developer/:part'>
+          <Developer />
+        </Route>
+        <Route path='/setting'>
+          <Setting />
+        </Route>
+      </Switch>
     </Wrapper>
   );
 };
 
 function App() {
-  const { isApiReady } = useContext(ApiContext);
-  
-  if (isApiReady) {
-    return <Main />;
-  }
+
   return (
-    <div className="App">
-      connecting...
-    </div>
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/">
+          <Startup />
+        </Route>
+        <Route path='/'>
+          <Main />
+        </Route>
+      </Switch>
+    </BrowserRouter>
   );
 }
 

@@ -1,0 +1,40 @@
+{
+  "databases": [
+    {
+      "path": "db1",
+      "worspaces": [
+        {
+          "path": "workspace1",
+          "redspots": [
+            "aaasdfasa",
+            "aaasdfasssa",
+            "ssnew"
+          ]
+        },
+        {
+          "path": "new",
+          "redspots": [
+            "aaa",
+            "abbb"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "db2",
+      "worspaces": [
+        {
+          "path": "workspace2",
+          "redspots": [
+          ]
+        },
+        {
+          "path": "workspace3",
+          "redspots": [
+            "aaa"
+          ]
+        }
+      ]
+    }
+  ]
+}
