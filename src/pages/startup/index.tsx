@@ -202,7 +202,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
             <Input className="new-workspace" value={newWorkspace} onChange={e => setNewWorkspace(e.target.value)} />
             <Button
               className="add-button"
-              disabled={!currentDbPath || !!workspaces.find(w => w.name ===newWorkspace)}
+              disabled={!newWorkspace || !currentDbPath || !!workspaces.find(w => w.name ===newWorkspace)}
               icon={
                 <img src={AddSvg} alt="" />
               }

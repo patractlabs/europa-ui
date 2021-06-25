@@ -7,7 +7,7 @@ import { contentBase, formatAddress, Style, Tabs, InfoHeader } from '../../share
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
-import { BlocksContext, useContracts, ApiContext, PaginationProvider } from '../../core';
+import { BlocksContext, useContracts, ApiContext, PaginationProvider, store } from '../../core';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -56,8 +56,13 @@ export const CodeHash: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { codesHash } = useContracts(api, blocks);
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
-
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
+  const abi = useMemo(() => {
+    store.loadAll();
+    return store.getCode(codeHash)?.contractAbi;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codeHash, signal]);
+  console.log('choosedCode', choosedCode, 'abi', abi)
 
   return (
     <Wrapper>
@@ -71,11 +76,14 @@ export const CodeHash: FC = (): ReactElement => {
             label: 'Uploader',
             align: 'right',
             render:
-              <Uploader>
-                <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
-                <span>at</span>
-                <Link to={`/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
-              </Uploader>
+              choosedCode ?
+                <Uploader>
+                  <Link to={`/explorer/eoa/${choosedCode?.extrinsic.signer.toString()}`}>{ formatAddress(choosedCode?.extrinsic.signer.toString() || '') }</Link>
+                  <span>at</span>
+                  <Link to={`/block/${choosedCode?.block.blockHash}`}>{ formatAddress(choosedCode?.block.blockHash || '') }</Link>
+                </Uploader>
+                :
+                <span>Not Deployed</span>
           },
         ]
       }/>
@@ -89,7 +97,10 @@ export const CodeHash: FC = (): ReactElement => {
           defaultValue={TabChoice.Codes}
           onChange={choice => setTabChoice(choice)}
         ></Tabs>
-        <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
+        {
+          !abi &&
+            <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
+        }
       </TabTitle>
 
       {

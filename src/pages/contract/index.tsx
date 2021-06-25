@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useContext, useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { UploadContract } from './Upload';
-import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode } from '../../core';
+import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
 import { formatAddress, Style } from '../../shared';
 import { Table } from 'antd';
 
@@ -90,7 +90,7 @@ const Instances: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactE
   );
 };
 
-const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
+const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }> = ({ codes, redspotsContracts }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
 
   return (
@@ -135,6 +135,48 @@ const Codes: FC<{ codes: DeployedCode[] }> = ({ codes }): ReactElement => {
         showUpload &&
           <UploadContract onCancel={() => toggleUpload(false)} onCompleted={() => toggleUpload(false)} />
       }
+      <Title style={{ marginTop: '20px' }}>
+        <label>Contracts from disk</label>
+      </Title>
+      <Table
+        rowKey={record => record.codeHash}
+        locale={{emptyText: 'No Data'}}
+        pagination={false}
+        dataSource={redspotsContracts}
+        columns={[
+          {
+            title: <span>Name</span>,
+            width: '20%',
+            dataIndex: 'name',
+            key: 'name',
+            render: (name) => <span>{name}</span>,
+          },
+          {
+            title: <span>Code Hash</span>,
+            width: '35%',
+            dataIndex: 'codeHash',
+            key: 'codeHash',
+            render: (codeHash) => <Link to={`/explorer/code-hash/${codeHash}`}>{formatAddress(codeHash)}</Link>,
+          },
+          {
+            title: <span>Disk Path</span>,
+            width: '35%',
+            dataIndex: 'path',
+            key: 'path',
+            render: (path) => <span>{path}</span>,
+          },
+          {
+            title: <span>status</span>,
+            width: '10%',
+            key: 'operation',
+            render: (_, record) => <span>{
+              codes.find(code => code.hash === record.codeHash) ?
+                <span>deployed</span>
+                : <span>undeployed</span>
+            }</span>,
+          },
+        ]}
+      />
     </CodesWrapper>
   );
 };
@@ -191,10 +233,18 @@ const tabs = [
 export const ContractsPage: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
+  const { setting, choosed } = useContext(SettingContext);
   const { contracts, codesHash } = useContracts(api, blocks);
+  const { redspotContracts } = useRedspotContracts(
+    setting.databases
+      .find(db => db.path === choosed.database)?.workspaces
+      .find(w => w.name === choosed.workspace)?.redspots || []
+  );
   const { part } = useParams<{ part: string }>();
 
   useEffect(() => store.loadAll(), []);
+
+  console.log('respotContracts', redspotContracts);
 
   return (
     <Wrapper>
@@ -214,7 +264,7 @@ export const ContractsPage: FC = (): ReactElement => {
       
       <Switch>
         <Route path={tabs[0].link}>
-          <Codes codes={codesHash} />
+          <Codes codes={codesHash} redspotsContracts={redspotContracts} />
         </Route>
         <Route path={tabs[1].link}>
           <Instances contracts={contracts} />
