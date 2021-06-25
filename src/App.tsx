@@ -3,7 +3,7 @@ import { PaginationProvider } from './core';
 import { Header } from './pages/header/Header';
 import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
-import { Setting } from './pages/setting/Setting';
+import SettingPage from './pages/setting';
 import { Developer } from './pages/developer/Developer';
 import { ContractsPage } from './pages/contract';
 import { EventsPage } from './pages/events';
@@ -79,7 +79,7 @@ const Main: FC = (): ReactElement => {
           <Developer />
         </Route>
         <Route path='/setting'>
-          <Setting />
+          <SettingPage />
         </Route>
       </Switch>
     </Wrapper>

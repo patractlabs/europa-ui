@@ -172,7 +172,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             render: (_, record) => <span>{
               codes.find(code => code.hash === record.codeHash) ?
                 <span>deployed</span>
-                : <span>undeployed</span>
+                : <a>deploy</a>
             }</span>,
           },
         ]}
