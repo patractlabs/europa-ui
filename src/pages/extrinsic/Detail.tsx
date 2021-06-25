@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { hexToU8a } from '@polkadot/util';
 import styled from 'styled-components';
-import { store, ApiContext, BlocksContext, Extrinsic, useContracts } from '../../core';
+import { store, ApiContext, BlocksContext, Extrinsic, useContracts, useAbi } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
@@ -124,22 +124,12 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   const [ trace, setTrace ] = useState<Trace>();
   const { metadata } = useContext(ApiContext);
   const { contracts } = useContracts(api, blocks);
-
   const contract = useMemo(
     () =>
       contracts.find(contracts => contracts.address === trace?.self_account),
     [contracts, trace],
   );
-
-  const abi = useMemo(() => {
-    if (!contract) {
-      return;
-    }
-
-    store.loadAll();
-
-    return store.getCode(contract.codeHash)?.contractAbi;
-  }, [contract]);
+  const { abi } = useAbi(contract?.codeHash || '');
 
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;

@@ -1,7 +1,7 @@
 import { ContractRx } from '@polkadot/api-contract';
 import React, { FC, useMemo, ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
-import { useContracts, store, ApiContext, BlocksContext } from '../../core';
+import { useContracts, store, ApiContext, BlocksContext, useAbi } from '../../core';
 import { Tabs } from '../../shared';
 import { Message } from './Message';
 
@@ -20,14 +20,7 @@ export const Functions: FC<{ contractAddress: string }> = ({ contractAddress }):
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
   const [ section, setSection ] = useState<Section>(Section.Read);
-
-  const abi = useMemo(() => {
-    store.loadAll();
-    const codeHash = contracts.find(contract => contract.address === contractAddress)?.codeHash;
-    if (codeHash) {
-      return store.getCode(codeHash)?.contractAbi;
-    }
-  }, [contractAddress, contracts]);
+  const { abi } = useAbi(contracts.find(contract => contract.address === contractAddress)?.codeHash || '');
 
   const messages = useMemo(() =>
     abi?.messages.filter(message =>

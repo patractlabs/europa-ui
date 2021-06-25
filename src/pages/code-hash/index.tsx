@@ -7,7 +7,7 @@ import { contentBase, formatAddress, Style, Tabs, InfoHeader } from '../../share
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
-import { BlocksContext, useContracts, ApiContext, PaginationProvider, store } from '../../core';
+import { BlocksContext, useContracts, ApiContext, PaginationProvider, useAbi } from '../../core';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -56,13 +56,8 @@ export const CodeHash: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { codesHash } = useContracts(api, blocks);
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
+  const { abi } = useAbi(codeHash, signal);
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
-  const abi = useMemo(() => {
-    store.loadAll();
-    return store.getCode(codeHash)?.contractAbi;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeHash, signal]);
-  console.log('choosedCode', choosedCode, 'abi', abi)
 
   return (
     <Wrapper>
@@ -105,7 +100,7 @@ export const CodeHash: FC = (): ReactElement => {
 
       {
         tabChoice === TabChoice.Codes &&
-          <Deploy signal={signal} hash={codeHash} />
+          <Deploy signal={signal} hash={codeHash} abi={abi} />
       }
       {
         tabChoice === TabChoice.Instances &&

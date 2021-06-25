@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
-import { store, ApiContext, BlocksContext, useContracts } from '../../core';
+import { ApiContext, BlocksContext, useContracts, useAbi } from '../../core';
 import { hexToU8a } from '@polkadot/util';
 import { Abi } from '@polkadot/api-contract';
 import type { Codec } from '@polkadot/types/types';
@@ -135,18 +135,11 @@ export const ContractTrace: FC<{
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
   const [showDetail, setShowDetail] = useState<boolean>(false);
-
-  const contract = useMemo(() => contracts.find(contracts => contracts.address === trace.self_account), [contracts, trace]);
-
-  const abi = useMemo(() => {
-    if (!contract) {
-      return;
-    }
-
-    store.loadAll();
-
-    return store.getCode(contract.codeHash)?.contractAbi;
-  }, [contract]);
+  const contract = useMemo(
+    () => contracts.find(contracts => contracts.address === trace.self_account),
+    [contracts, trace],
+  );
+  const { abi, name } = useAbi(contract?.codeHash || '');
 
   return (
     <Wrapper err={!!trace.ext_result.Err} depth={trace.depth}>
@@ -168,7 +161,7 @@ export const ContractTrace: FC<{
               <LabelDefault>To</LabelDefault>
               <ValuePrimary>
                 <Link to={`/explorer/contract/${contract?.address.toString()}`}>
-                  {store.getCode(contract?.codeHash || '')?.json.name}
+                  {name}
                   &nbsp;:&nbsp;
                   {trace.self_account}
                 </Link>

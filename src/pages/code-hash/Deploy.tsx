@@ -6,7 +6,7 @@ import { AddressInput, ParamInput, Style } from '../../shared';
 import { message as antMessage } from 'antd';
 import { randomAsHex } from '@polkadot/util-crypto';
 import { isWasm } from '@polkadot/util';
-import { CodeRx } from '@polkadot/api-contract';
+import { Abi, CodeRx } from '@polkadot/api-contract';
 import BN from 'bn.js';
 import keyring from '@polkadot/ui-keyring';
 import { AbiMessage } from '@polkadot/api-contract/types';
@@ -33,7 +33,7 @@ const ButtonPrimary = styled.button`
   border-width: 0px;
 `;
 
-export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): ReactElement => {
+export const Deploy: FC<{ hash: string, signal: number, abi?: Abi }> = ({ hash, signal, abi }): ReactElement => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ args, setArgs ] = useState<any[]>([]);
@@ -52,11 +52,6 @@ export const Deploy: FC<{ hash: string, signal: number }> = ({ hash, signal }): 
     salt: randomAsHex(),
   });
 
-  const abi = useMemo(() => {
-    store.loadAll();
-    return store.getCode(hash)?.contractAbi;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash, signal]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
 
   const deploy = useCallback(async () => {

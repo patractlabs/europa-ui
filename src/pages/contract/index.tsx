@@ -47,7 +47,7 @@ const CodesWrapper = styled.div`
   flex: 1;
 `;
 
-const Instances: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactElement => {
+const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotContract[] }> = ({ contracts, redspotsContracts }): ReactElement => {
 
   return (
     <InstancesWrapper>
@@ -64,7 +64,7 @@ const Instances: FC<{ contracts: DeployedContract[] }> = ({ contracts }): ReactE
             title: <span>Name</span>,
             width: '20%',
             key: 'name',
-            render: (_, record) => <span>{store.getCode(record.codeHash)?.json.name}</span>,
+            render: (_, record) => <span>{store.getCode(record.codeHash)?.json.name || redspotsContracts.find(code => code.codeHash === record.codeHash)?.name}</span>,
           },
           {
             title: <span>Address</span>,
@@ -109,7 +109,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             title: <span>Name</span>,
             width: '20%',
             key: 'name',
-            render: (_, record) => <span>{store.getCode(record.hash)?.json.name}</span>,
+            render: (_, record) => <span>{store.getCode(record.hash)?.json.name || redspotsContracts.find(code => code.codeHash === record.hash)?.name}</span>,
           },
           {
             title: <span>Code Hash</span>,
@@ -233,8 +233,8 @@ const tabs = [
 export const ContractsPage: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
-  const { setting, choosed } = useContext(SettingContext);
   const { contracts, codesHash } = useContracts(api, blocks);
+  const { setting, choosed } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
     setting.databases
       .find(db => db.path === choosed.database)?.workspaces
@@ -243,8 +243,6 @@ export const ContractsPage: FC = (): ReactElement => {
   const { part } = useParams<{ part: string }>();
 
   useEffect(() => store.loadAll(), []);
-
-  console.log('respotContracts', redspotContracts);
 
   return (
     <Wrapper>
@@ -267,7 +265,7 @@ export const ContractsPage: FC = (): ReactElement => {
           <Codes codes={codesHash} redspotsContracts={redspotContracts} />
         </Route>
         <Route path={tabs[1].link}>
-          <Instances contracts={contracts} />
+          <Instances contracts={contracts} redspotsContracts={redspotContracts} />
         </Route>
       </Switch>
     </Wrapper>
