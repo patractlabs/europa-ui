@@ -52,10 +52,10 @@ app.whenReady().then(() => {
       .showOpenDialog({ properties: ['openDirectory'] })
       .then(result => !result.canceled && webContents.send('res:choose-dir', result.filePaths[0]));
   });
-  ipcMain.on('req:choose-file', () => {
-    console.log('main got message req:choose-file')
+  ipcMain.on('req:choose-file', (event, data) => {
+    console.log('main got message req:choose-file', data);
     dialog
-      .showOpenDialog({ properties: ['openFile'] })
+      .showOpenDialog({ properties: ['openFile'], filters: data.filters })
       .then(result => !result.canceled && webContents.send('res:choose-file', result.filePaths[0]));
   });
 

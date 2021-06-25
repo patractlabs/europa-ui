@@ -1,113 +1,126 @@
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Button, Input, message, Select } from 'antd';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { FC, ReactElement } from 'react';
 import styled from 'styled-components';
-import { EuropaManageContext, Setting, SettingContext, Workspace } from '../../core';
-import AddSvg from '../../assets/imgs/add-account.svg';
+import { EuropaManageContext, Setting, SettingContext } from '../../core';
 import { requireModule, Style } from '../../shared';
+import AddSvg from '../../assets/imgs/add-account.svg';
 import type * as Electron from 'electron';
 import { useHistory } from 'react-router-dom';
 import * as _ from 'lodash';
 
 const { Option } = Select;
 
-function getMergedDbs (setting: Setting, newSetting: Setting) {
-  return setting.databases.concat(newSetting.databases);
+function getDefaultWorkspace(setting: Setting, dbPath: string): string {
+  return setting.databases.find(db => db.path === dbPath)?.workspaces[0]?.name || '';
 }
 
-function getMergedWorkspaces(setting: Setting, newSetting: Setting, dbPath: string): Workspace[] {
-  return getMergedDbs(setting, newSetting).find(db => db.path === dbPath)?.workspaces || [];
-}
-
-function getMergedRedspots(setting: Setting, newSetting: Setting, dbPath: string, workspacePath: string): string[] {
-  return getMergedWorkspaces(setting, newSetting, dbPath)
-    .find(workspace => workspace.path === workspacePath)?.redspots || [];
-}
-
-function getMergedDefaultWorkspace(setting: Setting, newSetting: Setting, dbPath: string): string {
-  return getMergedWorkspaces(setting, newSetting, dbPath)[0]?.path || '';
-}
+let t = 0;
 
 const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
-  const { setting, setChoosed } = useContext(SettingContext);
+  const { setting, setChoosed, update } = useContext(SettingContext);
   const { startup } = useContext(EuropaManageContext);
-  const [ tempSetting, setTempSetting ] = useState<Setting>({ databases: [] });
-  const [ dbPath, setDbPath ] = useState<string>(setting.databases[0]?.path || '');
-  const [ workspacePath, setWorkspacePath ] = useState<string>(
-    getMergedDefaultWorkspace(setting, tempSetting, dbPath)
-  );
-  const [ newWorkspacePath, setNewWorkspacePath ] = useState<string>('');
+  const [ currentDbPath, setCurrentDbPath ] = useState<string>();
+  const [ currentWorkspace, setCurrentWorkspace ] = useState<string>();
+  const [ newWorkspace, setNewWorkspace ] = useState<string>('');
   const [ starting, setStarting ] = useState<boolean>(false);
   const history = useHistory();
 
+  useEffect(() => {
+    // hacking, should be fixed.
+    t += 1;
+
+    if (t !== 2) {
+      return;
+    }
+
+    const dbPath = setting.databases[0]?.path || '';
+
+    setCurrentDbPath(dbPath);
+    setCurrentWorkspace(getDefaultWorkspace(setting, dbPath));
+  }, [setting]);
+
+  const workspaces = useMemo(
+    () => setting.databases.find(db => db.path === currentDbPath)?.workspaces || [],
+    [currentDbPath, setting],
+  );
+
+  const redspots = useMemo(
+    () => workspaces.find(w => w.name === currentWorkspace)?.redspots || [],
+    [workspaces, currentWorkspace],
+  );
+
   const onStart = useCallback(() => {
+    if (!currentWorkspace || !currentDbPath) {
+      return;
+    }
+
     setChoosed({
-      database: dbPath,
-      workspace: workspacePath,
+      database: currentDbPath,
+      workspace: currentWorkspace,
     });
     setStarting(true)
-    startup(dbPath, workspacePath, result => {
+    startup(currentDbPath, currentWorkspace, err => {
       setStarting(false);
 
-      if (result) {
-        history.push('/explorer');
-      } else {
+      if (err) {
+        console.log(err);
         message.error('Failed to start europa', 1);
+      } else {
+        history.push('/explorer');
       }
     });
-  }, [dbPath, workspacePath, setChoosed, history, startup]);
+  }, [currentDbPath, currentWorkspace, setChoosed, history, startup]);
 
   const onAddDb = useCallback(() => {
-    console.log('aaaaaaaaaa')
     if (!requireModule.isElectron) {
       return;
     }
 
     const { ipcRenderer }: typeof Electron = requireModule('electron');
 
-    console.log('ipcRenderer', ipcRenderer)
     ipcRenderer.send('req:choose-dir');
-    ipcRenderer.once('res:choose-dir', (_, databasePath) => {
+    ipcRenderer.once('res:choose-dir', (event, databasePath) => {
       console.log('dir', databasePath);
 
-      setDbPath(databasePath);
-      setWorkspacePath('');
-
-      if (getMergedDbs(setting, tempSetting).find(db => db.path === databasePath)) {
+      if (currentDbPath === databasePath) {
         return;
       }
 
-      setTempSetting(setting => ({
-        ...setting,
-        databases: setting.databases.concat({
-          path: databasePath,
-          workspaces: [],
-        }),
-      }));
+      setCurrentDbPath(databasePath);
+      setCurrentWorkspace(workspaces[0]?.name || '');
+
+      if (setting.databases.find(db => db.path === databasePath)) {
+        return;
+      }
+
+      const newSetting = _.cloneDeep(setting);
+
+      newSetting.databases = newSetting.databases.concat({
+        path: databasePath,
+        workspaces: [],
+      })
+      update(newSetting);
     });
-  }, [setting, tempSetting]);
+  }, [setting, currentDbPath, update, workspaces]);
 
   const onAddWorkspace = useCallback(() => {
-    console.log('bbb')
-    setWorkspacePath(newWorkspacePath);
+    setCurrentWorkspace(newWorkspace);
 
-    if (getMergedWorkspaces(setting, tempSetting, dbPath).find(w => w.path === newWorkspacePath)) {
+    if (workspaces.find(w => w.name === newWorkspace)) {
       return;
     }
 
-    setTempSetting(setting => {
-      const newSetting = _.cloneDeep(setting);
-      const workspaces = newSetting.databases
-        .find(db => db.path === dbPath)?.workspaces || [];
-      
-      console.log('newSetting', JSON.parse(JSON.stringify(newSetting.databases)), workspaces.concat({ path: newWorkspacePath, redspots: [] }))
-      newSetting.databases
-        .find(db => db.path === dbPath)!.workspaces = workspaces.concat({ path: newWorkspacePath, redspots: [] });
-        
-      return newSetting;
-    });
-    setNewWorkspacePath('');
-  }, [dbPath, newWorkspacePath, setting, tempSetting]);
+    const newSetting = _.cloneDeep(setting);
+    const db = newSetting.databases.find(db => db.path === currentDbPath);
+    
+    if (!db) {
+      return;
+    }
+    
+    db.workspaces = db.workspaces.concat({ name: newWorkspace, redspots: [] });
+    update(newSetting);
+    setNewWorkspace('');
+  }, [currentDbPath, newWorkspace, setting, workspaces, update]);
 
   const onAddRedspot = useCallback(() => {
     if (!requireModule.isElectron) {
@@ -116,34 +129,37 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 
     const { ipcRenderer }: typeof Electron = requireModule('electron');
 
-    console.log('ipcRenderer', ipcRenderer)
-    ipcRenderer.send('req:choose-file');
-    ipcRenderer.once('res:choose-file', (event, redspotPath) => {
+    ipcRenderer.send('req:choose-file', {
+      filters: [
+        { name: 'Redspot config file', extensions: ['ts'] },
+      ]
+    });
+    ipcRenderer.once('res:choose-file', (event, redspotPath: string) => {
       console.log('file', redspotPath);
       
-      if (getMergedRedspots(setting, tempSetting, dbPath, workspacePath).find(r => r === redspotPath)) {
+      if (!redspotPath.endsWith('redspot.config.ts') ||  redspots.find(r => r === redspotPath)) {
         return;
       }
 
-      setTempSetting(setting => {
-        const newSetting = _.cloneDeep(setting);
-        const redspots = newSetting.databases
-          .find(db => db.path === dbPath)?.workspaces
-          .find(workspace => workspace.path === workspacePath)?.redspots || [];
-        
-        newSetting.databases
-          .find(db => db.path === dbPath)!.workspaces
-          .find(workspace => workspace.path === workspacePath)!.redspots = redspots.concat(redspotPath);
-          
-        return newSetting;
-      });
-    });
-  }, [dbPath, setting, tempSetting, workspacePath]);
+      console.log('aaa')
+      const newSetting = _.cloneDeep(setting);
+      const workspace = newSetting.databases
+        .find(db => db.path === currentDbPath)?.workspaces
+        .find(workspace => workspace.name === currentWorkspace);
+      
+      if (!workspace) {
+        return;
+      }
+      console.log('workspace', workspace)
 
-  console.log('saaa', getMergedWorkspaces(setting, tempSetting, dbPath), getMergedWorkspaces(setting, tempSetting, dbPath));
+      workspace.redspots = workspace.redspots.concat(redspotPath);
+      update(newSetting);
+    });
+  }, [currentDbPath, setting, currentWorkspace, redspots, update]);
+
   return (
     <div className={className}>
-      <Button loading={starting} className="start-button" onClick={onStart} disabled={!dbPath || !workspacePath}>
+      <Button loading={starting} className="start-button" onClick={onStart} disabled={!currentDbPath || !currentWorkspace}>
         Start
       </Button>
 
@@ -152,14 +168,14 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
           <div className="select-wrapper">
             <Select
               className="db-select"
-              value={dbPath}
+              value={currentDbPath}
               onChange={(value: string) => {
-                setDbPath(value);
-                setWorkspacePath(getMergedDefaultWorkspace(setting, tempSetting, value));
+                setCurrentDbPath(value);
+                setCurrentWorkspace(getDefaultWorkspace(setting, value));
               }}
             >
               {
-                getMergedDbs(setting, tempSetting).map(db =>
+                setting.databases.map(db =>
                   <Option value={db.path} key={db.path}>{db.path}</Option>
                 )
               }
@@ -176,17 +192,17 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 
         <div className="select-col">
           <div className="select-wrapper">
-            <Select className="workspace-select" value={workspacePath} onChange={(value: string) => setWorkspacePath(value)}>
+            <Select className="workspace-select" value={currentWorkspace} onChange={(value: string) => setCurrentWorkspace(value)}>
               {
-                getMergedWorkspaces(setting, tempSetting, dbPath).map(workspace =>
-                  <Option value={workspace.path} key={workspace.path}>{workspace.path}</Option>
+                workspaces.map(workspace =>
+                  <Option value={workspace.name} key={workspace.name}>{workspace.name}</Option>
                 )
               }
             </Select>
-            <Input className="new-workspace" value={newWorkspacePath} onChange={e => setNewWorkspacePath(e.target.value)} />
+            <Input className="new-workspace" value={newWorkspace} onChange={e => setNewWorkspace(e.target.value)} />
             <Button
-              className="button-add"
-              disabled={!dbPath || !!getMergedWorkspaces(setting, tempSetting, dbPath).find(w => w.path ===newWorkspacePath)}
+              className="add-button"
+              disabled={!currentDbPath || !!workspaces.find(w => w.name ===newWorkspace)}
               icon={
                 <img src={AddSvg} alt="" />
               }
@@ -196,13 +212,17 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
           <h3>Redspot Projects</h3>
           <div className="redspot-projects">
             {
-              getMergedRedspots(setting, tempSetting, dbPath, workspacePath).map(redspot =>
+              redspots.map(redspot =>
                 <div key={redspot}>{redspot}</div>
               )
             }
           </div>
           <div>
-            <Button style={{ width: '100%' }} onClick={onAddRedspot} >Add</Button>
+            <Button
+              style={{ width: '100%' }}
+              onClick={onAddRedspot}
+              disabled={!currentDbPath || !currentWorkspace}
+            >Add redspot project</Button>
           </div>
         </div>
       </div>

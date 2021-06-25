@@ -32,8 +32,6 @@ const States: FC<{ block: Block }> = ({ block }): ReactElement => {
         )
       )
       .subscribe(mutations => {
-        console.log('mutations', mutations);
-
         setMutations(
           mutations.map(mutation => ({
             [mutation.type]: mutation.data
