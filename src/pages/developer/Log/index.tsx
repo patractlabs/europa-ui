@@ -1,6 +1,6 @@
 import { FC, ReactElement, useContext, useEffect } from 'react';
 import styled from 'styled-components';
-import { LogContext } from '../../../core';
+import { LogsContext } from '../../../core';
 import { Style } from '../../../shared';
 
 const Wrapper = styled.div`
@@ -22,7 +22,7 @@ const Wrapper = styled.div`
 `;
 
 export const Log: FC = (): ReactElement => { 
-  const { logs } = useContext(LogContext);
+  const { logs } = useContext(LogsContext);
 
   useEffect(() => {
     const element = document.getElementById('log-container');

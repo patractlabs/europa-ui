@@ -8,6 +8,7 @@ import type * as OS from 'os';
 interface EuropaManageContextProps {
   europa?: ChildProcess.ChildProcessWithoutNullStreams;
   startup: (db: string, workspace: string, cb: (err: Error | null) => void) => void;
+  change: (db: string, workspace: string, cb: (err: Error | null) => void) => void;
 }
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
@@ -43,6 +44,7 @@ const startEuropa = (db: string, workspace: string): ChildProcess.ChildProcessWi
     console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
   } catch(e) {}
 
+  console.log(binPath, db, workspace)
   return childProcess.spawn(binPath, [`-d=${db}`, `-w=${workspace}`]);
 }
 
@@ -57,13 +59,30 @@ export const EuropaManageProvider = React.memo(
         setEuropa(europa);
         cb(null);
       } catch (e) {
+        console.log(e)
         cb(e);
       }
     }, []);
 
+    const change = useCallback((db: string, workspace: string, cb: (err: Error | null) => void) => {
+      try {
+        const killed = europa?.kill();
+  
+        if (!killed) {
+          return cb(new Error('Not Killed'));
+        }
+
+        startup(db, workspace, cb);
+      } catch (e) {
+        console.log(e)
+        cb(e);
+      }
+    }, [europa, startup]);
+
     return <EuropaManageContext.Provider value={{
       europa,
       startup,
+      change,
     }}>{children}</EuropaManageContext.Provider>;
   }
 );

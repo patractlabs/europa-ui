@@ -33,7 +33,7 @@ const ButtonPrimary = styled.button`
   border-width: 0px;
 `;
 
-export const Deploy: FC<{ hash: string, signal: number, abi?: Abi }> = ({ hash, signal, abi }): ReactElement => {
+export const Deploy: FC<{ abi?: Abi }> = ({ abi }): ReactElement => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ args, setArgs ] = useState<any[]>([]);

@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { requireModule } from '../../shared';
 import { EuropaManageContext } from './europa.provider';
 
-const LogContext: React.Context<{
+const LogsContext: React.Context<{
   logs: string[];
   clear: () => void;
 }> = React.createContext({
@@ -13,10 +13,9 @@ interface Props {
   children: React.ReactNode;
 }
 
-const LogProvider = React.memo(({ children }: Props): React.ReactElement<Props> =>  {
+const LogsProvider = React.memo(({ children }: Props): React.ReactElement<Props> =>  {
   const [ logs, setLogs ] = useState<string[]>([]);
   const { europa } = useContext(EuropaManageContext);
-
   const clear = useCallback(() => {
     setLogs([]);
   }, []);
@@ -56,15 +55,15 @@ const LogProvider = React.memo(({ children }: Props): React.ReactElement<Props> 
   }, [europa]);
 
   return (
-    <LogContext.Provider
+    <LogsContext.Provider
       value={{
         logs,
         clear,
       }}
     >
       {children}
-    </LogContext.Provider>
+    </LogsContext.Provider>
   );
 });
 
-export { LogContext, LogProvider };
+export { LogsContext, LogsProvider };

@@ -7,7 +7,6 @@ const PaginationContext: React.Context<{
   setPageIndex: React.Dispatch<React.SetStateAction<number>>;
   total: number;
   setTotal: React.Dispatch<React.SetStateAction<number>>;
-
 }> = React.createContext({} as any);
 
 interface Props {

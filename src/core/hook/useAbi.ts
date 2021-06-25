@@ -27,7 +27,6 @@ export const useAbi = (codeHash: string, signal?: number) => {
       setAbi(code?.abi);
       setName(code?.name);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeHash, signal, redspotContracts]);
   
   return { abi, name };

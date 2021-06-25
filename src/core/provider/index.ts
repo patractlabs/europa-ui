@@ -5,3 +5,4 @@ export * from './pagination.provider';
 export * from './log.provider';
 export * from './setting.provider';
 export * from './europa.provider';
+export * from './bus.provider';

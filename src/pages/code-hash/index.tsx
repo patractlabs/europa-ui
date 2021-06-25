@@ -100,7 +100,7 @@ export const CodeHash: FC = (): ReactElement => {
 
       {
         tabChoice === TabChoice.Codes &&
-          <Deploy signal={signal} hash={codeHash} abi={abi} />
+          <Deploy abi={abi} />
       }
       {
         tabChoice === TabChoice.Instances &&

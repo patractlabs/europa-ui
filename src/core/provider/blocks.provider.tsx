@@ -7,6 +7,8 @@ import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import type { AnyTuple } from '@polkadot/types/types';
+import { BusContext } from './bus.provider';
+import { filter, skip } from 'rxjs/operators';
 
 export type Extrinsic = GenericExtrinsic<AnyTuple> & {
   events: EventRecord[];
@@ -23,6 +25,7 @@ interface BlockContextProps {
   blocks: Block[];
   backward: (height: number) => void;
   backwarding: boolean;
+  clear: () => void;
 }
 
 export const BlocksContext: Context<BlockContextProps> = React.createContext({}as unknown as BlockContextProps);
@@ -109,65 +112,83 @@ const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]>
 };
 
 export const BlocksProvider = React.memo(({ children }: { children: React.ReactNode }): React.ReactElement => {
-    const { api, isApiReady, systemName } = useContext(ApiContext);
-    const [blocks, setBlocks] = useState<Block[]>([]);
-    const [ backwarding, setBackwarding ] = useState<boolean>(false);
-    const blocksRef = useRef<Block[]>([]);
+  const { connected$ } = useContext(BusContext);
+  const { api, systemName } = useContext(ApiContext);
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [ backwarding, setBackwarding ] = useState<boolean>(false);
+  const blocksRef = useRef<Block[]>([]);
+  const [ signal, updateSignal ] = useState(0);
+  
+  useEffect(() => {
+    const sub = connected$.pipe(
+      filter(c => !!c),
+      skip(1),
+    ).subscribe(() => updateSignal(v => v + 1));
 
-    const backward = useCallback((height: number) => {
-      setBackwarding(true);
+    return () => sub.unsubscribe();
+  }, [connected$]);
 
-      (api as any).rpc.europa.backwardToHeight(height).pipe(
-        finalize(() => setBackwarding(false)),
-      ).subscribe(
-        async () => {
-          const _blocks = await retriveLatestBlocks(api);
-          
-          blocksRef.current = _blocks;
-          setBlocks(_blocks);
-        },
-        () => console.log('bad backward'),
-      );
-    }, [api]);
+  const clear = useCallback(() => {
+    blocksRef.current = [];
+    setBlocks([]);
+  }, []);
 
-    useEffect(() => {
-      if (!isApiReady) { 
-        return;
-      }
+  const backward = useCallback((height: number) => {
+    setBackwarding(true);
 
-      retriveLatestBlocks(api).then(
-        _blocks => {
-          blocksRef.current = _blocks;
-          setBlocks(_blocks);
-        },
-        () => {},
-      ).then(() =>
-        api.derive.chain.subscribeNewHeads().subscribe(async header => {
-          console.log('new header: height=' + header.number.toNumber());
-          console.log(header.toHuman());
+    (api as any).rpc.europa.backwardToHeight(height).pipe(
+      finalize(() => setBackwarding(false)),
+    ).subscribe(
+      async () => {
+        const _blocks = await retriveLatestBlocks(api);
+        
+        blocksRef.current = _blocks;
+        setBlocks(_blocks);
+      },
+      () => console.log('bad backward'),
+    );
+  }, [api]);
 
-          const { block, extrinsics } = await retriveBlock(
-            api,
-            header.hash.toString(),
-          );
-          
-          blocksRef.current = patchBlocks(blocksRef.current, [
-            Object.assign(block, {
-              blockHash: header.hash.toString(),
-              height: header.number.toNumber(),
-              extrinsics,
-            })
-          ]);
-          setBlocks(blocksRef.current);
-        }),
-        () => {},
-      );
-    }, [api, isApiReady, systemName]);
+  useEffect(() => {
+    if (!api || !api.isReady) { 
+      return;
+    }
 
-    return <BlocksContext.Provider value={{
+    console.log('update', signal)
+    retriveLatestBlocks(api).then(
+      _blocks => {
+        blocksRef.current = _blocks;
+        setBlocks(_blocks);
+      },
+      () => {},
+    ).then(() =>
+      api.derive.chain.subscribeNewHeads().subscribe(async header => {
+        console.log('new header: height=' + header.number.toNumber());
+        console.log(header.toHuman());
+
+        const { block, extrinsics } = await retriveBlock(
+          api,
+          header.hash.toString(),
+        );
+        
+        blocksRef.current = patchBlocks(blocksRef.current, [
+          Object.assign(block, {
+            blockHash: header.hash.toString(),
+            height: header.number.toNumber(),
+            extrinsics,
+          })
+        ]);
+        setBlocks(blocksRef.current);
+      }),
+      () => {},
+    );
+  }, [api, systemName, signal]);
+
+  return <BlocksContext.Provider value={{
       blocks,
       backward,
       backwarding,
+      clear,
     }}>{children}</BlocksContext.Provider>;
   }
 );

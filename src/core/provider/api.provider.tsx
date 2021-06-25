@@ -1,21 +1,19 @@
-import React, { Context, useEffect, useState } from 'react';
+import React, { Context, useContext, useEffect, useState } from 'react';
 import { ApiRx, WsProvider } from '@polkadot/api';
 import type { Metadata } from '@polkadot/metadata';
 import keyring from '@polkadot/ui-keyring';
 import { zip } from 'rxjs';
+import { BusContext } from './bus.provider';
 
 const ApiContext: Context<{
   api: ApiRx;
-  isApiReady: boolean;
   genesisHash: string;
   tokenDecimal: number;
   tokenSymbol: string;
   systemName: string;
   wsProvider: WsProvider;
   metadata: Metadata;
-}> = React.createContext({
-  isApiReady: false,
-} as any);
+}> = React.createContext({} as any);
 
 interface Props {
   children: React.ReactNode;
@@ -25,7 +23,7 @@ interface Props {
 export let api: ApiRx;
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
-  const [ isApiReady, setIsReady ] = useState<boolean>(false);
+  const { connected$ } = useContext(BusContext);
   const [ wsProvider, setWsProvider ] = useState<WsProvider>(undefined as any);
   const [ {
     tokenDecimal,
@@ -43,7 +41,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
 
   useEffect(() => {
     const wsProvider = new WsProvider('ws://127.0.0.1:9944');
-    // const wsProvider = new WsProvider('ws://192.168.2.142:9944');
     const apiRx = new ApiRx({
       provider: wsProvider,
       rpc: {
@@ -139,16 +136,20 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         metadata,
       });
       setWsProvider(wsProvider);
-      setIsReady(true);
     });
     apiRx.on('error', error => console.log('api error!', error));
-    apiRx.on('connected', () => console.log('api connected!'));
-    apiRx.on('disconnected', () => console.log('api disconnected!'));
-  }, []);
+    apiRx.on('connected', () => {
+      console.log('api connected!');
+      connected$.next(true);
+    });
+    apiRx.on('disconnected', () => {
+      console.log('api disconnected!');
+      connected$.next(false);
+    });
+  }, [connected$]);
 
   return <ApiContext.Provider value={ {
     genesisHash,
-    isApiReady,
     api,
     tokenDecimal,
     tokenSymbol,

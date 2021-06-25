@@ -1,13 +1,15 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { Button, message } from 'antd';
 import styled from 'styled-components';
-import { EuropaManageContext, SettingContext } from '../../core';
+import { BlocksContext, EuropaManageContext, LogsContext, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
 
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
-  const { setChoosed } = useContext(SettingContext);
-  const { startup } = useContext(EuropaManageContext);
+  const { setChoosed, choosed } = useContext(SettingContext);
+  const { clear: clearBlocks } = useContext(BlocksContext);
+  const { clear: clearLogs } = useContext(LogsContext);
+  const { change } = useContext(EuropaManageContext);
   const [ currentDbPath, setCurrentDbPath ] = useState<string>();
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>();
   const [ starting, setStarting ] = useState<boolean>(false);
@@ -23,7 +25,9 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       workspace: currentWorkspace,
     });
     setStarting(true)
-    startup(currentDbPath, currentWorkspace, err => {
+    clearLogs();
+    clearBlocks();
+    change(currentDbPath, currentWorkspace, err => {
       setStarting(false);
 
       if (err) {
@@ -33,11 +37,11 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
         history.push('/explorer');
       }
     });
-  }, [currentDbPath, currentWorkspace, setChoosed, history, startup]);
+  }, [currentDbPath, currentWorkspace, setChoosed, history, change, clearLogs, clearBlocks]);
 
   return (
     <div className={className}>
-      <Button loading={starting} className="change-button" onClick={onChange} disabled={!currentDbPath || !currentWorkspace}>
+      <Button loading={starting} className="change-button" onClick={onChange} disabled={!currentDbPath || !currentWorkspace || (currentWorkspace === choosed.workspace && currentDbPath === choosed.database)}>
         Change
       </Button>
 
