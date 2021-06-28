@@ -3,9 +3,9 @@
 
 import type { KeyringOption$Type, KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
 
-import React, { FC, ReactElement, useContext } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
 import { Select } from 'antd';
-import { AccountsContext } from '../../core';
+import { AccountInfo, AccountsContext } from '../../core';
 
 interface Props {
   className?: string;
@@ -34,13 +34,30 @@ const { Option } = Select;
 
 const InputAddress: FC<Props>  = ({ defaultValue, onChange, placeholder }): ReactElement => {
   const { accounts } = useContext(AccountsContext);
+  const [ tempAccount, setTempAccount ] = useState<AccountInfo>({
+    address: '',
+    balance: '',
+    mnemonic: '',
+  });
+  const accountsWithTemp = useMemo(
+    () => tempAccount.address ? [...accounts, tempAccount] : [...accounts],
+    [accounts, tempAccount],
+  );
+
+  const onSearch = useCallback((val) => {
+    setTempAccount({
+      address: val,
+      balance: '',
+      mnemonic: '',
+    });
+  }, []);
 
   return (
     
-    <Select placeholder={placeholder} defaultValue={defaultValue?.toString()} style={{ width: '100%' }} onChange={onChange}>
+    <Select showSearch={true} onSearch={onSearch} autoClearSearchValue={false} placeholder={placeholder} defaultValue={defaultValue?.toString()} style={{ width: '100%' }} onChange={onChange}>
       {
-        accounts.map(account =>
-          <Option key={account.address} value={account.address}>{account.name} : {account.address}</Option>
+        accountsWithTemp.map(account =>
+          <Option key={account.address} value={account.address}>{account.name ? `${account.name} : ` : ''} {account.address}</Option>
         )
       }
     </Select>
