@@ -104,7 +104,7 @@ export const CodeHash: FC = (): ReactElement => {
       }
       {
         tabChoice === TabChoice.Instances &&
-          <PaginationProvider defaultPageSize={1}>
+          <PaginationProvider>
             <Instances hash={codeHash} />
           </PaginationProvider>
       }

@@ -1,3 +1,6 @@
+// Copyright 2017-2021 @polkadot/react-params authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import type { Props } from '../types';
 
 import React, { useCallback, useRef, useState } from 'react';
@@ -34,7 +37,7 @@ function BoolParam ({ className = '', defaultValue: { value }, isDisabled, isErr
 
   return (
     <Bare className={className}>
-      <Radio.Group disabled={isDisabled} defaultValue={defaultValue} onChange={_onChange} value={value}>
+      <Radio.Group disabled={isDisabled} defaultValue={defaultValue} onChange={_onChange}>
         <Radio value={options.current[0].value}>{options.current[0].text}</Radio>
         <Radio value={options.current[1].value}>{options.current[1].text}</Radio>
       </Radio.Group>

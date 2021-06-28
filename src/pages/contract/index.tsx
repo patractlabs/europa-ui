@@ -115,13 +115,13 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
           },
           {
             title: <span>Code Hash</span>,
-            width: '35%',
+            width: '30%',
             key: 'hash',
             render: (_, record) => <Link to={`/explorer/code-hash/${record.hash}`}>{formatAddress(record.hash)}</Link>,
           },
           {
             title: <span>Uploaded At Extrinsic</span>,
-            width: '35%',
+            width: '30%',
             key: 'extrinsic',
             render: (_, record) => <Link to={`/extrinsic/${record.extrinsic.hash.toString()}/details`}>{formatAddress(record.extrinsic.hash.toString())}</Link>,
           },
@@ -130,6 +130,17 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '10%',
             key: 'block',
             render: (_, record) => <Link to={`/block/${record.block.blockHash}`}>{record.block.height}</Link>,
+          },
+          {
+            title: <span>Operation</span>,
+            width: '10%',
+            key: 'operation',
+            render: (_, record) => <span>{
+              <a onClick={() => {
+                setChoosedAbi(store.getCode(record.hash)?.contractAbi);
+                toggleUpload(true);
+              }}>deploy</a>
+            }</span>,
           },
         ]}
       />
@@ -174,7 +185,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             render: (path) => <span>{path}</span>,
           },
           {
-            title: <span>status</span>,
+            title: <span>Operation</span>,
             width: '10%',
             key: 'operation',
             render: (_, record) => <span>{
