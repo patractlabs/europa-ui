@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Input, message as antMessage, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
@@ -65,13 +65,27 @@ const EMPTY: AbiState = {
 export const UploadContract: FC<{
   onCancel: () => void;
   onCompleted: () => void;
-}> = ({ onCancel, onCompleted }): ReactElement => {
+  abi?: Abi;
+}> = ({ abi: abiInput, onCancel, onCompleted }): ReactElement => {
   const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ message, setMessage ] = useState<AbiMessage>();
   const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
+
+  useEffect(() => {
+    setAbi({
+      abiSource: null,
+      abi: abiInput || null,
+      errorText: null,
+      isAbiError: false,
+      isAbiSupplied: true,
+      isAbiValid: true
+    });
+    setMessage(abiInput?.constructors[0]);
+    setArgs(abiInput?.constructors[0].args.map(() => undefined) || []);
+  }, [abiInput]);
 
   const [ { address, name, endowment, gasLimit, salt }, setState ] = useState<{
     address: string;
@@ -113,7 +127,7 @@ export const UploadContract: FC<{
         whenCreated: 0,
       });
       setMessage(abi.constructors[0]);
-      setArgs(abi.constructors[0].args.map(() => 222));
+      setArgs(abi.constructors[0].args.map(() => undefined));
     } catch (error) {
       console.error(error);
 
@@ -174,7 +188,9 @@ export const UploadContract: FC<{
               console.log('result', result, codeHash);
     
               antMessage.success('deployed');
-              store.saveCode(codeHash, codeJSON!);
+              if (codeJSON) {
+                store.saveCode(codeHash, codeJSON!);
+              }
               onCompleted();
             });
         },
@@ -192,9 +208,12 @@ export const UploadContract: FC<{
 
   return (
     <Modal visible={true} onCancel={onCancel} footer={null}>
-      <Upload beforeUpload={onUpload}>
-        <Button>Upload</Button>
-      </Upload>
+      {
+        !abiInput &&
+          <Upload beforeUpload={onUpload}>
+            <Button>Upload</Button>
+          </Upload>
+      }
       <div>
       {
         !!abi &&

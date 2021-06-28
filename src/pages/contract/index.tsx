@@ -5,6 +5,7 @@ import { UploadContract } from './Upload';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
 import { formatAddress, Style } from '../../shared';
 import { Table } from 'antd';
+import type { Abi } from '@polkadot/api-contract';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -92,6 +93,7 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
 
 const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }> = ({ codes, redspotsContracts }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
+  const [ choosedAbi, setChoosedAbi ] = useState<Abi>();
 
   return (
     <CodesWrapper>
@@ -133,7 +135,13 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
       />
       {
         showUpload &&
-          <UploadContract onCancel={() => toggleUpload(false)} onCompleted={() => toggleUpload(false)} />
+          <UploadContract abi={choosedAbi} onCancel={() => {
+            toggleUpload(false);
+            setChoosedAbi(undefined);
+          }} onCompleted={() => {
+            toggleUpload(false);
+            setChoosedAbi(undefined);
+          }} />
       }
       <Title style={{ marginTop: '20px' }}>
         <label>Contracts from disk</label>
@@ -172,7 +180,11 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             render: (_, record) => <span>{
               codes.find(code => code.hash === record.codeHash) ?
                 <span>deployed</span>
-                : <a>deploy</a>
+                :
+                <a onClick={() => {
+                  setChoosedAbi(record.abi);
+                  toggleUpload(true);
+                }}>deploy</a>
             }</span>,
           },
         ]}
