@@ -148,8 +148,7 @@ export const Submission: FC = (): ReactElement => {
   const onSignedSubmit = useCallback(async () => {
     const exec = api.tx[section][method.value];
     const account = accounts.find(account => account.address === sender);
-    const suri = account?.mnemonic || `//${account?.name}`;
-    const pair = keyring.createFromUri(suri);
+    const pair = keyring.getPair(account?.address || '');
     const values = paramValues.map(p => p.value) as any[];
 
     console.log('values', values.map(v => v.toString()));

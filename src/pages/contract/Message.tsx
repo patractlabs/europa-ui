@@ -116,8 +116,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       value: 0,
     }, ...params);
     const account = accounts.find(account => account.address === sender);
-    const suri = account?.mnemonic || `//${account?.name}`;
-    const pair = keyring.createFromUri(suri);
+    const pair = keyring.getPair(account?.address || '');
 
     tx.signAndSend(pair).pipe(
       catchError(e => {

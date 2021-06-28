@@ -81,7 +81,7 @@ export const UploadContract: FC<{
       errorText: null,
       isAbiError: false,
       isAbiSupplied: true,
-      isAbiValid: true
+      isAbiValid: true,
     });
     setMessage(abiInput?.constructors[0]);
     setArgs(abiInput?.constructors[0].args.map(() => undefined) || []);
@@ -164,8 +164,7 @@ export const UploadContract: FC<{
       salt,
     }, ...args);
     const account = accounts.find(account => account.address === address);
-    const suri = account?.mnemonic || `//${account?.name}`;
-    const pair = keyring.createFromUri(suri);
+    const pair = keyring.getPair(account?.address || '');
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {
