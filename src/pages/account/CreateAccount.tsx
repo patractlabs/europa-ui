@@ -1,9 +1,31 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Input, Modal } from 'antd';
+import { Input, Modal } from 'antd';
 import { mnemonicGenerate } from '@polkadot/util-crypto';
 import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
+import { Button, ModalMain, Style } from '../../shared';
+import styled from 'styled-components';
 
+const Content = styled(ModalMain)`
+  .content {
+    .address {
+      margin-top: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 400;
+      color: ${Style.color.label.default};
+    }
+    .seed {
+      margin-bottom: 16px;
+    }
+  }
+  .footer {
+
+  }
+`;
+const DefaultButton = styled(Button)`
+  width: 320px;
+`;
 const DEFAULT_TYPE = 'sr25519';
 
 export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }): ReactElement => {
@@ -33,15 +55,24 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
 
   return (
     <Modal
-      visible={open} title="Add Account"
-      onCancel={onClose}
-      footer={[
-        <Button key="oncreate" onClick={onCreate}>Create</Button>
-      ]}>
-        <h4>mnemonic: </h4>
-        <p>{seed}</p>
-        <p>{address}</p>
-        <Input value={name} onChange={e => setName(e.target.value)} />
+    width={610}
+    title={null}
+    onCancel={onClose}
+    visible={open}
+    footer={null}>
+      <Content>
+        <div className="header">
+          <h2>Add New Account</h2>
+        </div>
+        <div className="content">
+          <p className="address">{address}</p>
+          <p className="seed">{seed}</p>
+          <Input value={name} onChange={e => setName(e.target.value)} />
+        </div>
+        <div className="footer">
+          <DefaultButton key="oncreate" onClick={onCreate}>Add</DefaultButton>
+        </div>
+      </Content>
     </Modal>
   );
 };

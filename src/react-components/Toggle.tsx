@@ -1,6 +1,7 @@
 // Copyright 2017-2021 @polkadot/react-components authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { Switch } from 'antd';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
@@ -36,7 +37,7 @@ function Toggle ({ className = '', isDisabled, isOverlay, isRadio, label, onChan
       onClick={_onClick}
     >
       {label && <label>{label}</label>}
-      <div className={`ui--Toggle-Slider${isRadio ? ' highlight--before-border' : ''}`} />
+      <Switch />
     </div>
   );
 }
@@ -102,7 +103,7 @@ export default React.memo(styled(Toggle)`
   }
 
   &.isOverlay {
-    bottom: 1.375rem;
+    bottom: 0.375rem;
     position: absolute;
     right: 3.5rem;
   }

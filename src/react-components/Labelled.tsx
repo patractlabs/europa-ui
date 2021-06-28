@@ -33,10 +33,10 @@ function Labelled ({ className = '', children, help, isFull, isHidden, isOuter, 
 
   return (
     <div className={`ui--Labelled${isSmall ? ' isSmall' : ''}${isFull ? ' isFull' : ''}${isOuter ? ' isOuter' : ''} ${className}`}>
-      <label>{withEllipsis
+      {/* <label>{withEllipsis
         ? <div className='withEllipsis'>{label}</div>
         : label
-      }{help && <LabelHelp help={help} />}</label>
+      }{help && <LabelHelp help={help} />}</label> */}
       {labelExtra && <div className='labelExtra'>{labelExtra}</div>}
       <div className='ui--Labelled-content'>
         {children}
@@ -74,7 +74,7 @@ export default React.memo(styled(Labelled)`
     }
 
     &:not(.isSmall) {
-      padding-left: 2rem;
+      /* padding-left: 2rem; */
 
       &:not(.isOuter) {
         > label,
@@ -113,8 +113,8 @@ export default React.memo(styled(Labelled)`
 
         .ui.selection.dropdown {
           &:not(.floating) {
-            padding-left: 1.45rem;
-            padding-top: 1.75rem;
+            /* padding-left: 1.45rem;
+            padding-top: 1.75rem; */
           }
 
           &.floating {

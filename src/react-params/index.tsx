@@ -1,8 +1,8 @@
 import type { I18nProps } from '../react-components/types';
-import type { Registry } from '@polkadot/types/types';
+import type { Registry, TypeDef } from '@polkadot/types/types';
 import type { ComponentMap, ParamDef, RawParam, RawParamOnChangeValue, RawParams } from './types';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { api } from '../core';
 import ErrorBoundary from '../react-components/ErrorBoundary';
@@ -13,6 +13,8 @@ import translate from './translate';
 import { createValue } from './values';
 import styled from 'styled-components';
 import { Style } from '../shared';
+import { isUndefined } from 'util';
+import { encodeTypeDef } from '@polkadot/types';
 
 const Wrapper = styled.div`
   > .param {
@@ -88,10 +90,23 @@ class Params extends React.PureComponent<Props, State> {
     }
   }
 
+  private getName (name: string | undefined, type: TypeDef) {
+    return isUndefined(name)
+      ? encodeTypeDef(type).split(':')[0]
+      : name;
+  }
+
+  private getType (name: string | undefined, type: TypeDef) {
+    return isUndefined(name)
+      ? encodeTypeDef(type).split(':')[1]
+      : encodeTypeDef(type);
+  }
   public render (): React.ReactNode {
     const { isRoot, children, className = '', isDisabled, onEnter, onEscape, overrides, params, registry = api.registry, withBorder = true } = this.props;
     const { values = this.props.values } = this.state;
 
+
+    
     if (!values || !values.length) {
       return null;
     }
@@ -107,7 +122,7 @@ class Params extends React.PureComponent<Props, State> {
             {values && params.map(({ name, type }: ParamDef, index: number): React.ReactNode => (
               <Wrapper key={`${name || ''}:${type.toString()}:${index}`} className="param-input">
                 <div className="param">
-                  {name} : {type.displayName}
+                  {this.getName(name, type)} : {this.getType(name, type)}
                 </div>
                 <ParamComp
                   defaultValue={values[index]}
