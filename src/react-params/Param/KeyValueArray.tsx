@@ -1,3 +1,6 @@
+// Copyright 2017-2021 @polkadot/react-params authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import type { Vec } from '@polkadot/types';
 import type { KeyValue as Pair } from '@polkadot/types/interfaces';
 import type { Props, RawParam } from '../types';

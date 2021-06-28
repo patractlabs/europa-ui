@@ -1,3 +1,6 @@
+// Copyright 2017-2021 @polkadot/react-params authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import type { Props } from '../types';
 
 import React, { useCallback, useState } from 'react';
@@ -43,7 +46,7 @@ function Account ({ className = '', defaultValue: { value }, isDisabled, isError
         // isInput
         // label={label}
         onChange={_onChange}
-        placeholder='5...'
+        placeholder='...'
         // type='allPlus'
         // withEllipsis
         // withLabel={withLabel}

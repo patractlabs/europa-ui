@@ -1,3 +1,6 @@
+// Copyright 2017-2021 @polkadot/react-params authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import type { TypeDef } from '@polkadot/types/types';
 import type { Props } from '../types';
 

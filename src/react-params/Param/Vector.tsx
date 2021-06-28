@@ -1,3 +1,6 @@
+// Copyright 2017-2021 @polkadot/react-params authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import type { ParamDef, Props, RawParam } from '../types';
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -7,7 +10,7 @@ import { isUndefined } from '@polkadot/util';
 
 import getInitValue from '../initValue';
 import { useTranslation } from '../translate';
-import Params from '..';
+import Params from '../';
 import Base from './Base';
 import useParamDefs from './useParamDefs';
 
