@@ -7,6 +7,7 @@ import { Style } from '../../shared';
 import { Button, ModalMain } from '../../shared';
 
 const Content = styled(ModalMain)`
+    text-align: center;
   .content p {
     margin-top: 16px;
     font-size: 14px;

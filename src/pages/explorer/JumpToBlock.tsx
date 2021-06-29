@@ -6,6 +6,7 @@ import { ApiContext, BlocksContext } from '../../core';
 
 const Content = styled(ModalMain)`
   .content {
+    text-align: center;
     .hint {
       margin-top: 16px;
       margin-bottom: 20px;

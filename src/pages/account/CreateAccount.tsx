@@ -8,6 +8,7 @@ import styled from 'styled-components';
 
 const Content = styled(ModalMain)`
   .content {
+    text-align: center;
     .address {
       margin-top: 16px;
       margin-bottom: 16px;

@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Button, Input, message as antMessage, Modal, Upload } from 'antd';
+import { Button as AntButton, Input, message as antMessage, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
@@ -12,10 +12,32 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Constructor } from '../code-hash/Constructor';
 import styled from 'styled-components';
-import { AddressInput, ParamInput } from '../../shared';
+import { AddressInput, ModalMain, ParamInput, Style, Button } from '../../shared';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 
+const Content = styled(ModalMain)`
+  .content {
+    .hint {
+      margin-top: 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 400;
+      color: ${Style.color.label.default};
+    }
+    .ant-input:focus {
+      outline: 0;
+      box-shadow: none;
+    }
+  }
+  .footer {
+
+  }
+`;
+
+const DefaultButton = styled(Button)`
+  width: 320px;
+`;
 const Form = styled.div`
   width: 480px;
   margin-bottom: 30px;
@@ -206,57 +228,70 @@ export const UploadContract: FC<{
   }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
 
   return (
-    <Modal visible={true} onCancel={onCancel} footer={null}>
-      {
-        !abiInput &&
-          <Upload beforeUpload={onUpload}>
-            <Button>Upload</Button>
-          </Upload>
-      }
-      <div>
-      {
-        !!abi &&
-          <Form>
-            <Constructor
-              defaultValue={abi.constructors[0]}
-              abiMessages={abi.constructors}
-              onMessageChange={setMessage}
-              onParamsChange={setArgs}
-            />
-            <ParamInput
-              defaultValue={endowment}
-              style={{ margin: '20px 0px' }}
-              onChange={
-                value => setState(pre => ({...pre, endowment: parseInt(value)}))
-              }
-              label="Endowment" unit="DOT"
-            />  
-            <ParamInput
-              defaultValue={salt}
-              style={{ borderBottomWidth: '0px' }}
-              onChange={
-                value => setState(pre => ({...pre, salt: value}))
-              }
-              label="unique deployment salt"
-            />
-            <ParamInput
-              defaultValue={gasLimit}
-              onChange={
-                value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
-              }
-              label="max gas allowed"
-            />
-            <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
-          </Form>
-      }
-      </div>
-      <div>
-        code bundle name
-        <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
-      </div>
-      <div>
-        <Button key="deploy" onClick={deploy}>Deploy</Button>
-      </div>
+    <Modal
+      width={560}
+      title={null}
+      onCancel={onCancel}
+      visible={true}
+      footer={null}
+    >
+      <Content>
+        <div className="header">
+          <h2>Upload & deploy contract</h2>
+        </div>
+        <div className="content">
+          {
+            !abiInput &&
+              <Upload beforeUpload={onUpload}>
+                <AntButton>Upload</AntButton>
+              </Upload>
+          }
+          <div>
+            {
+              !!abi &&
+                <Form>
+                  <Constructor
+                    defaultValue={abi.constructors[0]}
+                    abiMessages={abi.constructors}
+                    onMessageChange={setMessage}
+                    onParamsChange={setArgs}
+                  />
+                  <ParamInput
+                    defaultValue={endowment}
+                    style={{ margin: '20px 0px' }}
+                    onChange={
+                      value => setState(pre => ({...pre, endowment: parseInt(value)}))
+                    }
+                    label="Endowment" unit="DOT"
+                  />  
+                  <ParamInput
+                    defaultValue={salt}
+                    style={{ borderBottomWidth: '0px' }}
+                    onChange={
+                      value => setState(pre => ({...pre, salt: value}))
+                    }
+                    label="unique deployment salt"
+                  />
+                  <ParamInput
+                    defaultValue={gasLimit}
+                    onChange={
+                      value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
+                    }
+                    label="max gas allowed"
+                  />
+                  <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
+                </Form>
+            }
+          </div>
+          <div>
+            code bundle name
+            <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
+          </div>
+        </div>
+        <div className="footer">
+          <DefaultButton onClick={deploy}>Deploy</DefaultButton>
+        </div>
+      </Content>
     </Modal>
   );
 };
