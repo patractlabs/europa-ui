@@ -55,11 +55,12 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
 
   return (
     <Modal
-    width={610}
-    title={null}
-    onCancel={onClose}
-    visible={open}
-    footer={null}>
+      width={610}
+      title={null}
+      onCancel={onClose}
+      visible={open}
+      footer={null}
+    >
       <Content>
         <div className="header">
           <h2>Add New Account</h2>
@@ -70,7 +71,7 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
           <Input value={name} onChange={e => setName(e.target.value)} />
         </div>
         <div className="footer">
-          <DefaultButton key="oncreate" onClick={onCreate}>Add</DefaultButton>
+          <DefaultButton onClick={onCreate}>Add</DefaultButton>
         </div>
       </Content>
     </Modal>

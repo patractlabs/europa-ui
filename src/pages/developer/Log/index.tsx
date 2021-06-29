@@ -34,8 +34,8 @@ export const Log: FC = (): ReactElement => {
   return (
     <Wrapper id="log-container">
       {
-        logs.map(log =>
-          <div className="line">{log}</div>
+        logs.map((log, index) =>
+          <div key={index} className="line">{log}</div>
         )
       }
     </Wrapper>

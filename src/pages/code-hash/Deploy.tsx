@@ -1,6 +1,6 @@
-import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
-import { AccountsContext, ApiContext, handleTxResults, store } from '../../core';
+import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { Constructor } from './Constructor';
 import { AddressInput, ParamInput, Style } from '../../shared';
 import { message as antMessage } from 'antd';

@@ -48,11 +48,12 @@ export const ImportAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
 
   return (
     <Modal
-    width={610}
-    title={null}
-    onCancel={onClose}
-    visible={open}
-    footer={null}>
+      width={610}
+      title={null}
+      onCancel={onClose}
+      visible={open}
+      footer={null}
+    >
       <Content>
         <div className="header">
           <h2>Import New Account</h2>
@@ -65,7 +66,7 @@ export const ImportAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
           <Input placeholder="name" value={name} onChange={e => setName(e.target.value)} />
         </div>
         <div className="footer">
-          <DefaultButton key="oncreate" onClick={onImport}>Import</DefaultButton>
+          <DefaultButton onClick={onImport}>Import</DefaultButton>
         </div>
       </Content>
     </Modal>

@@ -2,7 +2,7 @@ import type { I18nProps } from '../react-components/types';
 import type { Registry, TypeDef } from '@polkadot/types/types';
 import type { ComponentMap, ParamDef, RawParam, RawParamOnChangeValue, RawParams } from './types';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import { api } from '../core';
 import ErrorBoundary from '../react-components/ErrorBoundary';

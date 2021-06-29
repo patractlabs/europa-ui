@@ -136,6 +136,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '10%',
             key: 'operation',
             render: (_, record) => <span>{
+              // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a onClick={() => {
                 setChoosedAbi(store.getCode(record.hash)?.contractAbi);
                 toggleUpload(true);
@@ -192,6 +193,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
               codes.find(code => code.hash === record.codeHash) ?
                 <span>deployed</span>
                 :
+                // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedAbi(record.abi);
                   toggleUpload(true);

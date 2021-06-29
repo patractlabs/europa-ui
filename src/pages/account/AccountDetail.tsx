@@ -32,19 +32,20 @@ const AccountDetail: FC<{ account: AccountInfo, onClose: () => void }> = ({ acco
       title={null}
       onCancel={onClose}
       visible={true}
-      footer={null}>
-        <Content>
-          <div className="header">
-            <h2>Mnemonic</h2>
-          </div>
-          <div className="content">
-            <p className="address">{account.address}</p>
-            <p className="seed">{account.mnemonic}</p>
-          </div>
-          <div className="footer">
-            <DefaultButton onClick={onClose}>Confirm</DefaultButton>
-          </div>
-        </Content>
+      footer={null}
+    >
+      <Content>
+        <div className="header">
+          <h2>Mnemonic</h2>
+        </div>
+        <div className="content">
+          <p className="address">{account.address}</p>
+          <p className="seed">{account.mnemonic}</p>
+        </div>
+        <div className="footer">
+          <DefaultButton onClick={onClose}>Confirm</DefaultButton>
+        </div>
+      </Content>
     </Modal>
   );
 };

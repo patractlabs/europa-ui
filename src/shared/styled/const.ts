@@ -21,6 +21,9 @@ export const Style = {
     },
     icon: {
       fail: '#EE737E',
+    },
+    link: {
+      default: '#DBAA66',
     }
   }
 };

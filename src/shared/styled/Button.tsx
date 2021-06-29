@@ -10,5 +10,5 @@ export const Button = styled.button`
   outline: none;
   font-size: 15px;
   background-color: ${Style.color.button.primary};
-  line-height: 18px;
+  font-weight: 600;
 `;

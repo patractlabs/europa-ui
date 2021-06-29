@@ -1,7 +1,7 @@
 import { ContractRx } from '@polkadot/api-contract';
 import React, { FC, useMemo, ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
-import { useContracts, store, ApiContext, BlocksContext, useAbi } from '../../core';
+import { useContracts, ApiContext, BlocksContext, useAbi } from '../../core';
 import { Tabs } from '../../shared';
 import { Message } from './Message';
 

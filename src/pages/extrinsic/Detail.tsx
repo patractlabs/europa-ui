@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { hexToU8a } from '@polkadot/util';
 import styled from 'styled-components';
-import { store, ApiContext, BlocksContext, Extrinsic, useContracts, useAbi } from '../../core';
+import { ApiContext, BlocksContext, Extrinsic, useContracts, useAbi } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';

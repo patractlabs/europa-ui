@@ -1,12 +1,13 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from "react-router-dom";
 import { Table } from 'antd';
 import styled from 'styled-components';
 import EnterSVG from '../../assets/imgs/enter.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
 import EventsSVG from '../../assets/imgs/events.svg';
-import { ApiContext, Block, BlocksContext } from '../../core';
+import { Block, BlocksContext } from '../../core';
 import { Style, Transfer } from '../../shared';
+import JumpToBlock from './JumpToBlock';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
@@ -65,7 +66,6 @@ const BlockInfoWrapper = styled.div`
           height: 24px;
           font-size: 24px;
           font-weight: bold;
-          color: #DBAA66;
           line-height: 24px;
         }
       }
@@ -204,19 +204,12 @@ const BlockInfo: FC<{
 };
 
 export const Explorer: FC = (): ReactElement => {
-  const { api } = useContext(ApiContext);
-  const { blocks: source, backward } = useContext(BlocksContext);
+  const { blocks: source } = useContext(BlocksContext);
   const [ viewingBlock, setViewingBlock ] = useState<string>('');
+  const [ showJumpModal, setShowJumpModal ] = useState<boolean>(false);
+  const [ direction, setDirection ] = useState<'backward' | 'forward'>('forward');
+  
   const blocks = useMemo(() => ([...source].reverse()), [source]);
-
-  const forward = useCallback((targetBlockHeight: number) => {
-    const sub = (api as any).rpc.europa.forwardToHeight(targetBlockHeight).subscribe(
-      () => console.log('forward to:', targetBlockHeight),
-      () => console.log('bad forward'),
-    );
-
-    return () => sub.unsubscribe();
-  }, [api]);
 
   useEffect(() => {
     const toggleNavigation = () => {
@@ -239,8 +232,20 @@ export const Explorer: FC = (): ReactElement => {
     <Wrapper>
       <NavigationHighlight>
         <NavigationGroup>
-          <NavigationButton className="back" onClick={() => backward(0)}>Back to Block</NavigationButton>
-          <NavigationButton className="forward" onClick={() => forward(10)}>Go to Block</NavigationButton>
+          <NavigationButton
+            className="back"
+            onClick={() => {
+              setDirection('backward');
+              setShowJumpModal(true);
+            }}
+          >Back to Block</NavigationButton>
+          <NavigationButton
+            className="forward"
+            onClick={() =>{
+              setDirection('forward');
+              setShowJumpModal(true);
+            }}
+          >Go to Block</NavigationButton>
         </NavigationGroup>
       </NavigationHighlight>
       {
@@ -252,8 +257,14 @@ export const Explorer: FC = (): ReactElement => {
             <BlockInfo
               currentBlock={block}
               viewing={viewingBlock === block.blockHash}
-              backward={() => backward(0)}
-              forward={() => forward(10)}
+              backward={() => {
+                setDirection('backward');
+                setShowJumpModal(true);
+              }}
+              forward={() =>{
+                setDirection('forward');
+                setShowJumpModal(true);
+              }}
             />
             <SpaceFill viewing={viewingBlock === block.blockHash} />
             <Table
@@ -294,6 +305,10 @@ export const Explorer: FC = (): ReactElement => {
             }
           </BlockWrapper>
         )
+      }
+      {
+        showJumpModal &&
+          <JumpToBlock direction={direction} onClose={() => setShowJumpModal(false)} />
       }
     </Wrapper>
   );
