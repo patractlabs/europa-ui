@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link, Route, Switch, useParams } from 'react-router-dom';
 import { UploadContract } from './Upload';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
-import { formatAddress, Style } from '../../shared';
+import { formatAddress, PageTabs, Style } from '../../shared';
 import { Table } from 'antd';
 import type { Abi } from '@polkadot/api-contract';
 
@@ -264,24 +264,13 @@ export const ContractsPage: FC = (): ReactElement => {
       .find(db => db.path === choosed.database)?.workspaces
       .find(w => w.name === choosed.workspace)?.redspots || []
   );
-  const { part } = useParams<{ part: string }>();
 
   useEffect(() => store.loadAll(), []);
 
   return (
     <Wrapper>
       <TabArea>
-        <Tabs>
-          {
-            tabs.map(tab =>
-              <Tab key={tab.tab} className={ tab.tab === part ? 'active' : ''}>
-                <Link to={tab.link}>
-                  {tab.title}
-                </Link>
-              </Tab>
-            )
-          }
-        </Tabs>
+        <PageTabs options={tabs} />
       </TabArea>
       
       <Switch>
