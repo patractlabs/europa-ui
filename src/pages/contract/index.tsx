@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link, Route, Switch, useParams } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import { UploadContract } from './Upload';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
 import { formatAddress, PageTabs, Style } from '../../shared';
@@ -216,31 +216,6 @@ const TabArea = styled.div`
   background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
   color: white;
 `;
-const Tabs = styled.div`
-  padding: 0px 68px;
-  display: flex;
-  
-  >.active {
-    background-color: white;
-  }
-
-  .active a {
-    color: ${Style.color.primary};
-  }
-`;
-
-const Tab = styled.div`
-  width: 133px;
-  text-align: center;
-  line-height: 40px;
-  font-size: 16px;
-  
-
-  a {
-    color: white; 
-  }
-`;
-
 const tabs = [
   {
     tab: ActiveTab.Codes,
