@@ -186,7 +186,10 @@ export const UploadContract: FC<{
       salt,
     }, ...args);
     const account = accounts.find(account => account.address === address);
-    const pair = keyring.getPair(account?.address || '');
+    if (!account) {
+      return
+    }
+    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {

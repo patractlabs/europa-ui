@@ -2,17 +2,19 @@ import React, { FC, ReactElement, useState, useCallback, useContext, useEffect }
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
-import { AddressInput, Style } from '../../shared';
-import { Button, message as antMessage } from 'antd';
+import { AddressInput, Button, Style } from '../../shared';
+import { message as antMessage } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, handleTxResults } from '../../core';
 import keyring from '@polkadot/ui-keyring';
 import Params from './Params';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { encodeTypeDef } from '@polkadot/types/create';
 
 const Wrapper = styled.div`
   margin-bottom: 16px;
+  background-color: ${Style.color.bg.default};
 
   &:last-child {
     margin-bottom: 0px;
@@ -79,6 +81,10 @@ const Result = styled.div`
   }
 `;
 
+const StyledButton = styled(Button)`
+  width: 124px;
+  height: 40px;
+`;
 
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
@@ -116,7 +122,10 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       value: 0,
     }, ...params);
     const account = accounts.find(account => account.address === sender);
-    const pair = keyring.getPair(account?.address || '');
+    if (!account) {
+      return
+    }
+    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
     tx.signAndSend(pair).pipe(
       catchError(e => {
@@ -155,11 +164,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
               {
                 <Params
                   onChange={setParams}
-                  params={
-                    message
-                      ? message.args
-                      : undefined
-                  }
+                  params={message?.args}
                   registry={contract.abi.registry}
                 />
               }
@@ -173,12 +178,12 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
               }
             </ParamsContainer>
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
-              <Button onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
+              <StyledButton onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</StyledButton>
             </Exec>
             {
               !message.isMutating &&
                 <Result>
-                  <span className="type">{ message.returnType?.displayName }: </span>
+                  <span className="type">{ message.returnType && encodeTypeDef(message.returnType) }: </span>
                   <span className="value">{ result }</span>
                 </Result>
             }

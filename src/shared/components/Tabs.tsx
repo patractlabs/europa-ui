@@ -4,23 +4,31 @@ import { Style } from '../styled/const';
 
 const TabChoices = styled.div`
   display: flex;
-
-  >.tab-choosed {
-    color: ${Style.color.primary};
-    background-color: white;
-  }
-
+  background-color: ${Style.color.bg.second};
 `;
-const TabChoice = styled.div`
+const TabChoice = styled.div<{ active: 'self' | 'left' | 'right' | 'none' }>`
   cursor: pointer;
-  padding: 0px 32px;
   text-align: center;
   line-height: 48px;
   height: 48px;
-  background: ${Style.color.bg.second};
-  border-radius: 8px 8px 0px 0px;
+  background: ${props => props.active === 'left' || props.active === 'right' ? 'white' : Style.color.bg.second };
   font-size: 16px;
-  color: ${Style.color.label.primary};
+  color: ${props => props.active === 'self' ? Style.color.primary : Style.color.label.primary};
+  
+  > div {
+    padding: 0px 32px;
+    background-color: ${props => props.active === 'self' ? 'white' : Style.color.bg.second};
+    border-radius: ${props => {
+      if (props.active === 'self') {
+        return '8px 8px 0px 0px';
+      } else if (props.active === 'left') {
+        return '0px 0px 8px 0px';
+      } else if (props.active === 'right') {
+        return '0px 0px 0px 8px';
+      }
+      return '0px';
+    }};
+  }
 `;
 
 export const Tabs: FC<{
@@ -34,8 +42,9 @@ export const Tabs: FC<{
   return (
     <TabChoices style={style}>
       {
-        options.map(option =>
+        options.map((option, index) =>
           <TabChoice
+            active={choosed === option.value ? 'self' : (choosed === options[index - 1]?.value ? 'right' : (choosed === options[index + 1]?.value ? 'left' : 'none'))}
             key={option.value}
             className={ choosed === option.value ? 'tab-choosed' : '' }
             onClick={() => {
@@ -45,7 +54,9 @@ export const Tabs: FC<{
                 onChange(option.value);
               }
             }}
-          >{ option.name }</TabChoice>
+          >
+            <div>{ option.name }</div>
+          </TabChoice>
         )
       }
     </TabChoices>

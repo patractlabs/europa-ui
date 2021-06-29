@@ -136,11 +136,13 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '10%',
             key: 'operation',
             render: (_, record) => <span>{
-              // eslint-disable-next-line jsx-a11y/anchor-is-valid
-              <a onClick={() => {
-                setChoosedAbi(store.getCode(record.hash)?.contractAbi);
-                toggleUpload(true);
-              }}>deploy</a>
+              !store.getCode(record.hash)?.json && !redspotsContracts.find(code => code.codeHash === record.hash) ?
+                <span>Deployed</span> :
+                // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                <a onClick={() => {
+                  setChoosedAbi(store.getCode(record.hash)?.contractAbi);
+                  toggleUpload(true);
+                }}>deploy</a>
             }</span>,
           },
         ]}
@@ -190,9 +192,6 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '10%',
             key: 'operation',
             render: (_, record) => <span>{
-              codes.find(code => code.hash === record.codeHash) ?
-                <span>deployed</span>
-                :
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedAbi(record.abi);

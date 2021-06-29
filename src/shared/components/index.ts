@@ -11,3 +11,4 @@ export * from './Transfer';
 export * from './Args';
 export * from './InfoHeader';
 export * from './PageLine';
+export * from './PageTabs';
