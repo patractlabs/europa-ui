@@ -48,7 +48,7 @@ const Account: FC<{
           <div className="operation">
             <div className="mnemonic"  onClick={() => setDetailModalOpen(true)}>
               <img src={MnemonicSvg} alt="" />
-              <span>Show Mnemonic</span>
+              <div>Show Mnemonic</div>
             </div>
             <Button onClick={() => setDeleteModalOpen(true)}>
               <img src={DeleteSvg} alt="" />
@@ -113,10 +113,11 @@ export default React.memo(styled(Account)`
         width: 15px;
         height: 15px;
       }
-      > span {
+      > div {
         margin-left: 8px;
         font-weight: 600;
-        color: ${Style.color.primary};
+        overflow: hidden;
+        word-break: break-all;
       }
     }
   } 

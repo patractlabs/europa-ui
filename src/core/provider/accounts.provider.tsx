@@ -1,4 +1,4 @@
-import React, { Context, useContext, useEffect, useState } from 'react';
+import React, { Context, useCallback, useContext, useEffect, useState } from 'react';
 import { of, zip } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
 import type { KeyringPair$Meta } from '@polkadot/keyring/types';
@@ -26,6 +26,7 @@ interface AccountJson extends KeyringPair$Meta {
 export type AccountInfo = AccountJson & { balance: string; mnemonic: string };
 interface AccountsContextProps {
   accounts: AccountInfo[];
+  update: () => void;
 }
 
 export const AccountsContext: Context<AccountsContextProps> = React.createContext({}as unknown as AccountsContextProps);
@@ -46,14 +47,16 @@ export const AccountsProvider = React.memo(
     const [ accounts, setAccounts ] = useState<AccountInfo[]>([]);
     const [ signal, updateSignal ] = useState(0);
     
+    const update = useCallback(() => updateSignal(v => v + 1), [updateSignal]);
+
     useEffect(() => {
       const sub = connected$.pipe(
         filter(c => !!c),
         skip(1),
-      ).subscribe(() => updateSignal(v => v + 1));
+      ).subscribe(() => update);
   
       return () => sub.unsubscribe();
-    }, [connected$]);
+    }, [connected$, update]);
     
     useEffect(() => {
       if (!api || !api.isReady) { 
@@ -91,6 +94,7 @@ export const AccountsProvider = React.memo(
 
     return <AccountsContext.Provider value={{
       accounts,
+      update,
     }}>{children}</AccountsContext.Provider>;
   }
 );

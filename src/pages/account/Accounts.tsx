@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useContext, useState } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CreateAccount } from './CreateAccount';
 import { AccountsContext } from '../../core';
@@ -30,7 +30,9 @@ const Button = styled.span`
 const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
   const [ isCreateModalOpen, setCreateModalOpen ] = useState<boolean>(false);
   const [ isImportModalOpen, setImportModalOpen ] = useState<boolean>(false);
-  const { accounts } = useContext(AccountsContext);
+  const { accounts, update } = useContext(AccountsContext);
+
+  useEffect(() => update(), [update]);
 
   return (
     <div className={className}>
