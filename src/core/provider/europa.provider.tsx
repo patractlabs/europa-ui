@@ -69,7 +69,7 @@ export const EuropaManageProvider = React.memo(
         const killed = europa?.kill();
   
         if (!killed) {
-          return cb(new Error('Not Killed'));
+          // return cb(new Error('Not Killed'));
         }
 
         startup(db, workspace, cb);

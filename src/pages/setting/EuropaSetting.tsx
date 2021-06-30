@@ -30,12 +30,15 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
     t += 1;
 
     if (t !== 2) {
-      setCurrentDbPath(choosed.database);
-      setCurrentWorkspace(choosed.workspace);
+      choosed.database && setCurrentDbPath(choosed.database);
+      choosed.workspace && setCurrentWorkspace(choosed.workspace);
+      console.log('t', t, ' set 1 db:', choosed.database, 'workspace', getDefaultWorkspace(setting, choosed.workspace));
       return;
     }
 
     const dbPath = setting.databases[0]?.path || '';
+
+    console.log('t', t, ' set 2 db:', dbPath, 'workspace', getDefaultWorkspace(setting, dbPath));
 
     setCurrentDbPath(dbPath);
     setCurrentWorkspace(getDefaultWorkspace(setting, dbPath));
@@ -67,7 +70,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
       }
 
       setCurrentDbPath(databasePath);
-      setCurrentWorkspace(workspaces[0]?.name || '');
+      setCurrentWorkspace('');
 
       if (setting.databases.find(db => db.path === databasePath)) {
         return;
@@ -145,6 +148,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
             className="db-select"
             value={currentDbPath}
             onChange={(value: string) => {
+              console.log('change')
               setCurrentDbPath(value);
               setCurrentWorkspace(getDefaultWorkspace(setting, value));
             }}
