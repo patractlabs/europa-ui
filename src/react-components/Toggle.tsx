@@ -105,6 +105,6 @@ export default React.memo(styled(Toggle)`
   &.isOverlay {
     bottom: 0.375rem;
     position: absolute;
-    right: 3.5rem;
+    right: 0.5rem;
   }
 `);

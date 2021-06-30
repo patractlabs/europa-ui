@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Button as AntButton, Input, message as antMessage, Modal, Upload } from 'antd';
+import { message as antMessage, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
@@ -15,9 +15,24 @@ import styled from 'styled-components';
 import { AddressInput, ModalMain, ParamInput, Style, Button } from '../../shared';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
+import LabeledInput from '../developer/shared/LabeledInput';
+import MoreSvg from '../../assets/imgs/more.svg';
 
 const Content = styled(ModalMain)`
   .content {
+    margin-top: 26px;
+
+    .upload {
+      width: 100%;
+      text-align: center;
+    }
+    .params-input {
+      margin-top: 16px;
+
+      .form {
+        margin: 20px 0px 30px 0px;
+      }
+    }
     .hint {
       margin-top: 16px;
       margin-bottom: 20px;
@@ -25,22 +40,11 @@ const Content = styled(ModalMain)`
       font-weight: 400;
       color: ${Style.color.label.default};
     }
-    .ant-input:focus {
-      outline: 0;
-      box-shadow: none;
-    }
-  }
-  .footer {
-
   }
 `;
 
 const DefaultButton = styled(Button)`
   width: 320px;
-`;
-const Form = styled.div`
-  width: 480px;
-  margin-bottom: 30px;
 `;
 
 interface AbiState {
@@ -88,7 +92,8 @@ export const UploadContract: FC<{
   onCancel: () => void;
   onCompleted: () => void;
   abi?: Abi;
-}> = ({ abi: abiInput, onCancel, onCompleted }): ReactElement => {
+  contractName?: string;
+}> = ({ abi: abiInput, onCancel, onCompleted, contractName }): ReactElement => {
   const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ args, setArgs ] = useState<any[]>([]);
@@ -109,7 +114,7 @@ export const UploadContract: FC<{
     setArgs(abiInput?.constructors[0].args.map(() => undefined) || []);
   }, [abiInput]);
 
-  const [ { address, name, endowment, gasLimit, salt }, setState ] = useState<{
+  const [ { address, endowment, gasLimit, salt }, setState ] = useState<{
     address: string;
     name: string;
     endowment: number;
@@ -117,7 +122,7 @@ export const UploadContract: FC<{
     salt: string;
   }>({
     address: accounts[0]?.address,
-    name: 'xxx',
+    name: '',
     endowment: 10,
     gasLimit: 200000,
     // (api.consts.system.blockWeights
@@ -245,14 +250,23 @@ export const UploadContract: FC<{
         <div className="content">
           {
             !abiInput &&
-              <Upload beforeUpload={onUpload}>
-                <AntButton>Upload</AntButton>
-              </Upload>
+              <div className="upload">
+                <Upload fileList={[]} beforeUpload={onUpload}>
+                  {
+                    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                    <a style={{ marginBottom: '16px', width: '100%' }}>Upload Code Bundle</a>
+                  }
+                </Upload>
+              </div>
           }
-          <div>
-            {
-              !!abi &&
-                <Form>
+          {
+            !!abi &&
+              <div className="params-input">
+                <LabeledInput>
+                  <div className="span">Contract name</div>
+                  <div>{codeJSON?.name || contractName}</div>
+                </LabeledInput>
+                <div className="form">
                   <Constructor
                     defaultValue={abi.constructors[0]}
                     abiMessages={abi.constructors}
@@ -261,7 +275,7 @@ export const UploadContract: FC<{
                   />
                   <ParamInput
                     defaultValue={endowment}
-                    style={{ margin: '20px 0px' }}
+                    style={{ margin: '16px 0px' }}
                     onChange={
                       value => setState(pre => ({...pre, endowment: parseInt(value)}))
                     }
@@ -277,19 +291,29 @@ export const UploadContract: FC<{
                   />
                   <ParamInput
                     defaultValue={gasLimit}
+                    style={{ borderBottomWidth: '0px' }}
                     onChange={
                       value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
                     }
                     label="max gas allowed"
                   />
-                  <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
-                </Form>
-            }
-          </div>
-          <div>
-            code bundle name
-            <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
-          </div>
+                  
+                  <LabeledInput>
+                    <div className="span">Caller</div>
+                    <AddressInput
+                      defaultValue={accounts[0]?.address}
+                      bordered={false}
+                      suffixIcon={<img src={MoreSvg} alt="" />}
+                      onChange={address => setState(pre => ({...pre, address}))}
+                    />
+                  </LabeledInput>
+                </div>
+                {/* <LabeledInput>
+                  <div className="span">code bundle name</div>
+                  <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
+                </LabeledInput> */}
+              </div>
+          }
         </div>
         <div className="footer">
           <DefaultButton onClick={deploy}>Deploy</DefaultButton>

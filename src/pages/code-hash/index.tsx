@@ -7,7 +7,7 @@ import { contentBase, formatAddress, Style, Tabs, InfoHeader } from '../../share
 import { Deploy } from './Deploy';
 import { Instances } from './Instances';
 import { UploadAbi } from './UploadAbi';
-import { BlocksContext, useContracts, ApiContext, PaginationProvider, useAbi } from '../../core';
+import { store, BlocksContext, useContracts, ApiContext, PaginationProvider, useAbi, useRedspotContracts, SettingContext } from '../../core';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -58,6 +58,16 @@ export const CodeHash: FC = (): ReactElement => {
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
   const { abi } = useAbi(codeHash, signal);
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
+  const { setting, choosed } = useContext(SettingContext);
+  const { redspotContracts } = useRedspotContracts(
+    setting.databases
+      .find(db => db.path === choosed.database)?.workspaces
+      .find(w => w.name === choosed.workspace)?.redspots || []
+  );
+  const name = useMemo(() =>
+    store.getCode(codeHash)?.json.name ||
+      redspotContracts.find(code => code.codeHash === codeHash)?.name
+  , [redspotContracts, codeHash]);
 
   return (
     <Wrapper>
@@ -100,7 +110,7 @@ export const CodeHash: FC = (): ReactElement => {
 
       {
         tabChoice === TabChoice.Codes &&
-          <Deploy abi={abi} />
+          <Deploy name={name} abi={abi} />
       }
       {
         tabChoice === TabChoice.Instances &&

@@ -3,29 +3,27 @@ import { Style } from '../../../shared';
 
 const LabeledInput = styled.div`
   border: 1px solid ${Style.color.border.default};
-    height: 48px;
-    padding: 4px 16px;
-    padding-right: 0px;
+  height: 48px;
+  padding: 4px 16px;
+  padding-right: 0px;
 
-    > .span {
-      height: 16px;
-      font-size: 12px;
-      color: #8c8b8c;
-      padding-right: 4px;
-      line-height: 16px;
-    }
+  > .span {
+    height: 16px;
+    font-size: 12px;
+    color: #8c8b8c;
+    padding-right: 4px;
+    line-height: 16px;
+  }
 
-    > .ant-input {
-      padding-left: 0px;
-      height: 24px;
-      border: none;
-      box-shadow: none;
-      outline: none;
-    }
-    > .ant-input:focus {
-    }
+  .ant-input {
+    padding-left: 0px;
+    height: 24px;
+    border: none;
+    box-shadow: none;
+    outline: none;
+  }
     
-  > .ant-select {
+  .ant-select {
     width: 100%;
 
     .ant-select-selector {

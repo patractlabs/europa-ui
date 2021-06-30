@@ -9,13 +9,29 @@ const Wrapper = styled.div`
   background: #FFFFFF;
   border: 1px solid ${Style.color.border.default};
 
+  .ant-input-affix-wrapper {
+    border: none;
+    box-shadow: none;
+    outline: none;
+
+  }
   input.ant-input {
     font-size: 14px;
     color: ${Style.color.label.primary};
     font-weight: bold;
-    /* outline: none !important; */
-    /* border: none; */
-    /* box-shadow: none; */
+    border: none;
+    box-shadow: none;
+    outline: none;
+
+    &:focus {
+      
+      border: none;
+      box-shadow: none;
+      outline: none;
+    }
+    /* outline: none !important;
+    border: none;
+    box-shadow: none; */
   }
 
 `;

@@ -91,9 +91,14 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
   );
 };
 
+function getContractName(record: DeployedCode, redspotsContracts: RedspotContract[]): string {
+  return store.getCode(record.hash)?.json.name ||
+    redspotsContracts.find(code => code.codeHash === record.hash)?.name ||
+    '';
+}
 const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }> = ({ codes, redspotsContracts }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
-  const [ choosedAbi, setChoosedAbi ] = useState<Abi>();
+  const [ choosedContract, setChoosedContract ] = useState<{ abi?: Abi; name: string }>();
 
   return (
     <CodesWrapper>
@@ -111,7 +116,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             title: <span>Name</span>,
             width: '20%',
             key: 'name',
-            render: (_, record) => <span>{store.getCode(record.hash)?.json.name || redspotsContracts.find(code => code.codeHash === record.hash)?.name}</span>,
+            render: (_, record) => <span>{getContractName(record, redspotsContracts)}</span>,
           },
           {
             title: <span>Code Hash</span>,
@@ -140,7 +145,10 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
                 <span>Deployed</span> :
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
-                  setChoosedAbi(store.getCode(record.hash)?.contractAbi);
+                  setChoosedContract({
+                    abi: store.getCode(record.hash)?.contractAbi,
+                    name: getContractName(record, redspotsContracts),
+                  });
                   toggleUpload(true);
                 }}>deploy</a>
             }</span>,
@@ -149,13 +157,18 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
       />
       {
         showUpload &&
-          <UploadContract abi={choosedAbi} onCancel={() => {
-            toggleUpload(false);
-            setChoosedAbi(undefined);
-          }} onCompleted={() => {
-            toggleUpload(false);
-            setChoosedAbi(undefined);
-          }} />
+          <UploadContract
+            abi={choosedContract?.abi}
+            contractName={choosedContract?.name}
+            onCancel={() => {
+              toggleUpload(false);
+              setChoosedContract(undefined);
+            }}
+            onCompleted={() => {
+              toggleUpload(false);
+              setChoosedContract(undefined);
+            }}
+          />
       }
       <Title style={{ marginTop: '20px' }}>
         <label>Contracts from disk</label>
@@ -194,7 +207,10 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             render: (_, record) => <span>{
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
-                  setChoosedAbi(record.abi);
+                  setChoosedContract({
+                    abi: record.abi,
+                    name: record.name,
+                  });
                   toggleUpload(true);
                 }}>deploy</a>
             }</span>,

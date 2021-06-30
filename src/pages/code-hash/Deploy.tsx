@@ -12,17 +12,21 @@ import keyring from '@polkadot/ui-keyring';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import LabeledInput from '../developer/shared/LabeledInput';
+import MoreSvg from '../../assets/imgs/more.svg';
 
 const Wrapper = styled.div`
   background-color: white;
   display: flex;
   justify-content: center;
   padding: 60px 0px;
+
+  .form {
+    width: 480px;
+    margin: 16px 0px 30px 0px;
+  }
 `;
-const Form = styled.div`
-  width: 480px;
-  margin-bottom: 30px;
-`;
+
 const ButtonPrimary = styled.button`
   cursor: pointer;
   padding: 0px 38px;
@@ -33,7 +37,7 @@ const ButtonPrimary = styled.button`
   border-width: 0px;
 `;
 
-export const Deploy: FC<{ abi?: Abi }> = ({ abi }): ReactElement => {
+export const Deploy: FC<{ abi?: Abi; name?: string }> = ({ abi, name }): ReactElement => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ args, setArgs ] = useState<any[]>([]);
@@ -51,7 +55,6 @@ export const Deploy: FC<{ abi?: Abi }> = ({ abi }): ReactElement => {
     //   : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
     salt: randomAsHex(),
   });
-
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
 
   const deploy = useCallback(async () => {
@@ -100,13 +103,17 @@ export const Deploy: FC<{ abi?: Abi }> = ({ abi }): ReactElement => {
       {
         !abi ? 'Please upload the ABI first' :
           <div>
-            <Form>
+            <LabeledInput>
+              <div className="span">Contract name</div>
+              <div>{name}</div>
+            </LabeledInput>
+            <div className="form">
               <Constructor
                 defaultValue={abi.constructors[0]}
                 abiMessages={abi.constructors}
                 onMessageChange={setMessage}
                 onParamsChange={setArgs}
-              />  
+              />
               <ParamInput
                 defaultValue={endowment}
                 style={{ margin: '20px 0px' }}
@@ -125,14 +132,24 @@ export const Deploy: FC<{ abi?: Abi }> = ({ abi }): ReactElement => {
               />
               <ParamInput
                 defaultValue={gasLimit}
+                style={{ borderBottomWidth: '0px' }}
                 onChange={
                   value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
                 }
                 label="max gas allowed"
               />
 
-              <AddressInput defaultValue={accounts[0]?.address} onChange={address => setState(pre => ({...pre, address}))} />
-            </Form>
+                  
+              <LabeledInput>
+                <div className="span">Caller</div>
+                <AddressInput
+                  defaultValue={accounts[0]?.address}
+                  bordered={false}
+                  suffixIcon={<img src={MoreSvg} alt="" />}
+                  onChange={address => setState(pre => ({...pre, address}))} 
+                />
+              </LabeledInput>
+            </div>
             <div>
               <ButtonPrimary onClick={deploy}>Deploy</ButtonPrimary>
             </div>

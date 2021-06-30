@@ -11,7 +11,7 @@ import Sections from '../shared/Sections';
 import Methods from '../shared/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
-import { AddressInput, Button, Style } from '../../../shared';
+import { AddressInput, Button } from '../../../shared';
 import keyring from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';

@@ -4,18 +4,12 @@ import styled from 'styled-components';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { ApiContext } from '../../core';
 import UIParams from '../../react-params';
+import MoreSvg from '../../assets/imgs/more.svg';
+import LabeledInput from '../developer/shared/LabeledInput';
 
 const Wrapper = styled.div`
 `;
 const { Option } = Select;
-
-const StyledSelected = styled(Select)`
-  width: 100%;
-  height: 48px;
-  > .ant-select-selector {
-    height: 48px;
-  }
-`;
 
 export const Constructor: FC<{
   defaultValue?: AbiMessage; 
@@ -39,43 +33,34 @@ export const Constructor: FC<{
 
   return (
     <Wrapper>
-      <StyledSelected size="large" value={message?.identifier} onChange={_onMessageChange} >
-        {
-          abiMessages.map(message =>
-            <Option value={message.identifier} key={message.identifier}>{message.method}({
-              message.args.map((arg, index) =>
-                `${index ? ', ' : ''}${arg.name}: ${arg.type.displayName}`
-              )
-            })</Option>
-          )
-        }
-      </StyledSelected>
+      <LabeledInput style={{ marginBottom: '16px' }}>
+        <div className="span">deployment constructor</div>
+        <Select
+          value={message?.identifier}
+          bordered={false}
+          suffixIcon={<img src={MoreSvg} alt="" />}
+          onChange={_onMessageChange}
+        >
+          {
+            abiMessages.map(message =>
+              <Option value={message.identifier} key={message.identifier}>{message.method}({
+                message.args.map((arg, index) =>
+                  `${index ? ', ' : ''}${arg.name}: ${arg.type.displayName}`
+                )
+              })</Option>
+            )
+          }
+        </Select>
+      </LabeledInput>
       
       {
         !!message &&
           <UIParams
-            isRoot={true}
             onChange={value => onParamsChange(value.map(v => v.value))}
             params={message.args}
             registry={api.registry}
           />
       }
-      {/* {
-        message?.args.map(arg =>
-          <Param
-            key={arg.name}
-            registry={api.registry}
-            type={arg.type}
-            defaultValue={{ isValid: true, value: undefined }}
-            onChange={value => {
-              const newArgs = {..._args.current, [arg.name]: value.value };
-          
-              _args.current = newArgs;
-              // onParamsChange(Object.keys(newArgs).map(key => _args.current[key]))
-            }}
-          />
-        )
-      } */}
     </Wrapper>
   );
 };
