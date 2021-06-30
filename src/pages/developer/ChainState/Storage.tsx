@@ -16,24 +16,12 @@ import AddSvg from '../../../assets/imgs/add.svg';
 import { RawParamOnChangeValue, RawParams } from '../../../react-params/types';
 import Params from '../../../react-params';
 import Input from '../shared/Input';
+import Result from '../shared/Result';
 
 const Wrapper = styled.div`
   padding: 20px;
-`;
-
-const Result = styled.div`
-   margin-top: 10px;
-  display: flex;
-
-  > .info {
-    flex: 1;
-  }
-  > img {
-    cursor: pointer;
-    margin-left: 16px;
-    width: 40px;
-    height: 40px;
-  }   
+  flex: 1;
+  background-color: white;
 `;
 
 interface TypeDefExt extends TypeDef {
@@ -184,7 +172,7 @@ export const Storage: FC = (): ReactElement => {
     <Wrapper>
       <Input>
         <div className="selection">
-          <Row>
+          <Row style={{ marginBottom: '20px' }}>
             <Col span={7}>
               <Sections defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
             </Col>
@@ -202,18 +190,12 @@ export const Storage: FC = (): ReactElement => {
           <img onClick={onExec} src={AddSvg} alt="" />
         </div>
       </Input>
-      {
-        results.map((result, index) =>
-          <Result key={index}>
-            <div className="info">
-              {JSON.stringify(result)}
-            </div>
-            <img onClick={() =>
-              setResults([...results.slice(0, index), ...results.slice(index + 1)])
-            } src={AddSvg} alt="" />
-          </Result>
-        )
-      }
+      <Result
+        results={results}
+        onDelete={index  =>
+          setResults([...results.slice(0, index), ...results.slice(index + 1)])
+        }
+      />
     </Wrapper>
   );
 };

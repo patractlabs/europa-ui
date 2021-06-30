@@ -10,25 +10,11 @@ import Methods from '../ChainState/Methods';
 import AddSvg from '../../../assets/imgs/add.svg';
 import { ParamDef, RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
+import PageWrapper from '../shared/PageWrapper';
+import Input from '../shared/Input';
 
-const Wrapper = styled.div`
-  padding: 20px;
-`;
-const Input = styled.div`
-  display: flex;
-
-  > .selection {
-    flex: 1;
-  }
-  > img {
-    cursor: pointer;
-    margin-left: 16px;
-    width: 40px;
-    height: 40px;
-  }   
-`;
 const Result = styled.div`
-   margin-top: 10px;
+  margin-top: 10px;
   display: flex;
 
   > .info {
@@ -117,7 +103,7 @@ export const RpcCall: FC = (): ReactElement => {
   }, [api, rpcs]);
 
   return (
-    <Wrapper>
+    <PageWrapper style={{ background: 'white', padding: '20px' }}>
       <Input>
         <div className="selection">
           <Row>
@@ -134,7 +120,9 @@ export const RpcCall: FC = (): ReactElement => {
             params={params}
           />
         </div>
-        <img onClick={onExec} src={AddSvg} alt="" />
+        <div className="button">
+          <img onClick={onExec} src={AddSvg} alt="" />
+        </div>
       </Input>
       {
         results.map((result, index) =>
@@ -148,6 +136,6 @@ export const RpcCall: FC = (): ReactElement => {
           </Result>
         )
       }
-    </Wrapper>
+    </PageWrapper>
   );
 };

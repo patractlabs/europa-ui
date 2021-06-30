@@ -33,7 +33,7 @@ export enum ActiveTab {
 const tabs = [
   {
     tab: ActiveTab.ChainState,
-    title: 'ChainState',
+    title: 'Chain State',
     link: `/developer/${ActiveTab.ChainState}`,
   },
   {
@@ -43,7 +43,7 @@ const tabs = [
   },
   {
     tab: ActiveTab.RpcCall,
-    title: 'RpcCall',
+    title: 'Rpc Calls',
     link: `/developer/${ActiveTab.RpcCall}`,
   },
   {

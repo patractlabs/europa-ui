@@ -1,11 +1,9 @@
 import React, { FC, ReactElement, useState } from 'react';
-import styled from 'styled-components';
 import { Tabs } from '../../../shared';
+import PageWrapper from '../shared/PageWrapper';
 import { Constants } from './Constants';
 import { RawStorage } from './RawStorage';
 import { Storage } from './Storage';
-
-const Wrapper = styled.div``;
 
 enum TabChoice {
   Storage = 'Storage',
@@ -17,7 +15,7 @@ export const ChainState: FC = (): ReactElement => {
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Storage);
 
   return (
-    <Wrapper>
+    <PageWrapper>
       <Tabs
         style={{ marginTop: '20px' }}
         options={[
@@ -40,6 +38,6 @@ export const ChainState: FC = (): ReactElement => {
         tabChoice === TabChoice.RawStorage &&
           <RawStorage />
       }
-    </Wrapper>
+    </PageWrapper>
   );
 };

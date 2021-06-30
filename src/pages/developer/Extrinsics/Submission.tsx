@@ -11,33 +11,23 @@ import Sections from '../ChainState/Sections';
 import Methods from '../ChainState/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
-import { AddressInput, Style } from '../../../shared';
+import { AddressInput } from '../../../shared';
 import keyring from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { u8aToHex } from '@polkadot/util';
+import Encoded from '../shared/Encoded';
 
 const Wrapper = styled.div`
   padding: 20px;
+  flex: 1;
+  background-color: white;
 `;
 
 const Submit = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
-`;
-const Encoded = styled.div`
-  border: 1px solid ${Style.color.border.default};
-  padding: 6px 8px;
-
-  > .span {
-    color: ${Style.color.label.default};
-  }
-  
-  > .p {
-    color: ${Style.color.label.primary};
-    overflow-wrap: anywhere;
-  }
 `;
 
 interface TypeDefExt extends TypeDef {

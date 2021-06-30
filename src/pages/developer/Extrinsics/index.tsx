@@ -1,10 +1,8 @@
 import React, { FC, ReactElement, useState } from 'react';
-import styled from 'styled-components';
 import { Tabs } from '../../../shared';
+import PageWrapper from '../shared/PageWrapper';
 import { Decode } from './Decode';
 import { Submission } from './Submission';
-
-const Wrapper = styled.div``;
 
 enum TabChoice {
   Submission = 'Submission',
@@ -15,7 +13,7 @@ export const Extrinsic: FC = (): ReactElement => {
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Submission);
 
   return (
-    <Wrapper>
+    <PageWrapper>
       <Tabs
         style={{ marginTop: '20px' }}
         options={[
@@ -33,6 +31,6 @@ export const Extrinsic: FC = (): ReactElement => {
         tabChoice === TabChoice.Decode &&
           <Decode />
       }
-    </Wrapper>
+    </PageWrapper>
   );
 };

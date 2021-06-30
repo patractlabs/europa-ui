@@ -5,11 +5,13 @@ import { ApiContext } from '../../../core';
 import { assert, isHex } from '@polkadot/util';
 import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { Call } from '@polkadot/types/interfaces/runtime';
-import { Style } from '../../../shared';
 import { CallDisplay } from './CallDisplay';
+import Encoded from '../shared/Encoded';
 
 const Wrapper = styled.div`
   padding: 20px;
+  flex: 1;
+  background-color: white;
 `;
 const Input = styled.div`
   display: flex;
@@ -24,18 +26,7 @@ const Input = styled.div`
     height: 40px;
   }   
 `;
-const Encoded = styled.div`
-  border: 1px solid ${Style.color.border.default};
-  padding: 6px 8px;
 
-  > .span {
-    color: ${Style.color.label.default};
-  }
-  
-  > .p {
-    color: ${Style.color.label.primary};
-  }
-`;
 interface ExtrinsicInfo {
   extrinsicCall: Call | null;
   extrinsicError: string | null;
