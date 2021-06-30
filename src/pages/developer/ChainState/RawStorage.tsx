@@ -3,23 +3,12 @@ import { Input as AntInput } from 'antd';
 import styled from 'styled-components';
 import AddSvg from '../../../assets/imgs/add.svg';
 import { ApiContext } from '../../../core';
+import Input from '../shared/Input';
 
 const Wrapper = styled.div`
   padding: 20px;
 `;
-const Input = styled.div`
-  display: flex;
 
-  > .selection {
-    flex: 1;
-  }
-  > img {
-    cursor: pointer;
-    margin-left: 16px;
-    width: 40px;
-    height: 40px;
-  }   
-`;
 const Result = styled.div`
    margin-top: 10px;
   display: flex;
@@ -35,6 +24,16 @@ const Result = styled.div`
   }   
 `;
 
+const StyledInput = styled(AntInput)`
+  height: 48px;
+  border-width: 0px;
+  box-shadow: none;
+  outline: none;
+
+  &:focus {
+    box-shadow: none;
+  }
+`;
 
 export const RawStorage: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
@@ -51,9 +50,11 @@ export const RawStorage: FC = (): ReactElement => {
     <Wrapper>
       <Input>
         <div className="selection">
-          <AntInput onChange={e => setKey(e.target.value)} />
+          <StyledInput onChange={e => setKey(e.target.value)} />
         </div>
-        <img onClick={onExec} src={AddSvg} alt="" />
+        <div className="button">
+          <img onClick={onExec} src={AddSvg} alt="" />
+        </div>
       </Input>
       {
         results.map((result, index) =>

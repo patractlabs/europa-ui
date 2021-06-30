@@ -68,7 +68,7 @@ export const PageTabs = React.memo(styled(PageTabs_)`
       visibility: visible;
     }
     > div {
-      background-color: white;
+      background-color: ${Style.color.bg.default};
 
       a {
         color: ${Style.color.primary};

@@ -181,7 +181,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
               <StyledButton onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</StyledButton>
             </Exec>
             {
-              !message.isMutating &&
+              !message.isMutating && result &&
                 <Result>
                   <span className="type">{ message.returnType && encodeTypeDef(message.returnType) }: </span>
                   <span className="value">{ result }</span>

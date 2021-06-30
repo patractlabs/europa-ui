@@ -3,27 +3,16 @@ import { Col, Row } from 'antd';
 import styled from 'styled-components';
 import { ApiRx } from '@polkadot/api';
 import { ApiContext } from '../../../core';
-import { Sections } from './Sections';
-import { Methods } from './Methods';
+import Sections from './Sections';
+import Methods from './Methods';
 import AddSvg from '../../../assets/imgs/add.svg';
 import type { ConstantCodec } from '@polkadot/metadata/decorate/types';
+import Input from '../shared/Input';
 
 const Wrapper = styled.div`
   padding: 20px;
 `;
-const Input = styled.div`
-  display: flex;
 
-  > .selection {
-    flex: 1;
-  }
-  > img {
-    cursor: pointer;
-    margin-left: 16px;
-    width: 40px;
-    height: 40px;
-  }   
-`;
 const Result = styled.div`
    margin-top: 10px;
   display: flex;
@@ -46,7 +35,7 @@ const createOptions = (api: ApiRx): string[] => {
     .filter((name): number => Object.keys(api.consts[name]).length)
 }
 
-const createMethods = (api: ApiRx, sectionName: string): any[] => {
+const createMethods = (api: ApiRx, sectionName: string) => {
   const section = api.consts[sectionName];
 
   if (!section || Object.keys(section).length === 0) {
@@ -64,6 +53,7 @@ const createMethods = (api: ApiRx, sectionName: string): any[] => {
         key: `${sectionName}_${value}`,
         label: `${value}: ${method.meta.type.toString()}`,
         value,
+        desc: method.meta.documentation.join(''),
       };
     });
 }
@@ -119,7 +109,9 @@ export const Constants: FC = (): ReactElement => {
             </Col>
           </Row>
         </div>
-        <img onClick={onExec} src={AddSvg} alt="" />
+        <div className="button">
+          <img onClick={onExec} src={AddSvg} alt="" />
+        </div>
       </Input>
       {
         results.map((result, index) =>

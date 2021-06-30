@@ -37,7 +37,7 @@ function Toggle ({ className = '', isDisabled, isOverlay, isRadio, label, onChan
       onClick={_onClick}
     >
       {label && <label>{label}</label>}
-      <Switch />
+      <Switch checked={value} />
     </div>
   );
 }

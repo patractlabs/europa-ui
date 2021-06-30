@@ -7,8 +7,8 @@ import { ApiRx } from '@polkadot/api';
 import { getTypeDef } from '@polkadot/types';
 import { GenericCall } from '@polkadot/types';
 import { AccountsContext, ApiContext, handleTxResults } from '../../../core';
-import { Sections } from '../ChainState/Sections';
-import { Methods } from '../ChainState/Methods';
+import Sections from '../ChainState/Sections';
+import Methods from '../ChainState/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
 import { AddressInput, Style } from '../../../shared';
@@ -36,6 +36,7 @@ const Encoded = styled.div`
   
   > .p {
     color: ${Style.color.label.primary};
+    overflow-wrap: anywhere;
   }
 `;
 

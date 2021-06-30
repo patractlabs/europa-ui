@@ -121,9 +121,12 @@ class Params extends React.PureComponent<Props, State> {
           <div className='ui--Params-Content' style={{ paddingLeft: isRoot ? '0px' : '1.75rem' }}>
             {values && params.map(({ name, type }: ParamDef, index: number): React.ReactNode => (
               <Wrapper key={`${name || ''}:${type.toString()}:${index}`} className="param-input">
-                <div className="param">
-                  {this.getName(name, type)} : {this.getType(name, type)}
-                </div>
+                {
+                  this.getType(name, type) !== 'Null' &&
+                    <div className="param">
+                      {this.getName(name, type)} : {this.getType(name, type)}
+                    </div>
+                }
                 <ParamComp
                   defaultValue={values[index]}
                   index={index}
