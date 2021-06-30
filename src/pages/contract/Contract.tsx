@@ -2,16 +2,24 @@ import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Link, useParams } from 'react-router-dom';
 import { contentBase, formatAddress, InfoHeader, Style, Tabs } from '../../shared';
-import { BlocksContext, ApiContext, useContracts, useBalance } from '../../core';
+import { BlocksContext, ApiContext, useContracts, useBalance, useAbi } from '../../core';
 import { Functions } from './Functions';
 import { ContractExtrinsics } from './ContractExtrinsics';
 import { ContractEvents } from './ContractEvents';
+import { UploadAbi } from '../code-hash/UploadAbi';
+import { UploadButton } from '../code-hash';
 
 const Wrapper = styled.div`
   ${contentBase}
   flex: 1;
   display: flex;
   flex-direction: column;
+
+  > .tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
 `;
 const Uploader = styled.div`
   >span {
@@ -34,6 +42,9 @@ export const Contract: FC = (): ReactElement => {
   const { balance } = useBalance(api, address);
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Functions);
   const choosedCode = useMemo(() => contracts.find(contract => contract.address === address), [contracts, address]);
+  const [ show, setShow ] = useState(false);
+  const [ signal, updateSignal ] = useState(0);
+  const { abi } = useAbi(choosedCode?.codeHash || '', signal);
 
   return (
     <Wrapper>
@@ -60,19 +71,25 @@ export const Contract: FC = (): ReactElement => {
           },
         ]
       }/>
-      <Tabs
-        style={{ marginTop: '20px' }}
-        options={[
-          { name: 'Functions', value: TabChoice.Functions },
-          { name: 'Extrinsics', value: TabChoice.Extrinsics },
-          { name: 'Events', value: TabChoice.Events },
-        ]}
-        defaultValue={TabChoice.Functions}
-        onChange={choice => setTabChoice(choice)}
-      ></Tabs>
+      <div className="tabs">
+        <Tabs
+          style={{ marginTop: '20px' }}
+          options={[
+            { name: 'Functions', value: TabChoice.Functions },
+            { name: 'Extrinsics', value: TabChoice.Extrinsics },
+            { name: 'Events', value: TabChoice.Events },
+          ]}
+          defaultValue={TabChoice.Functions}
+          onChange={choice => setTabChoice(choice)}
+        ></Tabs>
+        {
+          !abi &&
+            <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
+        }
+      </div>
       {
         tabChoice === TabChoice.Functions &&
-          <Functions contractAddress={address} />
+          <Functions abi={abi} contractAddress={address} />
       }
       {
         tabChoice === TabChoice.Extrinsics &&
@@ -81,6 +98,15 @@ export const Contract: FC = (): ReactElement => {
       {
         tabChoice === TabChoice.Events &&
           <ContractEvents contractAddress={address} />
+      }
+      {
+        show &&
+          <UploadAbi
+            onCanceled={() => setShow(false)}
+            onCompleted={() => { updateSignal(signal + 1); setShow(false)}}
+            codeHash={choosedCode?.codeHash || ''}
+            blockHeight={choosedCode?.block.height || 0}
+          />
       }
     </Wrapper>
   );

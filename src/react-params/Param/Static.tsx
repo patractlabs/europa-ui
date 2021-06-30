@@ -54,6 +54,7 @@ export default React.memo(styled(StaticParam)`
     height: 32px;
     margin: 0;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
   }
 

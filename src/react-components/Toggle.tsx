@@ -4,6 +4,7 @@
 import { Switch } from 'antd';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
+import { Style } from '../shared';
 
 interface Props {
   className?: string;
@@ -48,6 +49,9 @@ export default React.memo(styled(Toggle)`
     margin: 0 0.5rem;
   }
 
+  .ant-switch-checked {
+    background-color: ${Style.color.link.default};
+  }
   > label,
   > div {
     vertical-align: middle;

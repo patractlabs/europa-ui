@@ -20,6 +20,9 @@ const Item = styled.div<{ hasChild: boolean }>`
     border: 1px solid ${Style.color.border.default};
     overflow: hidden;
     flex: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     line-height: 100%;
   }
 `;

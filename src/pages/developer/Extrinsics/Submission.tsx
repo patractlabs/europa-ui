@@ -155,8 +155,6 @@ export const Submission: FC = (): ReactElement => {
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
     const values = paramValues.map(p => p.value) as any[];
 
-    console.log('values', values.map(v => v.toString()));
-
     exec(...values).signAndSend(pair).pipe(
       catchError(e => {
         message.error(e.message || 'failed');

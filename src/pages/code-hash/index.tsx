@@ -28,7 +28,8 @@ const TabTitle = styled.div`
   align-items: center;
   justify-content: space-between;
 `;
-const UploadButton = styled(Button)`
+export const UploadButton = styled(Button)`
+  margin-bottom: 8px;
   padding: 0px 24px;
   height: 40px;
   border-radius: 26px;
@@ -118,7 +119,10 @@ export const CodeHash: FC = (): ReactElement => {
             <Instances hash={codeHash} />
           </PaginationProvider>
       }
-      <UploadAbi show={show} onCanceled={() => setShow(false)} onCompleted={() => { updateSignal(signal + 1); setShow(false)}} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />
+      {
+        show &&
+          <UploadAbi onCanceled={() => setShow(false)} onCompleted={() => { updateSignal(signal + 1); setShow(false)}} codeHash={codeHash} blockHeight={choosedCode?.block.height || 0} />
+      }
     </Wrapper>
   );
 };

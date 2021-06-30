@@ -112,7 +112,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       // console.log(a.div(new BN(10).pow(new BN(tokenDecimal))).toString());
       console.log('output', query.output?.toHuman());
       
-      setResult(`${query.output?.toHuman()}`);
+      setResult(`${query.output?.toHuman()}` || '<empty>');
       return;
     }
 

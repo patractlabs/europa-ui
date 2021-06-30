@@ -1,8 +1,12 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Button, message, Modal, Upload } from 'antd';
+import { message, Modal, Upload } from 'antd';
 import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
 import type { RcFile } from 'antd/lib/upload';
 import { ApiContext, CodeJson, store } from '../../core';
+import styled from 'styled-components';
+import { ModalMain, Button, Style } from '../../shared';
+import LabeledInput from '../developer/shared/LabeledInput';
+import { Abi } from '@polkadot/api-contract';
 
 const BYTE_STR_0 = '0'.charCodeAt(0);
 const BYTE_STR_X = 'x'.charCodeAt(0);
@@ -26,14 +30,41 @@ function convertResult (result: ArrayBuffer): Uint8Array {
 
   return data;
 }
+const Content = styled(ModalMain)`
+  .content {
+    margin-top: 26px;
+
+    .upload {
+      width: 100%;
+      text-align: center;
+    }
+    .params-input {
+      margin-top: 16px;
+
+      .form {
+        margin: 20px 0px 30px 0px;
+      }
+    }
+    .hint {
+      margin-top: 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 400;
+      color: ${Style.color.label.default};
+    }
+  }
+`;
+
+const DefaultButton = styled(Button)`
+  width: 320px;
+`;
 
 export const UploadAbi: FC<{
   blockHeight: number;
   codeHash: string;
-  show: boolean;
   onCanceled: () => void;
   onCompleted: () => void;
-}> = ({ blockHeight, codeHash, show, onCanceled, onCompleted }): ReactElement => {
+}> = ({ blockHeight, codeHash, onCanceled, onCompleted }): ReactElement => {
   const { genesisHash } = useContext(ApiContext);
   const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
 
@@ -41,9 +72,12 @@ export const UploadAbi: FC<{
     try {
       const data = await file.arrayBuffer();
       const json = u8aToString(convertResult(data));
+      const abi = new Abi(json);
+      const hash = abi.project?.source?.wasmHash?.toString();
+
       setCodeJSON({
         abi: json,
-        codeHash,
+        codeHash: hash,
         name: file.name,
         genesisHash,
         tags: [],
@@ -55,10 +89,10 @@ export const UploadAbi: FC<{
     }
 
     return false;
-  }, [blockHeight, genesisHash, codeHash]);
+  }, [blockHeight, genesisHash]);
 
   const upload = useCallback(() => {
-    if (!codeJSON) {
+    if (!codeJSON || (codeJSON.codeHash && codeJSON.codeHash !== codeHash)) {
       return;
     }
 
@@ -68,13 +102,44 @@ export const UploadAbi: FC<{
 
   return (
       <Modal
-        visible={show}
+        width={560}
+        title={null}
         onCancel={onCanceled}
-        onOk={upload}
+        visible={true}
+        footer={null}
       >
-        <Upload beforeUpload={beforeUpload}>
-          <Button>Upload</Button>
-        </Upload>
+        <Content>
+          <div className="header">
+            <h2>Upload ABI bundle</h2>
+          </div>
+          <div className="content">
+            <div className="upload">
+              <Upload fileList={[]} beforeUpload={beforeUpload}>
+                {
+                  // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                  <a style={{ marginBottom: '16px', width: '100%' }}>Upload Code Bundle</a>
+                }
+              </Upload>
+              {
+                codeJSON &&
+                  <div>
+                    <LabeledInput style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                      <div className="span">Contract name</div>
+                      <div>{codeJSON?.name}</div>
+                    </LabeledInput>
+                    
+                    <LabeledInput error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                      <div className="span">Contract code hash</div>
+                      <div className="value">{codeJSON?.codeHash}</div>
+                    </LabeledInput>
+                  </div>
+              }
+            </div>
+          </div>
+          <div className="footer">
+            <DefaultButton onClick={upload}>Confirm</DefaultButton>
+          </div>
+        </Content>
       </Modal>
   );
 };

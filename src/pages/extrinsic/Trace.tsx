@@ -26,6 +26,13 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
   position: relative;
   background-color: ${props => props.err ? Style.color.bg.error : ''};
   margin-left: ${props => (props.depth - 1) * 20}px;
+
+  .text-overflow {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 15px;
+  }
 `;
 const BorderBase = styled.div<{ depth: number }>`
   position: absolute;
@@ -147,7 +154,7 @@ export const ContractTrace: FC<{
       <Contract depth={trace.depth}>
         <MainInfo>
           <Row style={{ marginBottom: '10px' }}>
-            <Col span={12}>
+            <Col className="text-overflow" span={12}>
               <LabelDefault>From</LabelDefault>
               <ValueDefault>{trace.caller}</ValueDefault>
             </Col>
@@ -157,21 +164,20 @@ export const ContractTrace: FC<{
             </Col>
           </Row>
           <Row>
-            <Col span={12}>
+            <Col className="text-overflow" span={12}>
               <LabelDefault>To</LabelDefault>
               <ValuePrimary>
                 <Link to={`/explorer/contract/${contract?.address.toString()}`}>
-                  {name}
-                  &nbsp;:&nbsp;
+                  {name && name + ' : '}
                   {trace.self_account}
                 </Link>
               </ValuePrimary>
             </Col>
-            <Col span={3}>
+            <Col span={6}>
               <LabelDefault>Gas Left</LabelDefault>
               <ValueDefault>{trace.gas_left}</ValueDefault>
             </Col>
-            <Col span={3}>
+            <Col span={6}>
               <LabelDefault>Gas used</LabelDefault>
               <ValueDefault>-</ValueDefault>
             </Col>

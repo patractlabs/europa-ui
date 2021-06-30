@@ -58,23 +58,30 @@ export const Deploy: FC<{ abi?: Abi; name?: string }> = ({ abi, name }): ReactEl
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
 
   const deploy = useCallback(async () => {
-    console.log('deploy: abi', abi, ' message', message);
-    
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
     
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
     const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
-    console.log('salt:', salt, ',  endowment', value.toString(), ',  args', args, 'sender', address, ' gas:', (new BN(gasLimit)).mul(new BN(1000000)).toString());
+    
+    console.log({
+      salt,
+      endowment: value.toString(),
+      args: args.map(arg => arg.toString()),
+      sender: address, 
+      gasLimit: (new BN(gasLimit)).mul(new BN(1000000)).toString(), 
+    });
     const tx = code.tx[message.method]({
       gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
       value,
       salt,
     }, ...args);
     const account = accounts.find(account => account.address === address);
-    const suri = account?.mnemonic || `//${account?.name}`;
-    const pair = keyring.createFromUri(suri);
+    if (!account) {
+      return
+    }
+    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {
@@ -139,7 +146,6 @@ export const Deploy: FC<{ abi?: Abi; name?: string }> = ({ abi, name }): ReactEl
                 label="max gas allowed"
               />
 
-                  
               <LabeledInput>
                 <div className="span">Caller</div>
                 <AddressInput
