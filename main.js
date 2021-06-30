@@ -20,13 +20,13 @@ function createWindow () {
 
   // console.log('env', process.env.NODE_ENV)
   // win.loadURL('http://localhost:3000/')
-  // return win;
   win.loadFile('./build/index.html')
   // if (process.env.NODE_ENV === 'development') {
   //   win.loadURL('http://localhost:3000/')
   // } else {
   //   win.loadFile('./build/index.html')
   // }
+  return win;
 }
 
 app.whenReady().then(() => {
