@@ -3,8 +3,8 @@ import { Col, Row } from 'antd';
 import styled from 'styled-components';
 import { ApiRx } from '@polkadot/api';
 import { ApiContext } from '../../../core';
-import Sections from './Sections';
-import Methods from './Methods';
+import Sections from '../shared/Sections';
+import Methods from '../shared/Methods';
 import AddSvg from '../../../assets/imgs/add.svg';
 import type { ConstantCodec } from '@polkadot/metadata/decorate/types';
 import Input from '../shared/Input';
@@ -90,7 +90,7 @@ export const Constants: FC = (): ReactElement => {
         <div className="selection">
           <Row>
             <Col span={7}>
-              <Sections defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
+              <Sections span={'selected contant query'} defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
             </Col>
             <Col span={17}>
               <Methods value={method} options={methods} onChange={onMethodChange} />

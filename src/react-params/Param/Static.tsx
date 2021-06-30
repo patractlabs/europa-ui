@@ -50,6 +50,8 @@ function StaticParam ({ asHex, children, childrenPre, className = '', defaultVal
 
 export default React.memo(styled(StaticParam)`
   pre {
+    line-height: 32px;
+    height: 32px;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;

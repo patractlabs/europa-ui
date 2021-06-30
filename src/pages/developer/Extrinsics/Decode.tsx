@@ -7,11 +7,37 @@ import { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { Call } from '@polkadot/types/interfaces/runtime';
 import { CallDisplay } from './CallDisplay';
 import Encoded from '../shared/Encoded';
+import { Style } from '../../../shared';
+import LabeledInput from '../shared/LabeledInput';
 
 const Wrapper = styled.div`
   padding: 20px;
   flex: 1;
   background-color: white;
+
+  .encoded-data {
+    width: 100%;
+  }
+
+  .section-method {
+
+    .section > div, .method > div {
+      width: 100%;
+    }
+    .section {
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      border: 1px solid ${Style.color.border.default};
+      border-right-width: 0px;
+    }
+    .method {
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      border: 1px solid ${Style.color.border.default};
+    }
+  }
 `;
 const Input = styled.div`
   display: flex;
@@ -74,24 +100,42 @@ export const Decode: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <Input>
-        <AntInput onChange={e => _setExtrinsicHex(e.target.value)} />
+      <Input style={{ marginBottom: '20px' }}>
+        <div className="encoded-data">
+          <LabeledInput>
+            <div className="span">Encoded Data</div>
+            <AntInput onChange={e => _setExtrinsicHex(e.target.value)} />
+          </LabeledInput>
+        </div>
       </Input>
       {
         extrinsicFn &&
-          <Row>
-            <Col span={12}>{extrinsicFn.section}</Col>
-            <Col span={12}>{extrinsicFn.method}</Col>
+          <Row className="section-method">
+            <Col className="section" span={12}>
+              <Encoded style={{ borderWidth: '0px' }}>
+                <span>section</span>
+                <p>{extrinsicFn.section}</p>
+              </Encoded>
+            </Col>
+            <Col className="method" span={12}>
+              <Encoded style={{ borderWidth: '0px' }}>
+                <span>method</span>
+                <p>{extrinsicFn.method}</p>
+              </Encoded>
+            </Col>
           </Row>
       }
       {
         extrinsicCall &&
           <CallDisplay value={extrinsicCall} />
       }
-      <Encoded>
-        <span>encoded call hash</span>
-        <p>{extrinsicHash}</p>
-      </Encoded>
+      {
+        extrinsicHash &&
+          <Encoded>
+            <span>encoded call hash</span>
+            <p>{extrinsicHash}</p>
+          </Encoded>
+      }
     </Wrapper>
   );
 };

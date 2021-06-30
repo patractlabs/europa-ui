@@ -11,16 +11,29 @@ const Wrapper = styled.div`
   padding: 20px;
   flex: 1;
   background-color: white;
-`;
 
-const StyledInput = styled(AntInput)`
-  height: 48px;
-  border: 1px solid ${Style.color.border.default};
-  box-shadow: none;
-  outline: none;
-
-  &:focus {
-    box-shadow: none;
+  
+  .selection {
+    > .storage-key {
+      border: 1px solid ${Style.color.border.default};
+      height: 48px;
+      padding: 4px 16px;
+      > .span {
+        height: 16px;
+        font-size: 12px;
+        color: #8c8b8c;
+        line-height: 16px;
+      }
+      > .ant-input {
+        padding-left: 0px;
+        height: 24px;
+        border: none;
+        box-shadow: none;
+        outline: none;
+      }
+      > .ant-input:focus {
+      }
+    }
   }
 `;
 
@@ -39,7 +52,12 @@ export const RawStorage: FC = (): ReactElement => {
     <Wrapper>
       <Input>
         <div className="selection">
-          <StyledInput onChange={e => setKey(e.target.value)} />
+          <div className="storage-key">
+            <div className="span">
+              hex-encoded storage key
+            </div>
+            <AntInput onChange={e => setKey(e.target.value)} />
+          </div>
         </div>
         <div className="button">
           <img onClick={onExec} src={AddSvg} alt="" />

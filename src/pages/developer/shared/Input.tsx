@@ -5,12 +5,17 @@ const Input = styled.div`
 
   > .selection {
     flex: 1;
+    width: 0;
+
+    > .params {
+      padding-top: 20px;
+    }
   }
   > .button {
     margin-left: 16px;
-    height: 48px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    padding-top: 4px;
 
     img {
       cursor: pointer;

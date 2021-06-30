@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
-import { Button, Col, message, Row } from 'antd';
+import { Col, message, Row } from 'antd';
 import styled from 'styled-components';
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { TypeDef } from '@polkadot/types/types';
@@ -7,27 +7,37 @@ import { ApiRx } from '@polkadot/api';
 import { getTypeDef } from '@polkadot/types';
 import { GenericCall } from '@polkadot/types';
 import { AccountsContext, ApiContext, handleTxResults } from '../../../core';
-import Sections from '../ChainState/Sections';
-import Methods from '../ChainState/Methods';
+import Sections from '../shared/Sections';
+import Methods from '../shared/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
-import { AddressInput } from '../../../shared';
+import { AddressInput, Button, Style } from '../../../shared';
 import keyring from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { u8aToHex } from '@polkadot/util';
 import Encoded from '../shared/Encoded';
+import LabeledInput from '../shared/LabeledInput';
+import MoreSvg from '../../../assets/imgs/more.svg';
 
 const Wrapper = styled.div`
   padding: 20px;
   flex: 1;
   background-color: white;
+
 `;
 
 const Submit = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+`;
+const StyledButton = styled(Button)`
+  &:last-child {
+    margin-left: 16px;
+  }
+  height: 40px;
+  padding: 0px 30px;
 `;
 
 interface TypeDefExt extends TypeDef {
@@ -186,10 +196,17 @@ export const Submission: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <AddressInput onChange={setAccountId}/>
-      <Row style={{ marginTop: '10px' }}>
+      <LabeledInput>
+        <div className="span">Caller</div>
+        <AddressInput
+          bordered={false}
+          suffixIcon={<img src={MoreSvg} alt="" />}
+          onChange={setAccountId}
+        />
+      </LabeledInput>
+      <Row style={{ margin: '20px 0px' }}>
         <Col span={7}>
-          <Sections defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
+          <Sections span={'selected extrisnic section'} defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
         </Col>
         <Col span={17}>
           <Methods value={method} options={methods} onChange={onMethodChange} />
@@ -200,17 +217,17 @@ export const Submission: FC = (): ReactElement => {
         onChange={setParamValues}
         params={params}
       />
-      <Encoded>
+      <Encoded style={{ marginTop: '20px' }}>
         <span>encoded call data</span>
         <p>{extrinsicHex}</p>
       </Encoded>
-      <Encoded>
+      <Encoded style={{ marginTop: '20px' }}>
         <span>encoded call hash</span>
         <p>{extrinsicHash}</p>
       </Encoded>
       <Submit>
-        <Button onClick={onUnsignedSubmit}>Submit Unsigned</Button>
-        <Button onClick={onSignedSubmit}>Submit Transaction</Button>
+        <StyledButton onClick={onUnsignedSubmit}>Submit Unsigned</StyledButton>
+        <StyledButton onClick={onSignedSubmit}>Submit Transaction</StyledButton>
       </Submit>
     </Wrapper>
   );

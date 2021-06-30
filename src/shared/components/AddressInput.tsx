@@ -4,11 +4,16 @@ import { AccountsContext } from '../../core';
 
 const { Option } = Select;
 
-export const AddressInput: FC<{ defaultValue?: string; onChange: (address: string)  => void }> = ({ defaultValue, onChange }): ReactElement => {
+export const AddressInput: FC<{
+  suffixIcon?: React.ReactNode;
+  bordered?: boolean;
+  defaultValue?: string;
+  onChange: (address: string)  => void;
+}> = ({ suffixIcon = null, bordered = true, defaultValue, onChange }): ReactElement => {
   const { accounts } = useContext(AccountsContext);
 
   return (
-    <Select defaultValue={defaultValue} style={{ width: '100%' }} onChange={onChange}>
+    <Select suffixIcon={suffixIcon} bordered={bordered} defaultValue={defaultValue} style={{ width: '100%' }} onChange={onChange}>
       {
         accounts.map(account =>
           <Option key={account.address} value={account.address}>{account.name} : {account.address}</Option>

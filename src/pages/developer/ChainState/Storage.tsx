@@ -10,8 +10,8 @@ import { unwrapStorageType } from '@polkadot/types/primitive/StorageKey';
 import { getTypeDef } from '@polkadot/types';
 import { TypeDefInfo } from '@polkadot/types/types';
 import { ApiContext } from '../../../core';
-import Sections from './Sections';
-import Methods from './Methods';
+import Sections from '../shared/Sections';
+import Methods from '../shared/Methods';
 import AddSvg from '../../../assets/imgs/add.svg';
 import { RawParamOnChangeValue, RawParams } from '../../../react-params/types';
 import Params from '../../../react-params';
@@ -172,19 +172,24 @@ export const Storage: FC = (): ReactElement => {
     <Wrapper>
       <Input>
         <div className="selection">
-          <Row style={{ marginBottom: '20px' }}>
+          <Row>
             <Col span={7}>
-              <Sections defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
+              <Sections span={'selected state query'} defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
             </Col>
             <Col span={17}>
               <Methods value={method} options={methods} onChange={onMethodChange} />
             </Col>
           </Row>
-          
-          <Params
-            onChange={setParamValues}
-            params={params}
-          />
+
+          {
+            !!params.length &&
+              <div className="params">
+                <Params
+                  onChange={setParamValues}
+                  params={params}
+                />
+              </div>
+          }
         </div>
         <div className="button">
           <img onClick={onExec} src={AddSvg} alt="" />
