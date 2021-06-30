@@ -84,7 +84,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
       })
       update(newSetting);
     });
-  }, [setting, currentDbPath, update, workspaces]);
+  }, [setting, currentDbPath, update]);
 
   const onAddWorkspace = useCallback(() => {
     setCurrentWorkspace(newWorkspace);
