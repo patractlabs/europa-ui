@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { Button, message, } from 'antd';
 import styled from 'styled-components';
-import { take } from 'rxjs/operators';
+import { take, filter } from 'rxjs/operators';
 import { BusContext, EuropaManageContext, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
@@ -25,20 +25,27 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       workspace: currentWorkspace,
     });
     setStarting(true)
-    startup(currentDbPath, currentWorkspace, err => {
+    startup(currentDbPath, currentWorkspace).then(europa => {
+      europa?.once('close', (code, signal) => {
+        console.log('code', code, signal, typeof code);
 
-      if (err) {
-        console.log(err);
-        message.error('Failed to start europa', 1);
-      } else {
-        connected$.pipe(
-          take(1),
-        ).subscribe(() => {
-          console.log('history.push(explorer);');
+        if (typeof code === 'number') {
           setStarting(false);
-          history.push('/explorer');
-        });
-      }
+          message.error(`Europa exited unexpectly`, 3);
+        }
+      });
+      connected$.pipe(
+        filter(c => !!c),
+        take(1),
+      ).subscribe(() => {
+        console.log('history.push(explorer);');
+        setStarting(false);
+        history.push('/explorer');
+      });
+    }, err => {
+      console.log(err);
+      setStarting(false);
+      message.error('Failed to start europa', 1);
     });
   }, [currentDbPath, currentWorkspace, setChoosed, history, startup, connected$]);
 

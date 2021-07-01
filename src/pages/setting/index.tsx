@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { BlocksContext, BusContext, EuropaManageContext, LogsContext, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
-import { take } from 'rxjs/operators';
+import { take, filter } from 'rxjs/operators';
 
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
   const { setChoosed, choosed } = useContext(SettingContext);
@@ -29,21 +29,27 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
     setStarting(true)
     clearLogs();
     clearBlocks();
-    change(currentDbPath, currentWorkspace, err => {
-      setStarting(false);
+    change(currentDbPath, currentWorkspace).then(europa => {
+      europa?.once('close', (code, signal) => {
+        console.log('code', code, signal, typeof code);
 
-      if (err) {
-        console.log(err);
-        message.error('Failed to start europa', 1);
-      } else {
-        connected$.pipe(
-          take(1),
-        ).subscribe(() => {
-          console.log('history.push(explorer);');
+        if (typeof code === 'number') {
           setStarting(false);
-          history.push('/explorer');
-        });
-      }
+          message.error(`Europa exited unexpectly`, 3);
+        }
+      });
+      connected$.pipe(
+        filter(c => !!c),
+        take(1),
+      ).subscribe(() => {
+        console.log('history.push(explorer);');
+        setStarting(false);
+        history.push('/explorer');
+      });
+    }, err => {
+      console.log(err);
+      setStarting(false);
+      message.error('Failed to start europa', 1);
     });
   }, [currentDbPath, currentWorkspace, setChoosed, history, change, clearLogs, clearBlocks, connected$]);
 

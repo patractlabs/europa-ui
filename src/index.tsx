@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import { AccountsProvider, BusProvider, SettingProvider, BlocksProvider, ApiProvider, LogsProvider, EuropaManageProvider } from './core';
+import { BrowserRouter } from 'react-router-dom';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,7 +14,9 @@ ReactDOM.render(
             <LogsProvider>
               <BlocksProvider>
                 <AccountsProvider>
-                  <App />
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
                 </AccountsProvider>
               </BlocksProvider>
             </LogsProvider>

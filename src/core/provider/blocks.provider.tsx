@@ -130,6 +130,7 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
 
   const clear = useCallback(() => {
     blocksRef.current = [];
+    console.log('clear blocks')
     setBlocks([]);
   }, []);
 
@@ -158,6 +159,7 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
     retriveLatestBlocks(api).then(
       _blocks => {
         blocksRef.current = _blocks;
+        console.log('retive blocks', _blocks);
         setBlocks(_blocks);
       },
       () => {},
@@ -178,6 +180,7 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
             extrinsics,
           })
         ]);
+        console.log('update blocks', blocksRef.current);
         setBlocks(blocksRef.current);
       }),
       () => {},
