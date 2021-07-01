@@ -86,6 +86,14 @@ jobs:
       - name: Rename artifact
         run: yarn run rename:artifact
 
+      - name: Executable Application
+        run: chmod +x dist/europa
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
+
+      - name: echo
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'mac')
+        run: ls -al ./dist
+
       - name: Get the version for windows
         if: startsWith(matrix.os, 'win')
         id: get_version_win
