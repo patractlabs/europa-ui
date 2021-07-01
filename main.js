@@ -16,6 +16,7 @@ function createWindow () {
       enableRemoteModule:true,
     },
   })
+  win.setMenuBarVisibility(false);
 
   win.openDevTools({mode:'detach'})
 

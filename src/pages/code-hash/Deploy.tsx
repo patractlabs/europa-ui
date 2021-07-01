@@ -14,13 +14,19 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import LabeledInput from '../developer/shared/LabeledInput';
 import MoreSvg from '../../assets/imgs/more.svg';
+import RawData from './RawData';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
   display: flex;
   justify-content: center;
-  padding: 60px 0px;
+  padding: 20px;
+  flex: 1;
+  height: ${props => !props.hasAbi ? 0 : '' };
 
+  .deploy {
+    padding: 40px 0px;
+  }
   .form {
     width: 480px;
     margin: 16px 0px 30px 0px;
@@ -37,7 +43,7 @@ const ButtonPrimary = styled.button`
   border-width: 0px;
 `;
 
-export const Deploy: FC<{ abi?: Abi; name?: string }> = ({ abi, name }): ReactElement => {
+export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi, name, codeHash }): ReactElement => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ args, setArgs ] = useState<any[]>([]);
@@ -106,10 +112,11 @@ export const Deploy: FC<{ abi?: Abi; name?: string }> = ({ abi, name }): ReactEl
   }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal]);
 
   return (
-    <Wrapper>
+    <Wrapper hasAbi={!!abi}>
       {
-        !abi ? 'Please upload the ABI first' :
-          <div>
+        !abi ?
+          <RawData codeHash={codeHash} /> :
+          <div className="deploy">
             <LabeledInput>
               <div className="span">Contract name</div>
               <div>{name}</div>

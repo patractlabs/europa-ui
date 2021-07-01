@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
 import { Transfer, formatAddress, lookForDestAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
+import { formatBalance } from '@polkadot/util';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -40,7 +41,7 @@ type ExtenedExtrinsic = Extrinsic & {
 export const EOA: FC = (): ReactElement => {
   const { address } = useParams<{ address: string }>();
   const { blocks } = useContext(BlocksContext);
-  const { api } = useContext(ApiContext);
+  const { api, tokenDecimal } = useContext(ApiContext);
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
   const { balance } = useBalance(api, address);
 
@@ -85,7 +86,7 @@ export const EOA: FC = (): ReactElement => {
               label: 'Balance',
               align: 'right',
               render:
-                <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
+                <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{formatBalance(balance, {}, tokenDecimal)} DOT</span>
             },
           ]
         }/>

@@ -3,11 +3,15 @@ import React, { FC, useMemo, ReactElement, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ApiContext } from '../../core';
 import { Style } from '../../shared';
+import RawData from '../code-hash/RawData';
 import { Message } from './Message';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ hasAbi: boolean }>`
   padding: 20px;
   background-color: white;
+  flex: 1;
+  display: flex;
+  height: ${props => !props.hasAbi ? 0 : '' };
 `;
 
 enum Section {
@@ -74,7 +78,7 @@ const Tabs: FC<{
   );
 };
 
-export const Functions: FC<{ contractAddress: string, abi?: Abi }> = ({ contractAddress, abi }): ReactElement => {
+export const Functions: FC<{ contractAddress: string; abi?: Abi; codeHash?: string }> = ({ contractAddress, abi, codeHash }): ReactElement => {
   const { api } = useContext(ApiContext);
   const [ section, setSection ] = useState<Section>(Section.Read);
 
@@ -93,13 +97,10 @@ export const Functions: FC<{ contractAddress: string, abi?: Abi }> = ({ contract
   }, [api, abi, contractAddress]);
 
   return (
-    <Wrapper>
+    <Wrapper hasAbi={!!abi && !!contract}>
       {
-        (!abi || !contract) &&
-          'Please upload ABI'
-      }
-      {
-        abi && contract &&
+        (!abi || !contract) ?
+          <RawData codeHash={codeHash} /> :
           <div>
             <Tabs
               style={{ marginBottom: '20px' }}

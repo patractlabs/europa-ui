@@ -205,10 +205,10 @@ export const ContractTrace: FC<{
                           :
                           trace.args
                       }</Args>
-                      {
+                      {/* {
                         !abi &&
                           <Button>Decode Parameters</Button>
-                      }
+                      } */}
                     </div>
                   </Line>
                 </Col>

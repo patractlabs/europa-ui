@@ -8,6 +8,7 @@ import { ContractExtrinsics } from './ContractExtrinsics';
 import { ContractEvents } from './ContractEvents';
 import { UploadAbi } from '../code-hash/UploadAbi';
 import { UploadButton } from '../code-hash';
+import { formatBalance } from '@polkadot/util';
 
 const Wrapper = styled.div`
   ${contentBase}
@@ -35,7 +36,7 @@ enum TabChoice {
 }
 
 export const Contract: FC = (): ReactElement => {
-  const { api } = useContext(ApiContext);
+  const { api, tokenDecimal } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
   const { address } = useParams<{ address: string }>();
@@ -67,7 +68,7 @@ export const Contract: FC = (): ReactElement => {
             label: 'Balance',
             align: 'right',
             render:
-              <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{balance?.toString()} DOT</span>
+              <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{formatBalance(balance, {}, tokenDecimal)} DOT</span>
           },
         ]
       }/>
@@ -89,7 +90,7 @@ export const Contract: FC = (): ReactElement => {
       </div>
       {
         tabChoice === TabChoice.Functions &&
-          <Functions abi={abi} contractAddress={address} />
+          <Functions abi={abi} contractAddress={address} codeHash={choosedCode?.codeHash} />
       }
       {
         tabChoice === TabChoice.Extrinsics &&

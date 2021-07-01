@@ -16,7 +16,7 @@ const Content = styled(ModalMain)`
     }
     .ant-input {
       width: 320px;
-      border: 1px solid #beac92;
+      border: 1px solid ${Style.color.button.primary};
       outline: none;
       height: 56px;
       font-size: 24px;
