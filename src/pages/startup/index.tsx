@@ -16,7 +16,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const history = useHistory();
 
   const onStart = useCallback(() => {
-    if (!currentWorkspace || !currentDbPath) {
+    if (!currentDbPath) {
       return;
     }
 
@@ -29,7 +29,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 
-        if (typeof code === 'number') {
+        if (!!code) {
           setStarting(false);
           message.error(`Europa exited unexpectly`, 3);
         }
@@ -51,7 +51,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 
   return (
     <div className={className}>
-      <Button loading={starting} className="start-button" onClick={onStart} disabled={!currentDbPath || !currentWorkspace}>
+      <Button loading={starting} className="start-button" onClick={onStart} disabled={!currentDbPath}>
         Start
       </Button>
 

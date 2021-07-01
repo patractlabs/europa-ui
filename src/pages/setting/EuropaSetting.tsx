@@ -32,13 +32,10 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
     if (t !== 2) {
       choosed.database && setCurrentDbPath(choosed.database);
       choosed.workspace && setCurrentWorkspace(choosed.workspace);
-      console.log('t', t, ' set 1 db:', choosed.database, 'workspace', getDefaultWorkspace(setting, choosed.workspace));
       return;
     }
 
     const dbPath = setting.databases[0]?.path || '';
-
-    console.log('t', t, ' set 2 db:', dbPath, 'workspace', getDefaultWorkspace(setting, dbPath));
 
     setCurrentDbPath(dbPath);
     setCurrentWorkspace(getDefaultWorkspace(setting, dbPath));
@@ -63,8 +60,6 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
 
     ipcRenderer.send('req:choose-dir');
     ipcRenderer.once('res:choose-dir', (event, databasePath) => {
-      console.log('dir', databasePath);
-
       if (currentDbPath === databasePath) {
         return;
       }
@@ -171,7 +166,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
 
       <div className="select-col">
         <div className="select-wrapper">
-          <Select className="workspace-select" value={currentWorkspace} onChange={(value: string) => setCurrentWorkspace(value)}>
+          <Select allowClear={true} className="workspace-select" value={currentWorkspace} onChange={(value: string) => setCurrentWorkspace(value)}>
             {
               workspaces.map(workspace =>
                 <Option value={workspace.name} key={workspace.name}>{workspace.name}</Option>

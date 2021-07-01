@@ -7,13 +7,13 @@ import type * as OS from 'os';
 
 interface EuropaManageContextProps {
   europa?: ChildProcess.ChildProcessWithoutNullStreams;
-  startup: (db: string, workspace: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
-  change: (db: string, workspace: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  startup: (db: string, workspace?: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  change: (db: string, workspace?: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
 }
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
 
-const startEuropa = async (db: string, workspace: string): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
+const startEuropa = async (db: string, workspace?: string): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
   if (!requireModule.isElectron) {
     return Promise.resolve(undefined);
   }
@@ -46,7 +46,7 @@ const startEuropa = async (db: string, workspace: string): Promise<ChildProcess.
     } catch(e) {}
   
     console.log(binPath, db, workspace)
-    const europa = childProcess.spawn(binPath, [`-d=${db}`, `-w=${workspace}`]);
+    const europa = childProcess.spawn(binPath, [`-d=${db}`].concat(workspace ? `-w=${workspace}` : []));
     if (europa.pid) {
       resolve(europa);
     } else {
@@ -62,7 +62,7 @@ export const EuropaManageProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
 
-    const startup = useCallback(async (db: string, workspace: string) => {
+    const startup = useCallback(async (db: string, workspace?: string) => {
       const europa = await startEuropa(db, workspace);
 
       setEuropa(europa);
@@ -70,7 +70,7 @@ export const EuropaManageProvider = React.memo(
       return europa;
     }, []);
 
-    const change = useCallback(async (db: string, workspace: string) => {
+    const change = useCallback(async (db: string, workspace?: string) => {
       europa?.kill();
       return await startup(db, workspace);
     }, [europa, startup]);

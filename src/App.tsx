@@ -30,9 +30,6 @@ const Main: FC = (): ReactElement => {
     <Wrapper>
       <Header />
       <Switch>
-        <Route exact path="/">
-          <Startup />
-        </Route>
         <Route path='/explorer' exact>
           <Explorer />
         </Route>
@@ -93,6 +90,9 @@ function App() {
   return (
     <Switch>
       <Route exact path="/">
+        <Startup />
+      </Route>
+      <Route path="/**/*/index.html">
         <Startup />
       </Route>
       <Route path='/'>

@@ -29,7 +29,7 @@ export interface Setting {
 
 interface Choosed {
   database: string;
-  workspace: string;
+  workspace?: string;
 }
 
 interface SettingContextProps {

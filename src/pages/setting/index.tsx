@@ -18,7 +18,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
   const { connected$ } = useContext(BusContext);
 
   const onChange = useCallback(() => {
-    if (!currentWorkspace || !currentDbPath) {
+    if (!currentDbPath) {
       return;
     }
 
@@ -33,7 +33,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 
-        if (typeof code === 'number') {
+        if (!!code) {
           setStarting(false);
           message.error(`Europa exited unexpectly`, 3);
         }
@@ -55,7 +55,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
 
   return (
     <div className={className}>
-      <Button loading={starting} className="change-button" onClick={onChange} disabled={!currentDbPath || !currentWorkspace || (currentWorkspace === choosed.workspace && currentDbPath === choosed.database)}>
+      <Button loading={starting} className="change-button" onClick={onChange} disabled={!currentDbPath || (currentWorkspace === choosed.workspace && currentDbPath === choosed.database)}>
         Change
       </Button>
 
