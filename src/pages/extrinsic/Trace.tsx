@@ -105,19 +105,6 @@ const Args = styled.div`
   flex: 1;
 `;
 
-const Button = styled.button`
-  margin-top: 10px;
-  padding: 0px 12px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #FFFFFF;
-  line-height: 32px;
-  height: 32px;
-  background: ${Style.color.primary};
-  border-width: 0px;
-  cursor: pointer;
-`;
-
 const getIdentifer = (abi: Abi, selector: string): string => {
   return abi.messages.find(c => c.selector.toString() === selector)?.identifier ||
     abi.constructors.find(c => c.selector.toString() === selector)?.identifier || selector;

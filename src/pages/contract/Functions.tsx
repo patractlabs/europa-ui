@@ -12,6 +12,9 @@ const Wrapper = styled.div<{ hasAbi: boolean }>`
   flex: 1;
   display: flex;
   height: ${props => !props.hasAbi ? 0 : '' };
+  > .decoded {
+    width: 100%;
+  }
 `;
 
 enum Section {
@@ -101,7 +104,7 @@ export const Functions: FC<{ contractAddress: string; abi?: Abi; codeHash?: stri
       {
         (!abi || !contract) ?
           <RawData codeHash={codeHash} /> :
-          <div>
+          <div className="decoded">
             <Tabs
               style={{ marginBottom: '20px' }}
               options={[
