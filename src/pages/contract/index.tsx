@@ -92,6 +92,11 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
   );
 };
 
+function getAbi(hash: string, redspotsContracts: RedspotContract[]): Abi | undefined {
+  return store.getCode(hash)?.contractAbi ||
+    redspotsContracts.find(code => code.codeHash === hash)?.abi;
+}
+
 function formatContractName(codeHash: string, redspotsContracts: RedspotContract[]): string {
   return store.getCode(codeHash)?.json.name ||
     redspotsContracts.find(code => code.codeHash === codeHash)?.name ||
@@ -145,7 +150,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '10%',
             key: 'operation',
             render: (_, record) => <span>{
-              !store.getCode(record.hash)?.json && !redspotsContracts.find(code => code.codeHash === record.hash) ?
+              !getAbi(record.hash, redspotsContracts) ?
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedCode(record);
@@ -154,7 +159,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedContract({
-                    abi: store.getCode(record.hash)?.contractAbi,
+                    abi: getAbi(record.hash, redspotsContracts),
                     name: formatContractName(record.hash, redspotsContracts),
                   });
                   toggleUpload(true);
@@ -170,17 +175,23 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             contractName={choosedContract?.name}
             onCancel={() => {
               toggleUpload(false);
-              setChoosedContract(undefined);
             }}
             onCompleted={() => {
               toggleUpload(false);
-              setChoosedContract(undefined);
             }}
           />
       }
       {
         showUploadAbi &&
-          <UploadAbi onCanceled={() => toggleUploadAbi(false)} onCompleted={() => { toggleUploadAbi(false)}} codeHash={choosedCode?.hash || ''} blockHeight={choosedCode?.block.height || 0} />
+          <UploadAbi
+            onCanceled={() => {
+              toggleUploadAbi(false);
+            }}
+            onCompleted={() => {
+              toggleUploadAbi(false);
+            }}
+            codeHash={choosedCode?.hash || ''} blockHeight={choosedCode?.block.height || 0} 
+          />
       }
 
       <Title style={{ marginTop: '20px' }}>

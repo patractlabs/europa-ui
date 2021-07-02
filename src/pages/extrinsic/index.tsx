@@ -19,7 +19,7 @@ const ExtrinsicsR: FC = (): ReactElement => {
 
   return (
     <PaginationProvider>
-      <Extrinsics extrinsics={extrinsics} />
+      <Extrinsics paginationStyle={{ padding: '16px 20px 30px 20px' }} extrinsics={extrinsics} tdHighlight={true} />
     </PaginationProvider>
   );
 };

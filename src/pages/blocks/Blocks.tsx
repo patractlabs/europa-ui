@@ -3,20 +3,30 @@ import styled from 'styled-components';
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import { BlocksContext, PaginationContext } from '../../core';
-import { PageLine, Style } from '../../shared';
+import { formatBlockTimestamp, PageLine, Style } from '../../shared';
 
 const Wrapper = styled.div`
-  & {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  > .header-fill {
+    position: absolute;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
+  }
+  .ant-table {
+    background: rgba(0,0,0,0);
   }
   .ant-table-thead > tr > th {
-    background: ${Style.color.primary};
+    background: rgba(0,0,0,0);
+    padding: 20px 14px 8px 20px;
     color: white;
-    width: 98px;
     font-weight: 600;
+  }
+  .ant-table-tbody > tr > td {
+    padding: 14px 20px;
   }
 `;
 
@@ -35,6 +45,7 @@ export const Blocks: FC = (): ReactElement => {
 
   return (
     <Wrapper>
+      <div className="header-fill"></div>
       <Table
         rowKey={record => record.hash.toString()}
         locale={{emptyText: 'No Data'}}
@@ -51,7 +62,7 @@ export const Blocks: FC = (): ReactElement => {
             title: 'Timestamp',
             width: '25%',
             key: 'time',
-            render: (_, record) => <span>{(new Date(parseInt(record.extrinsics.find(extrinsic => extrinsic.method.section === 'timestamp' && extrinsic.method.method === 'set')?.method.args[0].toString() || ''))).toUTCString()}</span>
+            render: (_, record) => <span>{formatBlockTimestamp(record)}</span>
           },
           {
             title: 'Hash',
@@ -69,7 +80,7 @@ export const Blocks: FC = (): ReactElement => {
       />
 
       <PageLine style={{
-        padding: '30px 20px'
+        padding: '16px 20px 30px 20px'
       }}/>
     </Wrapper>
   );

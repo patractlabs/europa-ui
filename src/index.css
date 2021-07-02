@@ -111,4 +111,12 @@ body #root {
   /* overflow: hidden; */
   /* text-overflow: ellipsis; */
   word-wrap: break-word;
+  border-color: #DEDEDE;
+}
+.ant-table-thead > tr > th {
+  word-break: break-all;
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
+  word-wrap: break-word;
+  border-color: #DEDEDE;
 }

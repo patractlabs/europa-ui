@@ -12,3 +12,5 @@ export * from './Args';
 export * from './InfoHeader';
 export * from './PageLine';
 export * from './PageTabs';
+export * from './Event';
+export * from './Events';

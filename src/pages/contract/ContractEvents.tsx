@@ -6,6 +6,8 @@ import { isRelatedCall, isRelatedInstantiation } from './ContractExtrinsics';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
+  flex: 1;
+  display: flex;
 `;
 
 export const ContractEvents: FC<{ contractAddress: string }> = ({ contractAddress }): ReactElement => {

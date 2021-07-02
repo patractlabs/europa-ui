@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useContext, useEffect, useMemo } from 'react';
+import React, { CSSProperties, FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { PaginationContext } from '../../core';
 import { PageLine } from './index';
@@ -6,7 +6,9 @@ import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
+  flex: 1;
   > .content {
+    background-color: white;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -18,7 +20,11 @@ const Wrapper = styled.div`
   flex-direction: column;
 `;
 
-export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }): ReactElement => {
+export const Events: FC<{
+  events: EventRecord[];
+  paginationStyle?: CSSProperties;
+  showIndex?: boolean;
+}> = ({ events: eventsSource, paginationStyle = {}, showIndex = false }): ReactElement => {
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
   const events = useMemo(
     () =>
@@ -33,11 +39,11 @@ export const Events: FC<{ events: EventRecord[] }> = ({ events: eventsSource }):
       <div className="content">
         {
           events.map((event, index) =>
-            <Event key={index} event={event} />
+            <Event showIndex={showIndex} key={index} event={event} />
           )
         }
       </div>
-      <PageLine style={{ paddingTop: '30px' }} />
+      <PageLine style={{ paddingTop: '16px', ...paginationStyle }} />
     </Wrapper>
   );
 };

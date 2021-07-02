@@ -15,7 +15,7 @@ export const ExtrinsicEvents: FC = (): ReactElement => {
   );
 
   return (
-    <PaginationProvider defaultPageSize={3} >
+    <PaginationProvider>
       <Events events={events} />
     </PaginationProvider>
   );

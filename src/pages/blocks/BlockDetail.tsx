@@ -8,6 +8,11 @@ import type { EventRecord } from '@polkadot/types/interfaces/system';
 import States from './States';
 
 const Wrapper = styled.div`
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
   .info-table .ant-table-tbody > tr > td {
     padding: 12px 20px;
     height: 42px;
@@ -41,9 +46,12 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
   const events = extrinsics.reduce((events: EventRecord[], extrinsic) => events.concat(extrinsic.events), []);
 
   return (
-    <div>
+    <div style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
       <Tabs
-        style={{ marginTop: '20px' }}
         options={[
           { name: 'Extrinsics', value: TabChoice.Extrinsics },
           { name: 'Events', value: TabChoice.Events },
@@ -56,13 +64,13 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
       {
         tabChoice === TabChoice.Extrinsics &&
           <PaginationProvider>
-            <Extrinsics extrinsics={extrinsics} />
+            <Extrinsics showPagination={false} extrinsics={extrinsics} />
           </PaginationProvider>
       }
   
       {
         tabChoice === TabChoice.Events &&
-          <PaginationProvider>
+          <PaginationProvider defaultPageSize={8}>
             <Events events={events} />
           </PaginationProvider>
       }

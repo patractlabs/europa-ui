@@ -4,10 +4,10 @@ import { BlocksContext, Extrinsic, PaginationProvider } from '../../core';
 import { ExtendedExtrinsic, Extrinsics } from '../../shared';
 
 const Wrapper = styled.div`
-  background-color: white;
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding-bottom: 10px;
 `;
 
 // const isTransfer = (extrinsic: Extrinsic, contractAddress: string): boolean => {};

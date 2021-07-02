@@ -1,7 +1,7 @@
 import React, { FC, ReactElement } from 'react';
 import { PaginationProvider } from './core';
 import { Header } from './pages/header/Header';
-import { Route, Switch, Redirect, useLocation } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { Explorer } from './pages/explorer/Explorer';
 import SettingPage from './pages/setting';
 import { Developer } from './pages/developer/Developer';
@@ -50,7 +50,7 @@ const Main: FC = (): ReactElement => {
           <Accounts />
         </Route>
         <Route path='/block' exact>
-          <PaginationProvider defaultPageSize={10}>
+          <PaginationProvider defaultPageSize={15}>
             <Blocks />
           </PaginationProvider>
         </Route>
@@ -84,9 +84,7 @@ const Main: FC = (): ReactElement => {
 };
 
 function App() {
-  const location = useLocation();
   
-  console.log('locaton', location?.pathname, location);
   return (
     <Switch>
       <Route exact path="/">

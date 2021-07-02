@@ -12,6 +12,9 @@ import JumpToBlock from './JumpToBlock';
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
 
+  .ant-table-tbody > tr > td {
+    padding: 12px 20px;
+  }
   .viewing-block {
     position: fixed;
     display: flex;

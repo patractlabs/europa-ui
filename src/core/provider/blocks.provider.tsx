@@ -5,13 +5,13 @@ import { zip } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 import type { AnyTuple } from '@polkadot/types/types';
 import { BusContext } from './bus.provider';
 import { filter, skip } from 'rxjs/operators';
+import type { ExtendedEventRecord } from '../../shared';
 
 export type Extrinsic = GenericExtrinsic<AnyTuple> & {
-  events: EventRecord[];
+  events: ExtendedEventRecord[];
   successed: boolean;
 }
 
@@ -45,7 +45,7 @@ const patchBlocks = (oldBlocks: Block[], newBlocks: Block[]) => {
   ];
 };
 
-const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
+const retriveBlock = async (api: ApiRx, blockHash: string, height: number): Promise<{
   block: SignedBlock;
   extrinsics: Extrinsic[];
 }> => {
@@ -55,10 +55,15 @@ const retriveBlock = async (api: ApiRx, blockHash: string): Promise<{
   ).toPromise();
 
   const extrinsics: Extrinsic[] = block.block.extrinsics.map((extrinsic, index) => {
-    const _events = events.filter(({ phase }) =>
-      phase.isApplyExtrinsic &&
-        phase.asApplyExtrinsic.eq(index)
-    );
+    const _events: ExtendedEventRecord[] = events
+      .map((event, eventIndex): ExtendedEventRecord => Object.assign(event, {
+        indexInBlock: eventIndex + 1,
+        blockHeight: height,
+      }))
+      .filter(({ phase }) =>
+        phase.isApplyExtrinsic &&
+          phase.asApplyExtrinsic.eq(index)
+      );
 
     return Object.assign(extrinsic, {
       events: _events,
@@ -85,7 +90,7 @@ const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Pr
       .map(async (_, i) => {
         try {
           const blockHash = await api.rpc.chain.getBlockHash(startHeight + i).toPromise();
-          const { block, extrinsics } = await retriveBlock(api, blockHash.toString());
+          const { block, extrinsics } = await retriveBlock(api, blockHash.toString(), startHeight + i);
 
           return Object.assign(block, {
             blockHash: blockHash.toString(),
@@ -130,7 +135,6 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
 
   const clear = useCallback(() => {
     blocksRef.current = [];
-    console.log('clear blocks')
     setBlocks([]);
   }, []);
 
@@ -155,7 +159,6 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
       return;
     }
 
-    console.log('update', signal)
     retriveLatestBlocks(api).then(
       _blocks => {
         blocksRef.current = _blocks;
@@ -171,6 +174,7 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
         const { block, extrinsics } = await retriveBlock(
           api,
           header.hash.toString(),
+          header.number.toNumber(),
         );
         
         blocksRef.current = patchBlocks(blocksRef.current, [
@@ -180,7 +184,6 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
             extrinsics,
           })
         ]);
-        console.log('update blocks', blocksRef.current);
         setBlocks(blocksRef.current);
       }),
       () => {},

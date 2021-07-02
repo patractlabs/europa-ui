@@ -125,8 +125,6 @@ export const Submission: FC = (): ReactElement => {
     const exec = api.tx[section][method.value];
     const values = paramValues.map(p => p.value) as any[];
 
-    console.log('values', values.map(v => v.toString()));
-
     exec(...values).send().pipe(
       catchError(e => {
         message.error(e.message || 'failed');

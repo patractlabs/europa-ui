@@ -1,4 +1,4 @@
-import { Extrinsic } from '../../core/provider/blocks.provider';
+import { Block, Extrinsic } from '../../core/provider/blocks.provider';
 
 export const formatAddress = (address: string, len = 15) => {
   if (!address || address.length < len) {
@@ -40,5 +40,24 @@ export const lookForTranferedValue = (extrinsic: Extrinsic): string => {
 
   return '-';
 };
+
+export const getBlockTimestamp = (block: Block): number => {
+  const setTimeExtrinsic = block.extrinsics.find(extrinsic =>
+    extrinsic.method.section === 'timestamp' && extrinsic.method.method === 'set'
+  );
+  const timestamp = parseInt(setTimeExtrinsic?.method.args[0].toString() || '');
+
+  return timestamp;
+}
+
+export const formatBlockTimestamp = (block: Block): string => {
+  const timestamp = getBlockTimestamp(block);
+
+  if (`${timestamp}` === 'NaN') {
+    return '-';
+  }
+  
+  return (new Date(timestamp)).toUTCString();
+}
 
 export * from './require';

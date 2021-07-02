@@ -326,7 +326,7 @@ export const UploadContract: FC<{
         </div>
         <div className="footer">
           {
-            codeJSON ?
+            abi ?
               <DefaultButton onClick={deploy}>Deploy</DefaultButton> :
               <Upload fileList={[]} beforeUpload={onUpload}>
                 <DefaultButton>Upload ABI Bundle</DefaultButton>

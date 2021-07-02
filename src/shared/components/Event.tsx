@@ -12,28 +12,44 @@ const Wrapper = styled.div`
 const InfoLine = styled.div`
   cursor: pointer;
   display: flex;
-  height: 48px;
+  height: 50px;
   justify-content: space-between;
   align-items: center;
   padding: 0px 20px;
   color: ${Style.color.label.primary};
-`;
-const DetailToggle = styled.div`
-  user-select: none;
-  display: flex;
-  align-items: center;
 
-  > span {
-    color: ${Style.color.primary};
-    margin-right: 4px;
+  > .event-name {
+    width: 50%;
+    font-weight: 600;
+  }
+  > .index {
+    width: 30%;
+  }
+  > .togglo-detail {
+    width: 20%;
+    user-select: none;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    
+    > span {
+      color: ${Style.color.primary};
+      margin-right: 4px;
+    }
   }
 `;
+
 const Detail = styled.div`
   background: ${Style.color.bg.second};
   padding: 20px 21px;
 `;
 
-export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
+export interface ExtendedEventRecord extends EventRecord {
+  blockHeight?: number;
+  indexInBlock?: number;
+};
+
+export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({ event, showIndex = false }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
   const { metadata } = useContext(ApiContext);
 
@@ -66,13 +82,17 @@ export const Event: FC<{ event: EventRecord }> = ({ event }): ReactElement => {
   return (
     <Wrapper>
       <InfoLine onClick={() => setExpanded(!expanded)}>
-        <span>{event.event.section.toString()}.{event.event.method.toString()}</span>
-        <DetailToggle>
+        <div className="event-name">{event.event.section.toString()}.{event.event.method.toString()}</div>
+        {
+          showIndex &&
+            <div className="index">{event.blockHeight} - {event.indexInBlock}</div>
+        }
+        <div className="togglo-detail">
           <span>
             Details
           </span>
           <img src={MoreSvg} alt="" style={{ transform: expanded ? 'scaleY(-1)' : '' }} />
-        </DetailToggle>
+        </div>
       </InfoLine>
       {
         expanded &&
