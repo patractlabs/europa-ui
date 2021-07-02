@@ -68,7 +68,8 @@ export const CodeHash: FC = (): ReactElement => {
   const name = useMemo(() =>
     store.getCode(codeHash)?.json.name ||
       redspotContracts.find(code => code.codeHash === codeHash)?.name
-  , [redspotContracts, codeHash]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  , [redspotContracts, codeHash, signal]);
 
   return (
     <Wrapper>

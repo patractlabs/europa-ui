@@ -6,6 +6,7 @@ import { store, BlocksContext, ApiContext, useContracts, DeployedContract, Deplo
 import { formatAddress, PageTabs, Style } from '../../shared';
 import { Table } from 'antd';
 import type { Abi } from '@polkadot/api-contract';
+import { UploadAbi } from '../code-hash/UploadAbi';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -53,7 +54,7 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
   return (
     <InstancesWrapper>
       <Title>
-        <label>All Contracts</label>
+        <label>All Contract Instances</label>
       </Title>
       <Table
         rowKey={record => record.address}
@@ -65,7 +66,7 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
             title: <span>Name</span>,
             width: '20%',
             key: 'name',
-            render: (_, record) => <span>{store.getCode(record.codeHash)?.json.name || redspotsContracts.find(code => code.codeHash === record.codeHash)?.name}</span>,
+            render: (_, record) => <span>{formatContractName(record.codeHash, redspotsContracts)}</span>,
           },
           {
             title: <span>Address</span>,
@@ -91,14 +92,17 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
   );
 };
 
-function getContractName(record: DeployedCode, redspotsContracts: RedspotContract[]): string {
-  return store.getCode(record.hash)?.json.name ||
-    redspotsContracts.find(code => code.codeHash === record.hash)?.name ||
-    '';
+function formatContractName(codeHash: string, redspotsContracts: RedspotContract[]): string {
+  return store.getCode(codeHash)?.json.name ||
+    redspotsContracts.find(code => code.codeHash === codeHash)?.name ||
+    '<unknown>';
 }
+
 const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }> = ({ codes, redspotsContracts }): ReactElement => {
   const [ showUpload, toggleUpload ] = useState(false);
+  const [ showUploadAbi, toggleUploadAbi ] = useState(false);
   const [ choosedContract, setChoosedContract ] = useState<{ abi?: Abi; name: string }>();
+  const [ choosedCode, setChoosedCode ] = useState<DeployedCode>();
 
   return (
     <CodesWrapper>
@@ -116,7 +120,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             title: <span>Name</span>,
             width: '20%',
             key: 'name',
-            render: (_, record) => <span>{getContractName(record, redspotsContracts)}</span>,
+            render: (_, record) => <span>{formatContractName(record.hash, redspotsContracts)}</span>,
           },
           {
             title: <span>Code Hash</span>,
@@ -142,12 +146,16 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             key: 'operation',
             render: (_, record) => <span>{
               !store.getCode(record.hash)?.json && !redspotsContracts.find(code => code.codeHash === record.hash) ?
-                <span>Deployed</span> :
+                // eslint-disable-next-line jsx-a11y/anchor-is-valid
+                <a onClick={() => {
+                  setChoosedCode(record);
+                  toggleUploadAbi(true);
+                }}>upload ABI</a> :
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedContract({
                     abi: store.getCode(record.hash)?.contractAbi,
-                    name: getContractName(record, redspotsContracts),
+                    name: formatContractName(record.hash, redspotsContracts),
                   });
                   toggleUpload(true);
                 }}>deploy</a>
@@ -170,8 +178,13 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             }}
           />
       }
+      {
+        showUploadAbi &&
+          <UploadAbi onCanceled={() => toggleUploadAbi(false)} onCompleted={() => { toggleUploadAbi(false)}} codeHash={choosedCode?.hash || ''} blockHeight={choosedCode?.block.height || 0} />
+      }
+
       <Title style={{ marginTop: '20px' }}>
-        <label>Contracts from disk</label>
+        <label>Redspot Contracts</label>
       </Title>
       <Table
         rowKey={record => record.codeHash}
@@ -188,14 +201,14 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
           },
           {
             title: <span>Code Hash</span>,
-            width: '35%',
+            width: '30%',
             dataIndex: 'codeHash',
             key: 'codeHash',
             render: (codeHash) => <Link to={`/explorer/code-hash/${codeHash}`}>{formatAddress(codeHash)}</Link>,
           },
           {
             title: <span>Disk Path</span>,
-            width: '35%',
+            width: '40%',
             dataIndex: 'path',
             key: 'path',
             render: (path) => <span>{path}</span>,

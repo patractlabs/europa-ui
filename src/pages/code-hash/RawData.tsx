@@ -15,6 +15,10 @@ const RawData: FC<{ className?: string; codeHash?: string }> = ({ className, cod
     api.query.contracts.codeStorage(codeHash).subscribe(data => setCode(data.unwrapOr(null)?.code.toString() || ''));
   }, [codeHash, api]);
 
+  if (!code) {
+    return null;
+  }
+  
   return (
     <div className={className}>
       {code}
@@ -23,6 +27,7 @@ const RawData: FC<{ className?: string; codeHash?: string }> = ({ className, cod
 };
 
 export default styled(RawData)`
+  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 12px;

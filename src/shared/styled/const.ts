@@ -17,7 +17,8 @@ export const Style = {
       second: '#eeece9'
     },
     button: {
-      primary: '#BEAC92'
+      primary: '#BEAC92',
+      disabled: '#DEDEDE',
     },
     icon: {
       fail: '#EE737E',

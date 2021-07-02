@@ -110,6 +110,14 @@ export const UploadContract: FC<{
       isAbiSupplied: true,
       isAbiValid: true,
     });
+    setCodeJSON({
+      abi: '',
+      codeHash: '',
+      name: abiInput?.project?.contract?.name?.toString() || '',
+      genesisHash: '',
+      tags: [],
+      whenCreated: 0,
+    });
     setMessage(abiInput?.constructors[0]);
     setArgs(abiInput?.constructors[0].args.map(() => undefined) || []);
   }, [abiInput]);
@@ -148,7 +156,7 @@ export const UploadContract: FC<{
       setCodeJSON({
         abi: json,
         codeHash: '',
-        name: file.name,
+        name: abi.project?.contract?.name?.toString() || file.name.split('.')[0],
         genesisHash,
         tags: [],
         whenCreated: 0,
@@ -248,7 +256,7 @@ export const UploadContract: FC<{
           <h2>Upload & deploy contract</h2>
         </div>
         <div className="content">
-          {
+          {/* {
             !abiInput &&
               <div className="upload">
                 <Upload fileList={[]} beforeUpload={onUpload}>
@@ -258,7 +266,7 @@ export const UploadContract: FC<{
                   }
                 </Upload>
               </div>
-          }
+          } */}
           {
             !!abi &&
               <div className="params-input">
@@ -316,7 +324,13 @@ export const UploadContract: FC<{
           }
         </div>
         <div className="footer">
-          <DefaultButton onClick={deploy}>Deploy</DefaultButton>
+          {
+            codeJSON ?
+              <DefaultButton onClick={deploy}>Deploy</DefaultButton> :
+              <Upload fileList={[]} beforeUpload={onUpload}>
+                <DefaultButton>Upload ABI Bundle</DefaultButton>
+              </Upload>
+          }
         </div>
       </Content>
     </Modal>

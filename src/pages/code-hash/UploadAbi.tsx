@@ -75,21 +75,25 @@ export const UploadAbi: FC<{
       const abi = new Abi(json);
       const hash = abi.project?.source?.wasmHash?.toString();
 
+      if (hash !== codeHash) {
+        message.error('Code hash is not equal')
+      }
+
       setCodeJSON({
         abi: json,
         codeHash: hash,
-        name: file.name,
+        name: abi.project?.contract?.name?.toString() || file.name.split('.')[0],
         genesisHash,
         tags: [],
         whenCreated: blockHeight,
       });
     } catch (error) {
-      message.error('error');
+      message.error('Please upload .contact file');
       console.error(error);
     }
 
     return false;
-  }, [blockHeight, genesisHash]);
+  }, [blockHeight, genesisHash, codeHash]);
 
   const upload = useCallback(() => {
     if (!codeJSON || (codeJSON.codeHash && codeJSON.codeHash !== codeHash)) {
@@ -114,30 +118,27 @@ export const UploadAbi: FC<{
           </div>
           <div className="content">
             <div className="upload">
-              <Upload fileList={[]} beforeUpload={beforeUpload}>
-                {
-                  // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                  <a style={{ marginBottom: '16px', width: '100%' }}>Upload Code Bundle</a>
-                }
-              </Upload>
-              {
-                codeJSON &&
-                  <div>
-                    <LabeledInput style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
-                      <div className="span">Contract name</div>
-                      <div>{codeJSON?.name}</div>
-                    </LabeledInput>
-                    
-                    <LabeledInput error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
-                      <div className="span">Contract code hash</div>
-                      <div className="value">{codeJSON?.codeHash}</div>
-                    </LabeledInput>
-                  </div>
-              }
+              <div>
+                <LabeledInput style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                  <div className="span">Contract name</div>
+                  <div>{codeJSON?.name}</div>
+                </LabeledInput>
+                
+                <LabeledInput error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                  <div className="span">Contract code hash</div>
+                  <div className="value">{codeJSON?.codeHash}</div>
+                </LabeledInput>
+              </div>
             </div>
           </div>
           <div className="footer">
-            <DefaultButton onClick={upload}>Confirm</DefaultButton>
+            {
+              codeJSON ?
+                <DefaultButton disabled={codeJSON.codeHash !== codeHash} onClick={upload}>Confirm</DefaultButton> :
+                <Upload fileList={[]} beforeUpload={beforeUpload}>
+                  <DefaultButton>Upload ABI Bundle</DefaultButton>
+                </Upload>
+            }
           </div>
         </Content>
       </Modal>

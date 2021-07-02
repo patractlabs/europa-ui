@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { Constructor } from './Constructor';
@@ -74,7 +74,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     console.log({
       salt,
       endowment: value.toString(),
-      args: args.map(arg => arg.toString()),
+      args: args.map(arg => `${arg}`),
       sender: address, 
       gasLimit: (new BN(gasLimit)).mul(new BN(1000000)).toString(), 
     });
@@ -110,6 +110,8 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
       }, () => {})
     );
   }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal]);
+
+  useEffect(() => setMessage(abi?.constructors[0]), [abi]);
 
   return (
     <Wrapper hasAbi={!!abi}>

@@ -38,7 +38,7 @@ export const useRedspotContracts = (redspotProjects: string[]) => {
                 const hash = abi.project?.source?.wasmHash?.toString();
                 const redspotContract: RedspotContract = {
                   name,
-                  path: dirPath,
+                  path: `${dirPath}\\${file}`,
                   codeHash: hash,
                   abi,
                 };
