@@ -16,6 +16,7 @@ import { AddressInput, ModalMain, ParamInput, Style, Button } from '../../shared
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 import LabeledInput from '../developer/shared/LabeledInput';
+import LabeledValue from '../developer/shared/LabeledValue';
 import MoreSvg from '../../assets/imgs/more.svg';
 
 const Content = styled(ModalMain)`
@@ -270,10 +271,10 @@ export const UploadContract: FC<{
           {
             !!abi &&
               <div className="params-input">
-                <LabeledInput>
+                <LabeledValue>
                   <div className="span">Contract name</div>
                   <div>{codeJSON?.name || contractName}</div>
-                </LabeledInput>
+                </LabeledValue>
                 <div className="form">
                   <Constructor
                     defaultValue={abi.constructors[0]}

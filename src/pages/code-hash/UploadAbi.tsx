@@ -5,7 +5,7 @@ import type { RcFile } from 'antd/lib/upload';
 import { ApiContext, CodeJson, store } from '../../core';
 import styled from 'styled-components';
 import { ModalMain, Button, Style } from '../../shared';
-import LabeledInput from '../developer/shared/LabeledInput';
+import LabeledValue from '../developer/shared/LabeledValue';
 import { Abi } from '@polkadot/api-contract';
 
 const BYTE_STR_0 = '0'.charCodeAt(0);
@@ -119,15 +119,15 @@ export const UploadAbi: FC<{
           <div className="content">
             <div className="upload">
               <div>
-                <LabeledInput style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                <LabeledValue style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
                   <div className="span">Contract name</div>
                   <div>{codeJSON?.name}</div>
-                </LabeledInput>
-                
-                <LabeledInput error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
+                </LabeledValue>
+
+                <LabeledValue error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
                   <div className="span">Contract code hash</div>
                   <div className="value">{codeJSON?.codeHash}</div>
-                </LabeledInput>
+                </LabeledValue>
               </div>
             </div>
           </div>

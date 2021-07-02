@@ -5,16 +5,21 @@ import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
 import { Button, ModalMain, Style } from '../../shared';
 import styled from 'styled-components';
+import LabeledValue from '../developer/shared/LabeledValue';
+import LabeledInput from '../developer/shared/LabeledInput';
 
 const Content = styled(ModalMain)`
   .content {
-    text-align: center;
     .address {
+      text-align: center;
       margin-top: 16px;
       margin-bottom: 16px;
       font-size: 14px;
       font-weight: 400;
       color: ${Style.color.label.default};
+    }
+    .mnemonic {
+      margin-bottom: 15px;
     }
     .seed {
       margin-bottom: 16px;
@@ -68,11 +73,17 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
         </div>
         <div className="content">
           <p className="address">{address}</p>
-          <p className="seed">{seed}</p>
-          <Input value={name} onChange={e => setName(e.target.value)} />
+          <LabeledValue className="mnemonic">
+            <div className="span">mnemonic seed</div>
+            <div className="value">{seed}</div>
+          </LabeledValue>
+          <LabeledInput>
+            <div className="span">name</div>
+            <Input value={name} onChange={e => setName(e.target.value)} />
+          </LabeledInput>
         </div>
         <div className="footer">
-          <DefaultButton onClick={onCreate}>Add</DefaultButton>
+          <DefaultButton disabled={!name} onClick={onCreate}>Add</DefaultButton>
         </div>
       </Content>
     </Modal>

@@ -4,11 +4,12 @@ import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
 import { Button, ModalMain, Style } from '../../shared';
 import styled from 'styled-components';
+import LabeledInput from '../developer/shared/LabeledInput';
 
 const Content = styled(ModalMain)`
   .content {
-    text-align: center;
     .address {
+      text-align: center;
       height: 22px;
       margin-top: 16px;
       margin-bottom: 16px;
@@ -61,10 +62,14 @@ export const ImportAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
         </div>
         <div className="content">
           <p className="address">{address}</p>
-          <p className="seed">
-            <Input placeholder="mnemonic" value={seed} onChange={e => setSeed(e.target.value)} />
-          </p>
-          <Input placeholder="name" value={name} onChange={e => setName(e.target.value)} />
+          <LabeledInput className="seed">
+            <div className="span">mnemonic seed</div>
+            <Input value={seed} onChange={e => setSeed(e.target.value)} />
+          </LabeledInput>
+          <LabeledInput>
+            <div className="span">name</div>
+            <Input value={name} onChange={e => setName(e.target.value)} />
+          </LabeledInput>
         </div>
         <div className="footer">
           <DefaultButton onClick={onImport}>Import</DefaultButton>

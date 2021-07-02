@@ -15,6 +15,7 @@ import { throwError } from 'rxjs';
 import LabeledInput from '../developer/shared/LabeledInput';
 import MoreSvg from '../../assets/imgs/more.svg';
 import RawData from './RawData';
+import LabeledValue from '../developer/shared/LabeledValue';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
@@ -119,10 +120,10 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
         !abi ?
           <RawData codeHash={codeHash} /> :
           <div className="deploy">
-            <LabeledInput>
+            <LabeledValue>
               <div className="span">Contract name</div>
               <div>{name}</div>
-            </LabeledInput>
+            </LabeledValue>
             <div className="form">
               <Constructor
                 defaultValue={abi.constructors[0]}
