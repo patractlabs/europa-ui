@@ -68,7 +68,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
-    
+
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
     const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
     
@@ -84,6 +84,8 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
       value,
       salt,
     }, ...args);
+    console.log('tx.toHex()', tx.toHex())
+    
     const account = accounts.find(account => account.address === address);
     if (!account) {
       return

@@ -1,55 +1,31 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Button, Input, Select } from 'antd';
+import { Checkbox, Dropdown, Menu } from 'antd';
 import styled from 'styled-components';
-import { Setting, SettingContext } from '../../core';
-import { requireModule, Style } from '../../shared';
-import AddSvg from '../../assets/imgs/add-account.svg';
+import { SettingContext } from '../../core';
+import { Button, requireModule, Style } from '../../shared';
+import AddSvg from '../../assets/imgs/add-redspot.svg';
+import InfoSvg from '../../assets/imgs/info.svg';
+import FileSvg from '../../assets/imgs/file-select.svg';
+import DeleteSvg from '../../assets/imgs/delete-redspot.svg';
 import type * as Electron from 'electron';
 import * as _ from 'lodash';
 
-const { Option } = Select;
+const DEFAULT_WORKSPACE = 'default';
 
-function getDefaultWorkspace(setting: Setting, dbPath: string): string {
-  return setting.databases.find(db => db.path === dbPath)?.workspaces[0]?.name || '';
-}
+const EuropaSetting: FC<{
+  type: 'Change' | 'Start';
+  className: string;
+  onSubmit: (dbPath: string | undefined, workspace: string | undefined) => void;
+  loading: boolean;
+}> = ({ className, onSubmit, type }): ReactElement => {
+  const { setting, update, defaultDataBasePath } = useContext(SettingContext);
+  const [ currentDbPath, setCurrentDbPath ] = useState<string>(setting.lastChoosed?.database || defaultDataBasePath);
+  const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(setting.lastChoosed?.workspace || DEFAULT_WORKSPACE);
+  const [ showRedspot, setShowRedspot ] = useState<boolean>(type === 'Change');
 
-let t = 0;
-
-const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | undefined, workspace: string | undefined) => void }> = ({ className, onChooseChange }): ReactElement => {
-  const { setting, update, choosed } = useContext(SettingContext);
-  const [ currentDbPath, setCurrentDbPath ] = useState<string>();
-  const [ currentWorkspace, setCurrentWorkspace ] = useState<string>();
-  const [ newWorkspace, setNewWorkspace ] = useState<string>('');
-
-  useEffect(() => {
-    onChooseChange(currentDbPath, currentWorkspace);
-  }, [currentDbPath, currentWorkspace, onChooseChange]);
 
   useEffect(() => {
-    // hacking, should be fixed.
-    t += 1;
-
-    if (t !== 2) {
-      choosed.database && setCurrentDbPath(choosed.database);
-      choosed.workspace && setCurrentWorkspace(choosed.workspace);
-      return;
-    }
-
-    const dbPath = setting.databases[0]?.path || '';
-
-    setCurrentDbPath(dbPath);
-    setCurrentWorkspace(getDefaultWorkspace(setting, dbPath));
-  }, [setting, choosed]);
-
-  const workspaces = useMemo(
-    () => setting.databases.find(db => db.path === currentDbPath)?.workspaces || [],
-    [currentDbPath, setting],
-  );
-
-  const redspots = useMemo(
-    () => workspaces.find(w => w.name === currentWorkspace)?.redspots || [],
-    [workspaces, currentWorkspace],
-  );
+  }, [setting]);
 
   const onAddDb = useCallback(() => {
     if (!requireModule.isElectron) {
@@ -60,12 +36,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
 
     ipcRenderer.send('req:choose-dir');
     ipcRenderer.once('res:choose-dir', (event, databasePath) => {
-      if (currentDbPath === databasePath) {
-        return;
-      }
-
       setCurrentDbPath(databasePath);
-      setCurrentWorkspace('');
 
       if (setting.databases.find(db => db.path === databasePath)) {
         return;
@@ -79,26 +50,7 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
       })
       update(newSetting);
     });
-  }, [setting, currentDbPath, update]);
-
-  const onAddWorkspace = useCallback(() => {
-    setCurrentWorkspace(newWorkspace);
-
-    if (workspaces.find(w => w.name === newWorkspace)) {
-      return;
-    }
-
-    const newSetting = _.cloneDeep(setting);
-    const db = newSetting.databases.find(db => db.path === currentDbPath);
-    
-    if (!db) {
-      return;
-    }
-    
-    db.workspaces = db.workspaces.concat({ name: newWorkspace, redspots: [] });
-    update(newSetting);
-    setNewWorkspace('');
-  }, [currentDbPath, newWorkspace, setting, workspaces, update]);
+  }, [setting, update]);
 
   const onAddRedspot = useCallback(() => {
     if (!requireModule.isElectron) {
@@ -113,137 +65,241 @@ const EuropaSetting: FC<{ className: string, onChooseChange: (dbPath: string | u
       ]
     });
     ipcRenderer.once('res:choose-file', (event, redspotPath: string) => {
-      console.log('file', redspotPath);
+      console.log('file', redspotPath, redspotPath.endsWith('redspot.config.ts'), setting.redspots.find(r => r === redspotPath));
       
-      if (!redspotPath.endsWith('redspot.config.ts') ||  redspots.find(r => r === redspotPath)) {
+      if (!redspotPath.endsWith('redspot.config.ts') || setting.redspots.find(r => r === redspotPath)) {
         return;
       }
 
-      console.log('aaa')
       const newSetting = _.cloneDeep(setting);
-      const workspace = newSetting.databases
-        .find(db => db.path === currentDbPath)?.workspaces
-        .find(workspace => workspace.name === currentWorkspace);
       
-      if (!workspace) {
-        return;
-      }
-      console.log('workspace', workspace)
-
-      workspace.redspots = workspace.redspots.concat(redspotPath);
+      newSetting.redspots = newSetting.redspots.concat(redspotPath);
+      console.log('set', newSetting)
       update(newSetting);
     });
-  }, [currentDbPath, setting, currentWorkspace, redspots, update]);
+  }, [setting, update]);
+
+  const onDeleteRedspot = useCallback(() => {
+    const newSetting = _.cloneDeep(setting);
+    
+    newSetting.redspots = newSetting.redspots.slice(0, setting.redspots.length - 1);
+    update(newSetting);
+  }, [setting, update]);
+
+  const workspaceMenu = useMemo(() => {
+    const workspaces = setting.databases.find(db => db.path === currentDbPath)?.workspaces;
+
+    console.log('workspaces', workspaces, currentDbPath, setting.databases);
+    return workspaces && workspaces.length ? 
+      <Menu>
+        {
+          workspaces.map((w, index) =>
+            <Menu.Item key={index} onClick={() => setCurrentWorkspace(w)}>
+              {w}
+            </Menu.Item>
+          )
+        }
+      </Menu> :
+      <></>;
+  },
+    [currentDbPath, setting],
+  );
+
+  const DataaseMenu = useMemo(() => 
+    setting.databases.length ?
+      <Menu>
+        {
+          setting.databases.map((d, index) =>
+            <Menu.Item key={index} onClick={() => setCurrentDbPath(d.path)}>
+              {d.path}
+            </Menu.Item>
+          )
+        }
+      </Menu> :
+      <></>,
+    [setting.databases],
+  );
 
   return (
     <div className={className}>
-      <div className="select-col">
-        <div className="select-wrapper">
-          <Select
-            className="db-select"
-            value={currentDbPath}
-            onChange={(value: string) => {
-              console.log('change')
-              setCurrentDbPath(value);
-              setCurrentWorkspace(getDefaultWorkspace(setting, value));
-            }}
-          >
-            {
-              setting.databases.map(db =>
-                <Option value={db.path} key={db.path}>{db.path}</Option>
-              )
-            }
-          </Select>
-          <Button
-            className="add-button"
-            onClick={onAddDb}
-            icon={
-              <img src={AddSvg} alt="" />
-            }
-          >database</Button>
+      <div className="database">
+        <div className="info-line">
+          <div className="span">
+            <span>Database Path</span>
+            <img src={InfoSvg} alt="" />
+          </div>
+        </div>
+        <div className="value-line">
+          <Dropdown overlay={DataaseMenu} trigger={['click']}>
+            <input value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
+          </Dropdown>
+        </div>
+        <div className="file-select" onClick={onAddDb}>
+          <img src={FileSvg} alt="" />
         </div>
       </div>
 
-      <div className="select-col">
-        <div className="select-wrapper">
-          <Select allowClear={true} className="workspace-select" value={currentWorkspace} onChange={(value: string) => setCurrentWorkspace(value)}>
-            {
-              workspaces.map(workspace =>
-                <Option value={workspace.name} key={workspace.name}>{workspace.name}</Option>
+      <div className="info-line">
+        <div className="span">
+          <span>Workspace</span>
+          <img src={InfoSvg} alt="" />
+        </div>
+      </div>
+      <div className="value-line">
+        <Dropdown overlay={workspaceMenu} trigger={['click']}>
+          <input value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
+        </Dropdown>
+      </div>
+      
+      {
+        showRedspot &&
+          <div className="redspots">
+            <div className="info-line">
+              <div className="span">
+                <span>Redspot Projects</span>
+              </div>
+              <div className="operation">
+                <div onClick={onAddRedspot}>
+                  <img src={AddSvg} alt="" />Add
+                </div>
+                <div onClick={onDeleteRedspot}>
+                  <img src={DeleteSvg} alt="" /> Delete
+                </div>
+              </div>
+            </div>
+             {
+              setting.redspots.map((redspot, index) =>
+                <div className="redspot-line" key={index}>
+                  <input value={redspot} />
+                </div>
               )
             }
-          </Select>
-          <Input className="new-workspace" value={newWorkspace} onChange={e => setNewWorkspace(e.target.value)} />
-          <Button
-            className="add-button"
-            disabled={!newWorkspace || !currentDbPath || !!workspaces.find(w => w.name ===newWorkspace)}
-            icon={
-              <img src={AddSvg} alt="" />
-            }
-            onClick={onAddWorkspace}
-          >workspace</Button>
-        </div>
-        <h3>Redspot Projects</h3>
-        <div className="redspot-projects">
-          {
-            redspots.map(redspot =>
-              <div key={redspot}>{redspot}</div>
-            )
+          </div>
+      }
+      <div className="submit" style={{ justifyContent: type === 'Start' ? 'space-between' : 'flex-end' }}>
+        {
+          type === 'Start' &&
+            <Checkbox checked={showRedspot} onClick={() => setShowRedspot(show => !show)}>
+              <span>Add Redspot Project</span>
+            </Checkbox>
+        }
+        <Button
+          style={{ width: '124px', height: '40px' }}
+          disabled={!currentDbPath || !currentWorkspace}
+          onClick={() => 
+            currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace)
           }
-        </div>
-        <div>
-          <Button
-            style={{ width: '100%' }}
-            onClick={onAddRedspot}
-            disabled={!currentDbPath || !currentWorkspace}
-          >Add redspot project</Button>
-        </div>
+        >{type}</Button>
       </div>
     </div>
   );
 };
 
 export default React.memo(styled(EuropaSetting)`
-  min-width: 900px;
-  display: flex;
+  .database {
+    position: relative;
 
-  .add-button {
-    font-size: 12px;
-    display: inline-flex;
-    align-items: center;
-    > img {
-      margin-right: 5px;
+    > .file-select {
+      cursor: pointer;
+      position: absolute;
+      bottom: 0px; 
+      right: -52px;
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      border: 1px solid ${Style.color.border.default};
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background-color: ${Style.color.bg.default};
+      }
+      > img {
+        width: 20px;
+        height: 16px;
+      }
+    }
+  }
+ 
+  .info-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    
+    > .span {
+      font-size: 16px;
+      font-weight: 600;
+      color: ${Style.color.label.primary};
+      display: flex;
+      align-items: center;
+
+      > span {
+        margin-right: 8px;
+      }
+
+      > img {
+        cursor: pointer;
+      }
+    }
+    > .operation {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: ${Style.color.label.primary};
+
+      > div {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        &:first-child {
+          margin-right: 20px;
+        }
+
+        img {
+          margin-right: 8px;
+        }
+      }
     }
   }
 
-  .select-col {
-    flex: 1;
-    &:first-child {
-      margin-right: 50px;
-    }
+  .value-line {
+    margin-bottom: 20px;
 
-    .select-wrapper {
-      display: flex;
-
-      .db-select, .workspace-select {
-        flex: 1;
-      }
-      .workspace-select {
-        margin-right: 10px;
-      }
-    }
-    h3 {
-      margin-top: 15px;
-      padding-left: 15px;
-    }
-    .redspot-projects {
-      background-color: white;
-      margin: 5px 0px 15px 0px;
+    input {
+      width: 100%;
+      height: 44px;
+      background: white;
       border: 1px solid ${Style.color.border.default};
-      padding: 15px;
+      border-radius: 4px;
+      padding: 14px 12px;
     }
-    .new-workspace {
-      width: 100px;
+  }
+  > .redspots {
+    margin-bottom: 20px;
+
+    > .redspot-line {
+      margin-bottom: 8px;
+      
+      > input {
+        width: 100%;
+        height: 44px;
+        background: white;
+        border: 1px solid ${Style.color.border.default};
+        border-radius: 4px;
+        padding: 14px 12px;
+      }
+    }
+  }
+  > .submit {
+    display: flex;
+    align-items: center;
+
+    .ant-checkbox-checked .ant-checkbox-inner {
+      box-shadow: none;
+      background: #beac92;
+      border-color: #beac92;
     }
   }
 `);

@@ -7,11 +7,9 @@ import type { Abi } from '@polkadot/api-contract';
 export const useAbi = (codeHash: string, signal?: number) => {
   const [ name, setName ] = useState<string>();
   const [ abi, setAbi ] = useState<Abi>();
-  const { setting, choosed } = useContext(SettingContext);
+  const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.databases
-      .find(db => db.path === choosed.database)?.workspaces
-      .find(w => w.name === choosed.workspace)?.redspots || []
+    setting.redspots || []
   );
 
   useEffect(() => {

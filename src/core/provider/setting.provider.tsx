@@ -5,6 +5,7 @@ import type { App } from 'electron';
 import type * as Path from 'path';
 
 let CONFIG_PATH = '';
+let DATA_PATH = '';
 
 if (requireModule.isElectron) {
   const app: App = requireModule('electron').remote.app;
@@ -12,36 +13,34 @@ if (requireModule.isElectron) {
   const appDataPath = app.getPath('appData');
 
   CONFIG_PATH = path.resolve(appDataPath, 'europa-ui/user-config.json');
-  console.log(CONFIG_PATH, 'CONFIG_PATH')
-}
+  DATA_PATH = path.resolve(appDataPath, 'europa-ui');
 
-export interface Workspace {
-  name: string;
-  redspots: string[];
+  console.log(CONFIG_PATH, 'CONFIG_PATH')
 }
 
 export interface Setting {
   databases: {
     path: string;
-    workspaces: Workspace[];
+    workspaces: string[];
   }[];
-}
-
-interface Choosed {
-  database: string;
-  workspace?: string;
+  redspots: string[];
+  lastChoosed?: {
+    database: string;
+    workspace: string;
+  }
 }
 
 interface SettingContextProps {
   setting: Setting;
-  choosed: Choosed;
   reload: () => Promise<void>;
   update: (newSetting: Setting) => Promise<void>;
-  setChoosed: React.Dispatch<React.SetStateAction<Choosed>>;
+  defaultDataBasePath: string;
+  configPath: string;
 }
 
 const DEFAULT_SETTING: Setting = {
   databases: [],
+  redspots: [],
 };
 
 export const SettingContext: Context<SettingContextProps> = React.createContext({}as unknown as SettingContextProps);
@@ -52,15 +51,21 @@ async function load(): Promise<Setting> {
     encoding: 'utf8',
     flag: 'r'
   });
-  const config: Setting = JSON.parse(file.toString());
+  const setting: Setting = JSON.parse(file.toString());
 
-  console.log('config', config);
+  setting.redspots = setting.redspots || [];
+  setting.databases = (setting.databases || []).map(d => ({path: d.path, workspaces: d.workspaces || []}));
+  
+  console.log('config', setting);
 
-  return config;
+  return setting;
 }
 
 async function write(setting: Setting): Promise<void> {
   const fs: typeof FS = requireModule('fs');
+
+  setting.redspots = setting.redspots || [];
+  setting.databases = (setting.databases || []).map(d => ({path: d.path, workspaces: d.workspaces || []}));
 
   const data = JSON.stringify(setting);
   await fs.promises.writeFile(CONFIG_PATH, data, {
@@ -74,7 +79,7 @@ async function write(setting: Setting): Promise<void> {
 export const SettingProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ setting, setSetting ] = useState<Setting>(DEFAULT_SETTING);
-    const [ choosed, setChoosed ] = useState<Choosed>({ database: '', workspace: '' });
+    const [ [defaultDataBasePath, configPath] ] = useState<[string, string]>([DATA_PATH, CONFIG_PATH]);
 
     const reload = useCallback(async () => {}, []);
     const update = useCallback(async (newSetting: Setting) => {
@@ -94,8 +99,8 @@ export const SettingProvider = React.memo(
       setting,
       reload,
       update,
-      choosed,
-      setChoosed,
+      defaultDataBasePath,
+      configPath,
     }}>{children}</SettingContext.Provider>;
   }
 );

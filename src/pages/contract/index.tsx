@@ -273,11 +273,9 @@ export const ContractsPage: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts, codesHash } = useContracts(api, blocks);
-  const { setting, choosed } = useContext(SettingContext);
+  const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.databases
-      .find(db => db.path === choosed.database)?.workspaces
-      .find(w => w.name === choosed.workspace)?.redspots || []
+    setting.redspots || []
   );
 
   useEffect(() => store.loadAll(), []);

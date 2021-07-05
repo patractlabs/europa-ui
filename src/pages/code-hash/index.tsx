@@ -59,11 +59,9 @@ export const CodeHash: FC = (): ReactElement => {
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Codes);
   const { abi } = useAbi(codeHash, signal);
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
-  const { setting, choosed } = useContext(SettingContext);
+  const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.databases
-      .find(db => db.path === choosed.database)?.workspaces
-      .find(w => w.name === choosed.workspace)?.redspots || []
+    setting.redspots || []
   );
   const name = useMemo(() =>
     store.getCode(codeHash)?.json.name ||
