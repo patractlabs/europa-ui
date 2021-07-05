@@ -17,7 +17,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
   const history = useHistory();
   const { connected$ } = useContext(BusContext);
 
-  const onChange = useCallback((dbPath: string, workspace: string) => {
+  const onChange = useCallback((dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     setLoading(true);
     clearLogs();
     clearBlocks();
@@ -32,7 +32,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
     };
     update(newSetting);
 
-    change(dbPath, workspace).then(europa => {
+    change(dbPath, workspace, { httpPort, wsPort }).then(europa => {
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 

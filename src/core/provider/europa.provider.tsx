@@ -7,13 +7,25 @@ import type * as OS from 'os';
 
 interface EuropaManageContextProps {
   europa?: ChildProcess.ChildProcessWithoutNullStreams;
-  startup: (db: string, workspace?: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
-  change: (db: string, workspace?: string) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  startup: (
+    db: string,
+    workspace: string,
+    options?: Options,
+  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  change: (
+    db: string,
+    workspace: string,
+    options?: Options,
+  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+}
+interface Options {
+  httpPort?: number;
+  wsPort?: number;
 }
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
 
-const startEuropa = async (db: string, workspace?: string): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
+const startEuropa = async (db: string, workspace: string, options?: Options): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
   if (!requireModule.isElectron) {
     return Promise.resolve(undefined);
   }
@@ -45,8 +57,21 @@ const startEuropa = async (db: string, workspace?: string): Promise<ChildProcess
       console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
     } catch(e) {}
   
+    const optionsMap = {
+      httpPort: '--rpc-port=',
+      wsPort: '--ws-port=',
+    }
     console.log(binPath, db, workspace)
-    const europa = childProcess.spawn(binPath, [`-d=${db}`].concat(workspace ? `-w=${workspace}` : []));
+    const europa = childProcess.spawn(binPath,
+      [`-d=${db}`, `-w=${workspace}`]
+        .concat(!options ?
+          [] :
+          Object
+          .keys(options)
+          .filter(Boolean)
+          .map(key => optionsMap[key as 'httpPort' | 'wsPort' ])
+        )
+    );
     if (europa.pid) {
       resolve(europa);
     } else {
@@ -62,17 +87,17 @@ export const EuropaManageProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
 
-    const startup = useCallback(async (db: string, workspace?: string) => {
-      const europa = await startEuropa(db, workspace);
+    const startup = useCallback(async (db: string, workspace: string, options?: Options) => {
+      const europa = await startEuropa(db, workspace, options);
 
       setEuropa(europa);
 
       return europa;
     }, []);
 
-    const change = useCallback(async (db: string, workspace?: string) => {
+    const change = useCallback(async (db: string, workspace: string, options?: Options) => {
       europa?.kill();
-      return await startup(db, workspace);
+      return await startup(db, workspace, options);
     }, [europa, startup]);
 
     return <EuropaManageContext.Provider value={{

@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Checkbox, Dropdown, Menu } from 'antd';
+import { Checkbox, Dropdown, Menu, Tooltip } from 'antd';
 import styled from 'styled-components';
 import { SettingContext } from '../../core';
 import { Button, requireModule, Style } from '../../shared';
@@ -15,14 +15,15 @@ const DEFAULT_WORKSPACE = 'default';
 const EuropaSetting: FC<{
   type: 'Change' | 'Start';
   className: string;
-  onSubmit: (dbPath: string | undefined, workspace: string | undefined) => void;
+  onSubmit: (dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => void;
   loading: boolean;
 }> = ({ className, onSubmit, type }): ReactElement => {
   const { setting, update, defaultDataBasePath } = useContext(SettingContext);
   const [ currentDbPath, setCurrentDbPath ] = useState<string>(setting.lastChoosed?.database || defaultDataBasePath);
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(setting.lastChoosed?.workspace || DEFAULT_WORKSPACE);
   const [ showRedspot, setShowRedspot ] = useState<boolean>(type === 'Change');
-
+  const [ httpPort, setHttpPort ] = useState<number | undefined>(9933);
+  const [ wsPort, setWsPort ] = useState<number | undefined>(9944);
 
   useEffect(() => {
   }, [setting]);
@@ -105,7 +106,7 @@ const EuropaSetting: FC<{
     [currentDbPath, setting],
   );
 
-  const DataaseMenu = useMemo(() => 
+  const DatabaseMenu = useMemo(() => 
     setting.databases.length ?
       <Menu>
         {
@@ -126,12 +127,14 @@ const EuropaSetting: FC<{
         <div className="info-line">
           <div className="span">
             <span>Database Path</span>
-            <img src={InfoSvg} alt="" />
+            <Tooltip placement="top" title="You can switch in multi paths to work">
+              <img src={InfoSvg} alt="" />
+            </Tooltip>
           </div>
         </div>
         <div className="value-line">
-          <Dropdown overlay={DataaseMenu} trigger={['click']}>
-            <input value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
+          <Dropdown overlay={DatabaseMenu} trigger={['click']}>
+            <input placeholder="/path/to/data" value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
           </Dropdown>
         </div>
         <div className="file-select" onClick={onAddDb}>
@@ -142,13 +145,53 @@ const EuropaSetting: FC<{
       <div className="info-line">
         <div className="span">
           <span>Workspace</span>
-          <img src={InfoSvg} alt="" />
+          <Tooltip placement="top" title="subdirectory in database you choosed">
+            <img src={InfoSvg} alt="" />
+          </Tooltip>
         </div>
       </div>
       <div className="value-line">
         <Dropdown overlay={workspaceMenu} trigger={['click']}>
-          <input value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
+          <input placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
         </Dropdown>
+      </div>
+
+      <div className="info-line">
+        <div className="span">
+          <span>RPC Port</span>
+        </div>
+      </div>
+      <div className="value-line">
+        <input
+          placeholder="9933"
+          value={httpPort}
+          onChange={e =>
+            setHttpPort(
+              `${parseInt(e.target.value)}` === 'NaN' ?
+                undefined :
+                parseInt(e.target.value)
+            )
+          }
+        />
+      </div>
+
+      <div className="info-line">
+        <div className="span">
+          <span>WS Port</span>
+        </div>
+      </div>
+      <div className="value-line">
+        <input
+          placeholder="9944"
+          value={wsPort}
+          onChange={e =>
+            setWsPort(
+              `${parseInt(e.target.value)}` === 'NaN' ?
+                undefined :
+                parseInt(e.target.value)
+            )
+          }
+        />
       </div>
       
       {
@@ -170,7 +213,7 @@ const EuropaSetting: FC<{
              {
               setting.redspots.map((redspot, index) =>
                 <div className="redspot-line" key={index}>
-                  <input value={redspot} />
+                  <input disabled={true} value={redspot} />
                 </div>
               )
             }
@@ -187,7 +230,7 @@ const EuropaSetting: FC<{
           style={{ width: '124px', height: '40px' }}
           disabled={!currentDbPath || !currentWorkspace}
           onClick={() => 
-            currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace)
+            currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace, httpPort, wsPort)
           }
         >{type}</Button>
       </div>

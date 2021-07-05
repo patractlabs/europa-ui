@@ -74,6 +74,8 @@ const BlockInfoWrapper = styled.div`
       }
     }
     > p {
+      text-overflow: ellipsis;
+      overflow: hidden;
       padding: 0px 40px;
       font-size: 16px;
       color: ${Style.color.label.primary};

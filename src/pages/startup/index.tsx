@@ -15,7 +15,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
 
-  const onStart = useCallback((dbPath: string, workspace: string) => {
+  const onStart = useCallback((dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     setLoading(true)
 
     const newSetting = _.cloneDeep(setting);
@@ -28,7 +28,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
     };
     update(newSetting);
 
-    startup(dbPath, workspace).then(europa => {
+    startup(dbPath, workspace, { httpPort, wsPort }).then(europa => {
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 
