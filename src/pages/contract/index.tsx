@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link, Route, Switch } from 'react-router-dom';
-import { UploadContract } from './Upload';
+import { DeployModal } from './DeployModal';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
 import { formatAddress, PageTabs, Style } from '../../shared';
 import { Table } from 'antd';
@@ -104,7 +104,7 @@ function formatContractName(codeHash: string, redspotsContracts: RedspotContract
 }
 
 const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }> = ({ codes, redspotsContracts }): ReactElement => {
-  const [ showUpload, toggleUpload ] = useState(false);
+  const [ showDeploy, toggleDeploy ] = useState(false);
   const [ showUploadAbi, toggleUploadAbi ] = useState(false);
   const [ choosedContract, setChoosedContract ] = useState<{ abi?: Abi; name: string }>();
   const [ choosedCode, setChoosedCode ] = useState<DeployedCode>();
@@ -113,7 +113,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
     <CodesWrapper>
       <Title>
         <label>Deployed Codes</label>
-        <Button onClick={() => toggleUpload(true)}>Upload & deploy contract</Button>
+        <Button onClick={() => toggleDeploy(true)}>Upload & deploy contract</Button>
       </Title>
       <Table
         rowKey={record => record.hash}
@@ -162,22 +162,22 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
                     abi: getAbi(record.hash, redspotsContracts),
                     name: formatContractName(record.hash, redspotsContracts),
                   });
-                  toggleUpload(true);
+                  toggleDeploy(true);
                 }}>deploy</a>
             }</span>,
           },
         ]}
       />
       {
-        showUpload &&
-          <UploadContract
+        showDeploy &&
+          <DeployModal
             abi={choosedContract?.abi}
             contractName={choosedContract?.name}
             onCancel={() => {
-              toggleUpload(false);
+              toggleDeploy(false);
             }}
             onCompleted={() => {
-              toggleUpload(false);
+              toggleDeploy(false);
             }}
           />
       }
@@ -235,7 +235,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
                     abi: record.abi,
                     name: record.name,
                   });
-                  toggleUpload(true);
+                  toggleDeploy(true);
                 }}>deploy</a>
             }</span>,
           },

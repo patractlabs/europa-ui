@@ -16,6 +16,8 @@ import LabeledInput from '../developer/shared/LabeledInput';
 import MoreSvg from '../../assets/imgs/more.svg';
 import RawData from './RawData';
 import LabeledValue from '../developer/shared/LabeledValue';
+import { BN_MILLION, BN_TEN } from '@polkadot/util';
+import type { Weight } from '@polkadot/types/interfaces';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
@@ -48,49 +50,40 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ args, setArgs ] = useState<any[]>([]);
+  const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
   const [ { address, endowment, gasLimit, salt }, setState ] = useState<{
     address: string;
     endowment: number;
-    gasLimit: number;
+    gasLimit: number | BN;
     salt: string;
   }>({
     address: accounts[0]?.address || '',
     endowment: 10,
-    gasLimit: 200000,
-    // (api.consts.system.blockWeights
-    //   ? api.consts.system.blockWeights.maxBlock
-    //   : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
+    gasLimit: (api.consts.system.blockWeights
+      ? api.consts.system.blockWeights.maxBlock
+      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
     salt: randomAsHex(),
   });
-  const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
 
   const deploy = useCallback(async () => {
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
-
-    const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
-    
-    console.log({
-      salt,
-      endowment: value.toString(),
-      args: args.map(arg => `${arg}`),
-      sender: address, 
-      gasLimit: (new BN(gasLimit)).mul(new BN(1000000)).toString(), 
-    });
-    const tx = code.tx[message.method]({
-      gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
-      value,
-      salt,
-    }, ...args);
-    console.log('tx.toHex()', tx.toHex())
     
     const account = accounts.find(account => account.address === address);
+
     if (!account) {
       return
     }
+
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
+    const code = new CodeRx(api, abi, abi?.project.source.wasm);
+    const value = (new BN(endowment)).mul((BN_TEN).pow(new BN(tokenDecimal)));
+    const tx = code.tx[message.method]({
+      gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
+      value,
+      salt,
+    }, ...args);
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {

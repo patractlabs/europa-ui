@@ -18,6 +18,8 @@ import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 import LabeledInput from '../developer/shared/LabeledInput';
 import LabeledValue from '../developer/shared/LabeledValue';
 import MoreSvg from '../../assets/imgs/more.svg';
+import { BN_MILLION, BN_TEN } from '@polkadot/util';
+import type { Weight } from '@polkadot/types/interfaces';
 
 const Content = styled(ModalMain)`
   .content {
@@ -89,7 +91,7 @@ const EMPTY: AbiState = {
   isAbiValid: false
 };
 
-export const UploadContract: FC<{
+export const DeployModal: FC<{
   onCancel: () => void;
   onCompleted: () => void;
   abi?: Abi;
@@ -127,19 +129,17 @@ export const UploadContract: FC<{
     address: string;
     name: string;
     endowment: number;
-    gasLimit: number;
+    gasLimit: BN | number;
     salt: string;
   }>({
     address: accounts[0]?.address,
     name: '',
     endowment: 10,
-    gasLimit: 200000,
-    // (api.consts.system.blockWeights
-    //   ? api.consts.system.blockWeights.maxBlock
-    //   : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
+    gasLimit: (api.consts.system.blockWeights
+      ? api.consts.system.blockWeights.maxBlock
+      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
     salt: randomAsHex(),
   });
-
   const onUpload = useCallback(async (file: RcFile) => {
     const data = await file.arrayBuffer();
     const json = u8aToString(convertResult(data));
@@ -168,7 +168,6 @@ export const UploadContract: FC<{
       console.error(error);
 
       setAbi({ ...EMPTY, errorText: (error as Error).message });
-      
       setCodeJSON({
         abi: null,
         codeHash: '',
@@ -185,17 +184,14 @@ export const UploadContract: FC<{
   }, [api, setCodeJSON, genesisHash]);
 
   const deploy = useCallback(async () => {
-    console.log('deploy: abi', abi, ' message', message);
-    
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
 
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const value = (new BN(endowment)).mul((new BN(10)).pow(new BN(tokenDecimal)));
-    console.log('salt:', salt, ',  endowment', value.toString(), ',  args', args, 'sender', address, ' gas:', (new BN(gasLimit)).mul(new BN(1000000)).toString());
+    const value = (new BN(endowment)).mul((BN_TEN).pow(new BN(tokenDecimal)));
     const tx = code.tx[message.method]({
-      gasLimit: (new BN(gasLimit)).mul(new BN(1000000)),
+      gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
       value,
       salt,
     }, ...args);
@@ -213,9 +209,9 @@ export const UploadContract: FC<{
     ).subscribe(
       handleTxResults({
         async success(result: CodeSubmittableResult) {
-          console.log('success')
           const contract =  result.contract?.address.toString();
 
+          antMessage.success('deployed');
           api.query.contracts.contractInfoOf(contract)
             .pipe(
               map(info => info.toHuman() as unknown as { Alive: { codeHash: string } } )
@@ -223,9 +219,6 @@ export const UploadContract: FC<{
             .subscribe(info => {
               const { Alive: { codeHash } }  = info;
               
-              console.log('result', result, codeHash);
-    
-              antMessage.success('deployed');
               if (codeJSON) {
                 store.saveCode(codeHash, codeJSON!);
               }
@@ -257,17 +250,6 @@ export const UploadContract: FC<{
           <h2>Upload & deploy contract</h2>
         </div>
         <div className="content">
-          {/* {
-            !abiInput &&
-              <div className="upload">
-                <Upload fileList={[]} beforeUpload={onUpload}>
-                  {
-                    // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                    <a style={{ marginBottom: '16px', width: '100%' }}>Upload Code Bundle</a>
-                  }
-                </Upload>
-              </div>
-          } */}
           {
             !!abi &&
               <div className="params-input">
