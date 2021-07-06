@@ -4,7 +4,7 @@ import { Link, Route, Switch } from 'react-router-dom';
 import { DeployModal } from './DeployModal';
 import { store, BlocksContext, ApiContext, useContracts, DeployedContract, DeployedCode, useRedspotContracts, SettingContext, RedspotContract } from '../../core';
 import { formatAddress, PageTabs, Style } from '../../shared';
-import { Table } from 'antd';
+import { Button, Table } from 'antd';
 import type { Abi } from '@polkadot/api-contract';
 import { UploadAbi } from '../code-hash/UploadAbi';
 
@@ -16,6 +16,11 @@ const Wrapper = styled.div`
   .ant-table-thead > tr > th {
     color: ${Style.color.label.default};
     background-color: white;
+    padding: 12px 20px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px 20px;
   }
 `;
 const Title = styled.h2`
@@ -30,18 +35,7 @@ const Title = styled.h2`
     font-weight: bold;
   }
 `;
-const Button = styled.button`
-  background-color: ${Style.color.bg.default};
-  cursor: pointer;
-  height: 40px;
-  line-height: 40px;
-  border: 1px solid ${Style.color.button.primary};
-  border-radius: 27px;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 0px 24px;
-  color: ${Style.color.primary};
-`;
+
 const InstancesWrapper = styled.div`
   flex: 1;
 `;
@@ -64,25 +58,21 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
         columns={[
           {
             title: <span>Name</span>,
-            width: '20%',
             key: 'name',
             render: (_, record) => <span>{formatContractName(record.codeHash, redspotsContracts)}</span>,
           },
           {
             title: <span>Address</span>,
-            width: '35%',
             key: 'hash',
             render: (_, record) => <Link to={`/explorer/contract/${record.address}`}>{formatAddress(record.address)}</Link>,
           },
           {
             title: <span>Deployed Extrinsic</span>,
-            width: '35%',
             key: 'extrinsic',
             render: (_, record) => <Link to={`/extrinsic/${record.extrinsic.hash.toString()}/details`}>{formatAddress(record.extrinsic.hash.toString())}</Link>,
           },
           {
             title: <span>Deployed Block</span>,
-            width: '10%',
             key: 'block',
             render: (_, record) => <Link to={`/block/${record.block.blockHash}`}>{record.block.height}</Link>,
           },

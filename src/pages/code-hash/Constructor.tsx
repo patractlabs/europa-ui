@@ -6,30 +6,26 @@ import { ApiContext } from '../../core';
 import UIParams from '../../react-params';
 import MoreSvg from '../../assets/imgs/more.svg';
 import LabeledInput from '../developer/shared/LabeledInput';
+import { RawParams } from '../../react-params/types';
 
 const Wrapper = styled.div`
 `;
 const { Option } = Select;
 
 export const Constructor: FC<{
-  defaultValue?: AbiMessage; 
+  defaultValue?: AbiMessage;
   abiMessages: AbiMessage[];
   onMessageChange: (message: AbiMessage) => void;
-  onParamsChange: (params: any[]) => void;
+  onParamsChange: (params: RawParams) => void;
 }> = ({ abiMessages, onMessageChange, onParamsChange, defaultValue }): ReactElement => {
   const [ message, setMessage ] = useState<AbiMessage | undefined>(defaultValue);
   const { api } = useContext(ApiContext);
   const _onMessageChange = useCallback(value => {
     const message = abiMessages.find(m => m.identifier === value)!;
-    const args = message.args.reduce((args: { [key: string]: any }, arg) => {
-      args[arg.name] = null;
-      return args;
-    }, {});
 
     setMessage(message);
     onMessageChange(message);
-    onParamsChange(Object.keys(args).map(key => args[key]));
-  }, [abiMessages, onMessageChange, onParamsChange]);
+  }, [abiMessages, onMessageChange]);
 
   return (
     <Wrapper>
@@ -56,7 +52,7 @@ export const Constructor: FC<{
       {
         !!message &&
           <UIParams
-            onChange={value => onParamsChange(value.map(v => v.value))}
+            onChange={onParamsChange}
             params={message.args}
             registry={api.registry}
           />

@@ -89,7 +89,6 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast =
 };
 
 export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean }> = ({ args, isChild = false, withoutBottom = false }): ReactElement => {
-  console.log('withoutBottom', withoutBottom)
   const argArray: Obj[] = args instanceof Array ?
     args as Obj[] :
     Object.keys(args).map(key =>

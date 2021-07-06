@@ -1,5 +1,5 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { message as antMessage, Modal, Upload } from 'antd';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Button, message as antMessage, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
@@ -12,7 +12,7 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Constructor } from '../code-hash/Constructor';
 import styled from 'styled-components';
-import { AddressInput, ModalMain, ParamInput, Style, Button } from '../../shared';
+import { AddressInput, ModalMain, ParamInput, Style } from '../../shared';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 import LabeledInput from '../developer/shared/LabeledInput';
@@ -20,6 +20,7 @@ import LabeledValue from '../developer/shared/LabeledValue';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import type { Weight } from '@polkadot/types/interfaces';
+import { RawParams } from '../../react-params/types';
 
 const Content = styled(ModalMain)`
   .content {
@@ -48,6 +49,7 @@ const Content = styled(ModalMain)`
 
 const DefaultButton = styled(Button)`
   width: 320px;
+  height: 52px;
 `;
 
 interface AbiState {
@@ -99,10 +101,29 @@ export const DeployModal: FC<{
 }> = ({ abi: abiInput, onCancel, onCompleted, contractName }): ReactElement => {
   const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
-  const [ args, setArgs ] = useState<any[]>([]);
+  const [ params, setParams ] = useState<RawParams>([]);
   const { accounts } = useContext(AccountsContext);
   const [ message, setMessage ] = useState<AbiMessage>();
   const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
+  const [ { sender, endowment, gasLimit, salt }, setState ] = useState<{
+    sender: string;
+    name: string;
+    endowment: number;
+    gasLimit: number;
+    salt: string;
+  }>({
+    sender: accounts[0]?.address,
+    name: '',
+    endowment: 10,
+    gasLimit: (api.consts.system.blockWeights
+      ? api.consts.system.blockWeights.maxBlock
+      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber(),
+    salt: randomAsHex(),
+  });
+
+  const isDisabled = useMemo(() => {
+    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || !gasLimit || !sender || !params.every(param => param.isValid);
+  }, [abi, message, endowment, gasLimit, sender,params]);
 
   useEffect(() => {
     setAbi({
@@ -122,24 +143,8 @@ export const DeployModal: FC<{
       whenCreated: 0,
     });
     setMessage(abiInput?.constructors[0]);
-    setArgs(abiInput?.constructors[0].args.map(() => undefined) || []);
   }, [abiInput]);
 
-  const [ { address, endowment, gasLimit, salt }, setState ] = useState<{
-    address: string;
-    name: string;
-    endowment: number;
-    gasLimit: BN | number;
-    salt: string;
-  }>({
-    address: accounts[0]?.address,
-    name: '',
-    endowment: 10,
-    gasLimit: (api.consts.system.blockWeights
-      ? api.consts.system.blockWeights.maxBlock
-      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
-    salt: randomAsHex(),
-  });
   const onUpload = useCallback(async (file: RcFile) => {
     const data = await file.arrayBuffer();
     const json = u8aToString(convertResult(data));
@@ -163,7 +168,6 @@ export const DeployModal: FC<{
         whenCreated: 0,
       });
       setMessage(abi.constructors[0]);
-      setArgs(abi.constructors[0].args.map(() => undefined));
     } catch (error) {
       console.error(error);
 
@@ -177,14 +181,14 @@ export const DeployModal: FC<{
         whenCreated: 0,
       });
       setMessage(undefined);
-      setArgs([]);
+      setParams([]);
     }
 
     return false;
   }, [api, setCodeJSON, genesisHash]);
 
   const deploy = useCallback(async () => {
-    if (!abi || !isWasm(abi.project.source.wasm) || !message) {
+    if (!message) {
       return;
     }
 
@@ -194,8 +198,8 @@ export const DeployModal: FC<{
       gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
       value,
       salt,
-    }, ...args);
-    const account = accounts.find(account => account.address === address);
+    }, ...params.map(v => v.value as any));
+    const account = accounts.find(account => account.address === sender);
     if (!account) {
       return
     }
@@ -235,7 +239,7 @@ export const DeployModal: FC<{
         }
       }, () => {})
     );
-  }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
 
   return (
     <Modal
@@ -262,7 +266,7 @@ export const DeployModal: FC<{
                     defaultValue={abi.constructors[0]}
                     abiMessages={abi.constructors}
                     onMessageChange={setMessage}
-                    onParamsChange={setArgs}
+                    onParamsChange={setParams}
                   />
                   <ParamInput
                     defaultValue={endowment}
@@ -295,23 +299,19 @@ export const DeployModal: FC<{
                       defaultValue={accounts[0]?.address}
                       bordered={false}
                       suffixIcon={<img src={MoreSvg} alt="" />}
-                      onChange={address => setState(pre => ({...pre, address}))}
+                      onChange={address => setState(pre => ({...pre, sender: address}))}
                     />
                   </LabeledInput>
                 </div>
-                {/* <LabeledInput>
-                  <div className="span">code bundle name</div>
-                  <Input value={name} onChange={e => setState(pre => ({...pre, name: e.target.value }))} />
-                </LabeledInput> */}
               </div>
           }
         </div>
         <div className="footer">
           {
             abi ?
-              <DefaultButton onClick={deploy}>Deploy</DefaultButton> :
+              <DefaultButton disabled={isDisabled} type="primary" onClick={deploy}>Deploy</DefaultButton> :
               <Upload fileList={[]} beforeUpload={onUpload}>
-                <DefaultButton>Upload ABI Bundle</DefaultButton>
+                <DefaultButton type="primary">Upload ABI Bundle</DefaultButton>
               </Upload>
           }
         </div>

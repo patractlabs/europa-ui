@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
-import { Col, message, Row } from 'antd';
+import { Col, Button, message, Row } from 'antd';
 import styled from 'styled-components';
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { TypeDef } from '@polkadot/types/types';
@@ -11,7 +11,7 @@ import Sections from '../shared/Sections';
 import Methods from '../shared/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
-import { AddressInput, Button } from '../../../shared';
+import { AddressInput } from '../../../shared';
 import keyring from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -31,13 +31,10 @@ const Submit = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
-`;
-const StyledButton = styled(Button)`
-  &:last-child {
+
+  > button:last-child {
     margin-left: 16px;
   }
-  height: 40px;
-  padding: 0px 30px;
 `;
 
 interface TypeDefExt extends TypeDef {
@@ -222,8 +219,8 @@ export const Submission: FC = (): ReactElement => {
         <p>{extrinsicHash}</p>
       </Encoded>
       <Submit>
-        <StyledButton onClick={onUnsignedSubmit}>Submit Unsigned</StyledButton>
-        <StyledButton onClick={onSignedSubmit}>Submit Transaction</StyledButton>
+        <Button type="primary" onClick={onUnsignedSubmit}>Submit Unsigned</Button>
+        <Button type="primary" onClick={onSignedSubmit}>Submit Transaction</Button>
       </Submit>
     </Wrapper>
   );

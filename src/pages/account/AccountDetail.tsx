@@ -1,9 +1,8 @@
 import React, { FC, ReactElement } from 'react';
-import { Modal } from 'antd';
+import { Button, Modal } from 'antd';
 import { AccountInfo } from '../../core';
 import styled from 'styled-components';
-import { Style } from '../../shared';
-import { Button, ModalMain } from '../../shared';
+import { Style, ModalMain } from '../../shared';
 
 const Content = styled(ModalMain)`
   .content {
@@ -22,7 +21,6 @@ const Content = styled(ModalMain)`
 `;
 const DefaultButton = styled(Button)`
   width: 320px;
-  background-color: ${Style.color.button.primary};
   margin-right: 16px;
 `;
 

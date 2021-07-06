@@ -1,10 +1,10 @@
 import React, { FC, ReactElement } from 'react';
-import { Modal } from 'antd';
+import { Button, Modal } from 'antd';
 import keyring from '@polkadot/ui-keyring';
 import { AccountInfo } from '../../core';
 import styled from 'styled-components';
 import { Style } from '../../shared';
-import { Button, ModalMain } from '../../shared';
+import { ModalMain } from '../../shared';
 
 const Content = styled(ModalMain)`
     text-align: center;
@@ -16,12 +16,19 @@ const Content = styled(ModalMain)`
 `;
 const DefaultButton = styled(Button)`
   width: 200px;
-  background-color: ${Style.color.button.primary};
   margin-right: 16px;
 `;
 const DeleteButton = styled(Button)`
   width: 200px;
+  color: white;
+  border-width: 0px;
   background-color: ${Style.color.icon.fail};
+
+  &:hover {
+    background-color: white;
+    color: ${Style.color.icon.fail};
+    border: 1px solid ${Style.color.icon.fail};
+  }
 `;
 
 const DeleteAccount: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, onClose }): ReactElement => {
@@ -47,7 +54,7 @@ const DeleteAccount: FC<{ account: AccountInfo, onClose: () => void }> = ({ acco
             </p>
           </div>
           <div className="footer">
-            <DefaultButton onClick={onClose}>Cancel</DefaultButton>
+            <DefaultButton type="primary" onClick={onClose}>Cancel</DefaultButton>
             <DeleteButton onClick={onDelete}>Delete</DeleteButton>
           </div>
         </Content>

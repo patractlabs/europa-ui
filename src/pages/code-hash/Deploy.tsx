@@ -1,9 +1,9 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
+import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { Constructor } from './Constructor';
-import { AddressInput, ParamInput, Style } from '../../shared';
-import { message as antMessage } from 'antd';
+import { AddressInput, ParamInput } from '../../shared';
+import { Button, message as antMessage } from 'antd';
 import { randomAsHex } from '@polkadot/util-crypto';
 import { isWasm } from '@polkadot/util';
 import { Abi, CodeRx } from '@polkadot/api-contract';
@@ -18,6 +18,7 @@ import RawData from './RawData';
 import LabeledValue from '../developer/shared/LabeledValue';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import type { Weight } from '@polkadot/types/interfaces';
+import { RawParams } from '../../react-params/types';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
@@ -36,41 +37,35 @@ const Wrapper = styled.div<{ hasAbi: boolean }>`
   }
 `;
 
-const ButtonPrimary = styled.button`
-  cursor: pointer;
-  padding: 0px 38px;
-  height: 40px;
-  background: ${Style.color.button.primary};
-  color: white;
-  border-radius: 26px;
-  border-width: 0px;
-`;
-
 export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi, name, codeHash }): ReactElement => {
   const { api, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
-  const [ args, setArgs ] = useState<any[]>([]);
+  const [ params, setParams ] = useState<RawParams>([]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
-  const [ { address, endowment, gasLimit, salt }, setState ] = useState<{
-    address: string;
+  const [ { sender, endowment, gasLimit, salt }, setState ] = useState<{
+    sender: string;
     endowment: number;
-    gasLimit: number | BN;
+    gasLimit: number;
     salt: string;
   }>({
-    address: accounts[0]?.address || '',
+    sender: accounts[0]?.address || '',
     endowment: 10,
     gasLimit: (api.consts.system.blockWeights
       ? api.consts.system.blockWeights.maxBlock
-      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN),
+      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber(),
     salt: randomAsHex(),
   });
+
+  const isDisabled = useMemo(() => {
+    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || !gasLimit || !sender || !params.every(param => param.isValid);
+  }, [abi, message, endowment, gasLimit, sender,params]);
 
   const deploy = useCallback(async () => {
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
     
-    const account = accounts.find(account => account.address === address);
+    const account = accounts.find(account => account.address === sender);
 
     if (!account) {
       return
@@ -83,7 +78,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
       gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
       value,
       salt,
-    }, ...args);
+    }, ...params.map(param => param.value as any));
 
     await tx.signAndSend(pair).pipe(
       catchError(e => {
@@ -105,7 +100,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
         }
       }, () => {})
     );
-  }, [abi, api, args, endowment, address, accounts, gasLimit, message, salt, tokenDecimal]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tokenDecimal]);
 
   useEffect(() => setMessage(abi?.constructors[0]), [abi]);
 
@@ -124,7 +119,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                 defaultValue={abi.constructors[0]}
                 abiMessages={abi.constructors}
                 onMessageChange={setMessage}
-                onParamsChange={setArgs}
+                onParamsChange={setParams}
               />
               <ParamInput
                 defaultValue={endowment}
@@ -157,12 +152,12 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                   defaultValue={accounts[0]?.address}
                   bordered={false}
                   suffixIcon={<img src={MoreSvg} alt="" />}
-                  onChange={address => setState(pre => ({...pre, address}))} 
+                  onChange={address => setState(pre => ({...pre, sender: address}))} 
                 />
               </LabeledInput>
             </div>
             <div>
-              <ButtonPrimary onClick={deploy}>Deploy</ButtonPrimary>
+              <Button disabled={isDisabled} type="primary" onClick={deploy}>Deploy</Button>
             </div>
           </div>
       }

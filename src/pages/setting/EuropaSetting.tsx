@@ -1,8 +1,8 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Checkbox, Dropdown, Menu, Tooltip } from 'antd';
+import { Checkbox, Dropdown, Menu, Tooltip, Button } from 'antd';
 import styled from 'styled-components';
 import { SettingContext } from '../../core';
-import { Button, requireModule, Style } from '../../shared';
+import { requireModule, Style } from '../../shared';
 import AddSvg from '../../assets/imgs/add-redspot.svg';
 import InfoSvg from '../../assets/imgs/info.svg';
 import FileSvg from '../../assets/imgs/file-select.svg';
@@ -17,11 +17,11 @@ const EuropaSetting: FC<{
   className: string;
   onSubmit: (dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => void;
   loading: boolean;
-}> = ({ className, onSubmit, type }): ReactElement => {
+}> = ({ className, onSubmit, type, loading }): ReactElement => {
   const { setting, update, defaultDataBasePath } = useContext(SettingContext);
   const [ currentDbPath, setCurrentDbPath ] = useState<string>(setting.lastChoosed?.database || defaultDataBasePath);
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(setting.lastChoosed?.workspace || DEFAULT_WORKSPACE);
-  const [ showRedspot, setShowRedspot ] = useState<boolean>(type === 'Change');
+  const [ showMore, setShowMore ] = useState<boolean>(type === 'Change');
   const [ httpPort, setHttpPort ] = useState<number | undefined>(9933);
   const [ wsPort, setWsPort ] = useState<number | undefined>(9944);
 
@@ -155,48 +155,48 @@ const EuropaSetting: FC<{
           <input placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
         </Dropdown>
       </div>
-
-      <div className="info-line">
-        <div className="span">
-          <span>RPC Port</span>
-        </div>
-      </div>
-      <div className="value-line">
-        <input
-          placeholder="9933"
-          value={httpPort}
-          onChange={e =>
-            setHttpPort(
-              `${parseInt(e.target.value)}` === 'NaN' ?
-                undefined :
-                parseInt(e.target.value)
-            )
-          }
-        />
-      </div>
-
-      <div className="info-line">
-        <div className="span">
-          <span>WS Port</span>
-        </div>
-      </div>
-      <div className="value-line">
-        <input
-          placeholder="9944"
-          value={wsPort}
-          onChange={e =>
-            setWsPort(
-              `${parseInt(e.target.value)}` === 'NaN' ?
-                undefined :
-                parseInt(e.target.value)
-            )
-          }
-        />
-      </div>
       
       {
-        showRedspot &&
-          <div className="redspots">
+        showMore &&
+          <div className="more-options">
+            <div className="info-line">
+              <div className="span">
+                <span>RPC Port</span>
+              </div>
+            </div>
+            <div className="value-line">
+              <input
+                placeholder="9933"
+                value={httpPort}
+                onChange={e =>
+                  setHttpPort(
+                    `${parseInt(e.target.value)}` === 'NaN' ?
+                      undefined :
+                      parseInt(e.target.value)
+                  )
+                }
+              />
+            </div>
+      
+            <div className="info-line">
+              <div className="span">
+                <span>WS Port</span>
+              </div>
+            </div>
+            <div className="value-line">
+              <input
+                placeholder="9944"
+                value={wsPort}
+                onChange={e =>
+                  setWsPort(
+                    `${parseInt(e.target.value)}` === 'NaN' ?
+                      undefined :
+                      parseInt(e.target.value)
+                  )
+                }
+              />
+            </div>
+
             <div className="info-line">
               <div className="span">
                 <span>Redspot Projects</span>
@@ -222,13 +222,15 @@ const EuropaSetting: FC<{
       <div className="submit" style={{ justifyContent: type === 'Start' ? 'space-between' : 'flex-end' }}>
         {
           type === 'Start' &&
-            <Checkbox checked={showRedspot} onClick={() => setShowRedspot(show => !show)}>
-              <span>Add Redspot Project</span>
+            <Checkbox checked={showMore} onClick={() => setShowMore(show => !show)}>
+              <span>More Options</span>
             </Checkbox>
         }
         <Button
+          type="primary"
           style={{ width: '124px', height: '40px' }}
           disabled={!currentDbPath || !currentWorkspace}
+          loading={loading}
           onClick={() => 
             currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace, httpPort, wsPort)
           }
@@ -319,7 +321,7 @@ export default React.memo(styled(EuropaSetting)`
       padding: 14px 12px;
     }
   }
-  > .redspots {
+  > .more-options {
     margin-bottom: 20px;
 
     > .redspot-line {

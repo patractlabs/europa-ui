@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { message, Modal, Upload } from 'antd';
+import { Button, message, Modal, Upload } from 'antd';
 import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
 import type { RcFile } from 'antd/lib/upload';
 import { ApiContext, CodeJson, store } from '../../core';
 import styled from 'styled-components';
-import { ModalMain, Button, Style } from '../../shared';
+import { ModalMain, Style } from '../../shared';
 import LabeledValue from '../developer/shared/LabeledValue';
 import { Abi } from '@polkadot/api-contract';
 
@@ -134,9 +134,9 @@ export const UploadAbi: FC<{
           <div className="footer">
             {
               codeJSON ?
-                <DefaultButton disabled={codeJSON.codeHash !== codeHash} onClick={upload}>Confirm</DefaultButton> :
+                <DefaultButton type="primary" disabled={codeJSON.codeHash !== codeHash} onClick={upload}>Confirm</DefaultButton> :
                 <Upload fileList={[]} beforeUpload={beforeUpload}>
-                  <DefaultButton>Upload ABI Bundle</DefaultButton>
+                  <DefaultButton type="primary">Upload ABI Bundle</DefaultButton>
                 </Upload>
             }
           </div>

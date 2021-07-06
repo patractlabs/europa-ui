@@ -29,7 +29,7 @@ const Key = styled.span`
 
 interface Info {
   key: string;
-  value: string;
+  value: string | number;
 }
 
 enum TabChoice {
@@ -96,13 +96,14 @@ export const BlockDetail: FC = (): ReactElement => {
     const setTimeExtrinsic = block?.extrinsics.find(extrinsic =>
       extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set'
     );
-    const timestamp = setTimeExtrinsic?.args[0].toString();
+    const timestamp = parseInt(setTimeExtrinsic?.args[0].toString() || '');
+    const time = `${timestamp}` === 'NaN' ? '-' : new Date(timestamp).toUTCString();
     
     api.rpc.chain.getHeader(blockHash).subscribe(header => {
       setInfos([
         {
           key: 'TimeStamp',
-          value: timestamp || '',
+          value: time,
         },
         {
           key: 'Hash',

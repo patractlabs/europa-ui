@@ -4,10 +4,10 @@ import { Link, useParams } from 'react-router-dom';
 import { contentBase, formatAddress, InfoHeader, Style, Tabs } from '../../shared';
 import { BlocksContext, ApiContext, useContracts, useBalance, useAbi } from '../../core';
 import { Functions } from './Functions';
+import { Button } from 'antd';
 import { ContractExtrinsics } from './ContractExtrinsics';
 import { ContractEvents } from './ContractEvents';
 import { UploadAbi } from '../code-hash/UploadAbi';
-import { UploadButton } from '../code-hash';
 import { formatBalance } from '@polkadot/util';
 
 const Wrapper = styled.div`
@@ -19,7 +19,8 @@ const Wrapper = styled.div`
   > .tabs {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
+    margin-top: 28px;
   }
 `;
 const Uploader = styled.div`
@@ -75,7 +76,6 @@ export const Contract: FC = (): ReactElement => {
       }/>
       <div className="tabs">
         <Tabs
-          style={{ marginTop: '20px' }}
           options={[
             { name: 'Functions', value: TabChoice.Functions },
             { name: 'Extrinsics', value: TabChoice.Extrinsics },
@@ -86,7 +86,7 @@ export const Contract: FC = (): ReactElement => {
         ></Tabs>
         {
           !abi &&
-            <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
+            <Button onClick={() => setShow(true)}>Upload ABI</Button>
         }
       </div>
       {

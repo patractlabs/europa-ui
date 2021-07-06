@@ -120,3 +120,30 @@ body #root {
   word-wrap: break-word;
   border-color: #DEDEDE;
 }
+
+.ant-btn {
+  padding: 0 38px;
+  height: 40px;
+  border-radius: 26px;
+  font-weight: 600;
+  border: 1px solid #beac92;
+  color: #b19e83;
+  background: #ffffff;
+}
+.ant-btn:hover, .ant-btn:focus, .ant-btn:active {
+  border: 1px solid #beac92;
+  color: white;
+  background: #beac92;
+}
+
+.ant-btn-primary {
+  border-width: 0px;
+  color: #fff;
+  background: #beac92;
+}
+
+.ant-btn-primary:hover, .ant-btn-primary:focus {
+  color: #beac92;
+  background-color: white;
+}
+

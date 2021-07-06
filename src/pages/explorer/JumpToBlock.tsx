@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Input, Modal } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import styled from 'styled-components';
-import { Button, ModalMain, Style } from '../../shared';
+import { ModalMain, Style } from '../../shared';
 import { ApiContext, BlocksContext } from '../../core';
 
 const Content = styled(ModalMain)`
@@ -31,15 +31,16 @@ const Content = styled(ModalMain)`
     }
   }
   .footer {
-
+    .ant-btn {
+      width: 320px;
+    }
+    .warning-btn {
+      background-color: ${Style.color.label.primary};
+    }
+    .warning-btn:hover {
+      color: white;
+    }
   }
-`;
-const DefaultButton = styled(Button)`
-  width: 320px;
-`;
-const WarningButton = styled(Button)`
-  background-color: ${Style.color.label.primary};
-  width: 320px;
 `;
 
 const JumpToBlock: FC<{ direction: 'backward' | 'forward'; onClose: () => void }> = ({ direction, onClose }): ReactElement => {
@@ -89,8 +90,8 @@ const JumpToBlock: FC<{ direction: 'backward' | 'forward'; onClose: () => void }
         <div className="footer">
           {
             direction === 'forward' ?
-             <DefaultButton onClick={onClick}>Confirm</DefaultButton> :
-             <WarningButton onClick={onClick}>Confirm</WarningButton>
+             <Button type="primary" onClick={onClick}>Confirm</Button> :
+             <Button type="primary" className="warning-btn" onClick={onClick}>Confirm</Button>
           }
         </div>
       </Content>

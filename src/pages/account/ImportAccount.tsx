@@ -1,8 +1,8 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
-import { Input, Modal } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
-import { Button, ModalMain, Style } from '../../shared';
+import { ModalMain, Style } from '../../shared';
 import styled from 'styled-components';
 import LabeledInput from '../developer/shared/LabeledInput';
 
@@ -72,7 +72,7 @@ export const ImportAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
           </LabeledInput>
         </div>
         <div className="footer">
-          <DefaultButton onClick={onImport}>Import</DefaultButton>
+          <DefaultButton disabled={!name || !seed} type="primary" onClick={onImport}>Import</DefaultButton>
         </div>
       </Content>
     </Modal>

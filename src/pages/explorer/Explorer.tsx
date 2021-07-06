@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from "react-router-dom";
-import { Table } from 'antd';
+import { Button, Table } from 'antd';
 import styled from 'styled-components';
 import EnterSVG from '../../assets/imgs/enter.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
@@ -46,6 +46,8 @@ const BlockInfoWrapper = styled.div`
   justify-content: space-between;
 
   > .block-info {
+    overflow: hidden;
+    margin-right: 20px;
     background-color: white;
     display: flex;
     align-items: center;
@@ -115,24 +117,22 @@ const NavigationGroup = styled.div`
   align-items: center;
   
   > .back {
+    color: white;
+    border-width: 0px;
     background: ${Style.color.label.primary};
     margin-right: 9px;
   }
-  > .forward {
-    background: ${Style.color.button.primary};
+  
+  > .back:hover {
+    opacity: 0.85;
+  }
+  > .back, > .forward {
+    padding: 0px 33px;
+    font-size: 15px;
+    height: 52px;
   }
 `;
-const NavigationButton = styled.button`
-  width: 150px;
-  height: 51px;
-  border-radius: 26px;
-  border-width: 0px;
-  color: white;
-  cursor: pointer;
-  outline: none;
-  font-size: 15px;
-  line-height: 18px;
-`;
+
 const ShowMore = styled.div`
   cursor: pointer;
   display: flex;
@@ -200,8 +200,8 @@ const BlockInfo: FC<{
       {
         viewing &&
           <NavigationGroup>
-            <NavigationButton className="back" onClick={backward}>Back to Block</NavigationButton>
-            <NavigationButton className="forward" onClick={forward}>Go to Block</NavigationButton>
+            <Button type="primary" className="back" onClick={backward}>Back to Block</Button>
+            <Button type="primary" className="forward" onClick={forward}>Go to Block</Button>
           </NavigationGroup>
       }
     </BlockInfoWrapper>
@@ -237,20 +237,22 @@ export const Explorer: FC = (): ReactElement => {
     <Wrapper>
       <NavigationHighlight>
         <NavigationGroup>
-          <NavigationButton
+          <Button
             className="back"
+            type="primary"
             onClick={() => {
               setDirection('backward');
               setShowJumpModal(true);
             }}
-          >Back to Block</NavigationButton>
-          <NavigationButton
+          >Back to Block</Button>
+          <Button
             className="forward"
+            type="primary"
             onClick={() =>{
               setDirection('forward');
               setShowJumpModal(true);
             }}
-          >Go to Block</NavigationButton>
+          >Go to Block</Button>
         </NavigationGroup>
       </NavigationHighlight>
       {

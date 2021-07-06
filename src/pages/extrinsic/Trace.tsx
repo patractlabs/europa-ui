@@ -154,10 +154,14 @@ export const ContractTrace: FC<{
             <Col className="text-overflow" span={12}>
               <LabelDefault>To</LabelDefault>
               <ValuePrimary>
-                <Link to={`/explorer/contract/${contract?.address.toString()}`}>
-                  {name && name + ' : '}
-                  {trace.self_account}
-                </Link>
+                {
+                  contract?.address.toString() ?
+                    <Link to={`/explorer/contract/${contract?.address.toString()}`}>
+                      {name && name + ' : '}
+                      {trace.self_account}
+                    </Link> :
+                    <span>{trace.self_account}</span>
+                }
               </ValuePrimary>
             </Col>
             <Col span={12}>

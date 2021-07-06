@@ -28,21 +28,6 @@ const TabTitle = styled.div`
   align-items: center;
   justify-content: space-between;
 `;
-export const UploadButton = styled(Button)`
-  margin-bottom: 8px;
-  padding: 0px 24px;
-  height: 40px;
-  border-radius: 26px;
-  border: 1px solid ${Style.color.button.primary};
-  font-size: 14px;
-  font-weight: bold;
-  color: ${Style.color.primary};
-
-  &:hover {
-    color: ${Style.color.primary};
-    border: 1px solid ${Style.color.button.primary};
-  }
-`;
 
 enum TabChoice {
   Codes = 'Codes',
@@ -105,7 +90,7 @@ export const CodeHash: FC = (): ReactElement => {
         ></Tabs>
         {
           !abi &&
-            <UploadButton onClick={() => setShow(true)}>Upload ABI</UploadButton>
+            <Button onClick={() => setShow(true)}>Upload ABI</Button>
         }
       </TabTitle>
 

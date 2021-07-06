@@ -1,9 +1,9 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Input, Modal } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import { mnemonicGenerate } from '@polkadot/util-crypto';
 import keyring from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
-import { Button, ModalMain, Style } from '../../shared';
+import { ModalMain, Style } from '../../shared';
 import styled from 'styled-components';
 import LabeledValue from '../developer/shared/LabeledValue';
 import LabeledInput from '../developer/shared/LabeledInput';
@@ -83,7 +83,7 @@ export const CreateAccount: FC<{ open: boolean; onClose: () => void }> = ({ open
           </LabeledInput>
         </div>
         <div className="footer">
-          <DefaultButton disabled={!name} onClick={onCreate}>Add</DefaultButton>
+          <DefaultButton type="primary" disabled={!name} onClick={onCreate}>Add</DefaultButton>
         </div>
       </Content>
     </Modal>

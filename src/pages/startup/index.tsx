@@ -3,6 +3,7 @@ import { message, } from 'antd';
 import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
 import { BusContext, EuropaManageContext, SettingContext } from '../../core';
+import Logo from '../../assets/imgs/logo.png';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
 import { Style } from '../../shared';
@@ -55,6 +56,10 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   return (
     <div className={className}>
       <div className="content">
+        <div className="title">
+          <img src={Logo} alt="" />
+          <h1>Europa is Ready!</h1>
+        </div>
         <div className="setting">
           <EuropaSetting type="Start" onSubmit={onStart} loading={loading} />
         </div>
@@ -64,9 +69,9 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 };
 
 export default React.memo(styled(StartUp)`
+  height: 100%;
   background-color: ${Style.color.bg.default};
   padding: 20px;
-  height: 100%;
 
   > .content {
     padding: 36px;
@@ -76,6 +81,27 @@ export default React.memo(styled(StartUp)`
     flex-direction: column;
     align-items: center;
 
+    > .title {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      width: 50%;
+      max-width: 540px;
+      margin-bottom: 40px;
+      position: relative;
+      justify-content: center;
+
+      > img {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 60px;
+        height: 60px;
+      }
+      > h1 {
+
+      }
+    }
     > .setting {
       width: 50%;
       max-width: 540px;

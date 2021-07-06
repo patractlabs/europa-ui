@@ -2,8 +2,8 @@ import React, { FC, ReactElement, useState, useCallback, useContext, useEffect }
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
-import { AddressInput, Button, Style } from '../../shared';
-import { message as antMessage } from 'antd';
+import { AddressInput, Style } from '../../shared';
+import { Button, message as antMessage } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, handleTxResults } from '../../core';
 import keyring from '@polkadot/ui-keyring';
@@ -79,11 +79,6 @@ const Result = styled.div`
     font-weight: bold;
     color: ${Style.color.label.primary};
   }
-`;
-
-const StyledButton = styled(Button)`
-  width: 124px;
-  height: 40px;
 `;
 
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
@@ -177,7 +172,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
               }
             </ParamsContainer>
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
-              <StyledButton onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</StyledButton>
+              <Button type="primary" onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
             </Exec>
             {
               !message.isMutating && result &&
