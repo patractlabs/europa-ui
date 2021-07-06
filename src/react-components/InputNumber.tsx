@@ -6,7 +6,7 @@ import type { SiDef } from '@polkadot/util/types';
 import type { BitLength } from './types';
 
 import BN from 'bn.js';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { BN_ONE, BN_TEN, BN_TWO, BN_ZERO, formatBalance, isBn, isUndefined } from '@polkadot/util';
@@ -15,6 +15,7 @@ import { BitLengthOption } from './constants';
 import Input, { KEYS_PRE } from './Input';
 import { useTranslation } from './translate';
 import { ApiContext } from '../core';
+import { Input as AntInput, Select } from 'antd';
 
 interface Props {
   autoFocus?: boolean;
@@ -26,6 +27,7 @@ interface Props {
   isDisabled?: boolean;
   isError?: boolean;
   isFull?: boolean;
+  isSi?: boolean;
   isDecimal?: boolean;
   isWarning?: boolean;
   isZeroable?: boolean;
@@ -38,6 +40,7 @@ interface Props {
   onEscape?: () => void;
   placeholder?: string;
   siDecimals?: number;
+  siDefault?: SiDef;
   siSymbol?: string;
   value?: BN | null;
   withEllipsis?: boolean;
@@ -69,14 +72,14 @@ function getRegex (isDecimal: boolean): RegExp {
   );
 }
 
-// function getSiOptions (symbol: string, decimals?: number): { text: string; value: string }[] {
-//   return formatBalance.getOptions(decimals).map(({ power, text, value }): { text: string; value: string } => ({
-//     text: power === 0
-//       ? symbol
-//       : text,
-//     value
-//   }));
-// }
+function getSiOptions (symbol: string, decimals?: number): { text: string; value: string }[] {
+  return formatBalance.getOptions(decimals).map(({ power, text, value }): { text: string; value: string } => ({
+    text: power === 0
+      ? symbol
+      : text,
+    value
+  }));
+}
 
 function getSiPowers (si: SiDef | null, decimals?: number): [BN, number, number] {
   if (!si) {
@@ -95,7 +98,7 @@ function isValidNumber (bn: BN, bitLength: BitLength, isZeroable: boolean, maxVa
     // cannot be negative
     bn.lt(BN_ZERO) ||
     // cannot be > than allowed max
-    !bn.lt(getGlobalMaxValue(bitLength)) ||
+    bn.gt(getGlobalMaxValue(bitLength)) ||
     // check if 0 and it should be a value
     (!isZeroable && bn.isZero()) ||
     // check that the bitlengths fit
@@ -171,20 +174,23 @@ function getValues (api: ApiRx, value: BN | string = BN_ZERO, si: SiDef | null, 
     : getValuesFromString(api, value, si, bitLength, isZeroable, maxValue, decimals);
 }
 
-function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, className = '', defaultValue, help, isDecimal, isFull, isDisabled, isError = false, isWarning, isZeroable = true, label, labelExtra, maxLength, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siSymbol, value: propsValue }: Props): React.ReactElement<Props> {
+function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, className = '', defaultValue, help, isDecimal, isFull, isSi, isDisabled, isError = false, isWarning, isZeroable = true, label, labelExtra, maxLength, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siDefault, siSymbol, value: propsValue }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useContext(ApiContext);
-  // const [si, setSi] = useState<SiDef | null>(isSi ? formatBalance.findSi('-') : null);
-  const [si] = useState<SiDef | null>(null);
-  const [isPreKeyDown, setIsPreKeyDown] = useState(false);
-  const [[value, valueBn, isValid], setValues] = useState<[string, BN, boolean]>(
+  const [si, setSi] = useState<SiDef | null>(() =>
+    isSi
+      ? siDefault || formatBalance.findSi('-')
+      : null
+  );
+  const [[value, valueBn, isValid], setValues] = useState<[string, BN, boolean]>(() =>
     getValues(api, propsValue || defaultValue, si, bitLength, isZeroable, maxValue, siDecimals)
   );
+  const [isPreKeyDown, setIsPreKeyDown] = useState(false);
 
-  // const siOptions = useMemo(
-  //   () => getSiOptions(siSymbol || TokenUnit.abbr, siDecimals),
-  //   [siDecimals, siSymbol]
-  // );
+  const siOptions = useMemo(
+    () => getSiOptions(siSymbol || TokenUnit.abbr, siDecimals),
+    [siDecimals, siSymbol]
+  );
 
   useEffect((): void => {
     onChange && onChange(isValid ? valueBn : undefined);
@@ -246,20 +252,59 @@ function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, clas
     [isDecimal, si]
   );
 
-  // const _onSelectSiUnit = useCallback(
-  //   (siUnit: string): void => {
-  //     const si = formatBalance.findSi(siUnit);
+  const _onSelectSiUnit = useCallback(
+    (siUnit: string): void => {
+      const si = formatBalance.findSi(siUnit);
 
-  //     setSi(si);
-  //     _onChangeWithSi(value, si);
-  //   },
-  //   [_onChangeWithSi, value]
-  // );
+      setSi(si);
+      _onChangeWithSi(value, si);
+    },
+    [_onChangeWithSi, value]
+  );
 
   // Same as the number of digits, which means it can still overflow, i.e.
   // for u8 we allow 3, which could be 999 (however 2 digits will limit to only 99,
   // so this is more-or-less the lesser of evils without a max-value check)
   const maxValueLength = getGlobalMaxValue(bitLength).toString().length;
+
+  if (isSi && si) {
+    return (
+      <AntInput.Group compact>
+        <Input
+          style={{ width: '75%' }}
+          autoFocus={autoFocus}
+          className={`ui--InputNumber${isDisabled ? ' isDisabled' : ''} ${className}`}
+          help={help}
+          isAction={false}
+          isDisabled={isDisabled}
+          isError={!isValid || isError}
+          isFull={isFull}
+          isWarning={isWarning}
+          label={label}
+          labelExtra={labelExtra}
+          maxLength={maxLength || maxValueLength}
+          onChange={_onChange}
+          onEnter={onEnter}
+          onEscape={onEscape}
+          onKeyDown={_onKeyDown}
+          onKeyUp={_onKeyUp}
+          onPaste={_onPaste}
+          placeholder={placeholder || t<string>('Positive number')}
+          type='text'
+          value={value}
+        >
+          {children}
+        </Input>
+        <Select style={{ width: '25%' }} defaultValue={si.value} onChange={_onSelectSiUnit}>
+          {
+            siOptions.map((option, index) =>
+              <Select.Option key={index} value={option.value}>{option.text}</Select.Option>
+            )
+          }
+        </Select>
+      </AntInput.Group>
+    );
+  }
 
   return (
     <Input

@@ -55,8 +55,8 @@ const Call = styled.div`
 
 `;
 const ParamsContainer = styled.div`
-  width: 50%;
-  min-width: 550px;
+  width: 90%;
+  max-width: 800px;
 `;
 
 const Caller = styled.div`

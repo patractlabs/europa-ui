@@ -54,7 +54,7 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
   return (
     <InstancesWrapper>
       <Title>
-        <label>All Contract Instances</label>
+        <label>Deployed Contract Instances</label>
       </Title>
       <Table
         rowKey={record => record.address}
@@ -112,7 +112,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
   return (
     <CodesWrapper>
       <Title>
-        <label>All Code Hashes</label>
+        <label>Deployed Codes</label>
         <Button onClick={() => toggleUpload(true)}>Upload & deploy contract</Button>
       </Title>
       <Table
@@ -129,7 +129,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
           },
           {
             title: <span>Code Hash</span>,
-            width: '30%',
+            width: '20%',
             key: 'hash',
             render: (_, record) => <Link to={`/explorer/code-hash/${record.hash}`}>{formatAddress(record.hash)}</Link>,
           },
@@ -141,7 +141,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
           },
           {
             title: <span>Uploaded At Block</span>,
-            width: '10%',
+            width: '20%',
             key: 'block',
             render: (_, record) => <Link to={`/block/${record.block.blockHash}`}>{record.block.height}</Link>,
           },
@@ -195,7 +195,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
       }
 
       <Title style={{ marginTop: '20px' }}>
-        <label>Redspot Contracts</label>
+        <label>Redspot Codes</label>
       </Title>
       <Table
         rowKey={record => record.codeHash}
@@ -212,14 +212,14 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
           },
           {
             title: <span>Code Hash</span>,
-            width: '30%',
+            width: '20%',
             dataIndex: 'codeHash',
             key: 'codeHash',
             render: (codeHash) => <Link to={`/explorer/code-hash/${codeHash}`}>{formatAddress(codeHash)}</Link>,
           },
           {
             title: <span>Disk Path</span>,
-            width: '40%',
+            width: '50%',
             dataIndex: 'path',
             key: 'path',
             render: (path) => <span>{path}</span>,

@@ -90,7 +90,7 @@ function InputBalance ({ autoFocus, children, className = '', defaultValue: inDe
       isDisabled={isDisabled}
       isError={isError}
       isFull={isFull}
-      isSi
+      isSi={true}
       isWarning={isWarning}
       isZeroable={isZeroable}
       label={label}

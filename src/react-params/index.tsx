@@ -124,7 +124,7 @@ class Params extends React.PureComponent<Props, State> {
                 {
                   this.getType(name, type) !== 'Null' &&
                     <div className="param">
-                      {this.getName(name, type)} : {this.getType(name, type)}
+                      {this.getName(name, type)}{this.getType(name, type) && `: ${this.getType(name, type)}`}
                     </div>
                 }
                 <ParamComp

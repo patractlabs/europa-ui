@@ -75,7 +75,7 @@ export const Extrinsics: FC<{
           columns={[
             {
               title: <span style={{ marginLeft: '4px' }}>Extrinsic Hash</span>,
-              width: '20%',
+              width: '25%',
               key: 'hash',
               render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
             },
@@ -87,21 +87,15 @@ export const Extrinsics: FC<{
             },
             {
               title: <div style={{display: 'flex'}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
-              width: '35%',
+              width: '50%',
               key: 'transfer',
               render: (_, record) => <Transfer record={record} />
             },
             {
               title: <span>Value</span>,
-              width: '15%',
+              width: '20%',
               key: 'value',
               render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
-            },
-            {
-              title: <span>Txn Fee</span>,
-              width: '15%',
-              key: 'txn fee',
-              render: (_, record) => <span>{}</span>,
             },
           ]}
         />

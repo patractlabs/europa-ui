@@ -96,7 +96,7 @@ const Toggle = styled.div<{ expanded: boolean }>`
 const Args = styled.div`
   border: 1px solid ${Style.color.button.primary};
   border-radius: 5px;
-  height: 144px;
+  height: 500px;
   background: ${Style.color.bg.second};
   word-break: break-all;
   word-wrap: break-word;
@@ -187,7 +187,7 @@ export const ContractTrace: FC<{
                       <Args>{
                         abi ?
                           getArgs(abi, trace.selector, trace.args).map((arg, index) =>
-                            <div key={index}>{arg.toString()}</div>
+                            <div style={{ marginBottom: '15px' }} key={index}>{arg.toString()}</div>
                           )
                           :
                           trace.args

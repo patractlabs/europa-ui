@@ -5,6 +5,7 @@ import React, { useCallback, useState } from 'react';
 import { Input as SUIInput } from 'antd';
 
 import { isFunction, isUndefined } from '@polkadot/util';
+import { CSSProperties } from 'styled-components';
 
 type Input$Type = 'number' | 'password' | 'text';
 
@@ -42,6 +43,7 @@ interface Props {
   onKeyPress?: (event: React.KeyboardEvent<Element>) => void;
   onPaste?: (event: React.ClipboardEvent<Element>) => void;
   placeholder?: string;
+  style?: CSSProperties;
   tabIndex?: number;
   type?: Input$Type;
   value?: string;
@@ -90,7 +92,7 @@ const isSelectAll = (key: string, isPreKeyDown: boolean): boolean =>
 
 let counter = 0;
 
-function Input ({ autoFocus = false, children, className, defaultValue, help, icon, inputClassName, isAction = false, isDisabled = false, isDisabledError = false, isEditable = false, isError = false, isFull = false, isHidden = false, isInPlaceEditor = false, isReadOnly = false, isWarning = false, label, labelExtra, max, maxLength, min, name, onBlur, onChange, onEnter, onEscape, onKeyDown, onKeyUp, onPaste, placeholder, tabIndex, type = 'text', value, withEllipsis, withLabel }: Props): React.ReactElement<Props> {
+function Input ({ autoFocus = false, children, className, defaultValue, help, icon, inputClassName, isAction = false, isDisabled = false, isDisabledError = false, isEditable = false, isError = false, isFull = false, isHidden = false, isInPlaceEditor = false, isReadOnly = false, isWarning = false, label, labelExtra, max, maxLength, min, name, onBlur, onChange, onEnter, onEscape, onKeyDown, onKeyUp, onPaste, placeholder, style, tabIndex, type = 'text', value, withEllipsis, withLabel }: Props): React.ReactElement<Props> {
   const [stateName] = useState(() => `in_${counter++}_at_${Date.now()}`);
 
   const _onBlur = useCallback(
@@ -183,6 +185,7 @@ function Input ({ autoFocus = false, children, className, defaultValue, help, ic
       onKeyUp={_onKeyUp}
       placeholder={placeholder}
       readOnly={isReadOnly}
+      style={style}
       tabIndex={tabIndex}
       type={type}
       value={value}
