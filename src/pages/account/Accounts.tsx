@@ -51,11 +51,14 @@ const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
           </div>
         </div>
         
-        <div className="list-header">
-          <span className="name">Name</span>
-          <span className="address">Address</span>
-          <span className="balance">Balance</span>
-        </div>
+        {
+          !!accounts.filter(account => !account.isTesting).length && 
+            <div className="list-header">
+              <span className="name">Name</span>
+              <span className="address">Address</span>
+              <span className="balance">Balance</span>
+            </div>
+        }
         
         {
           accounts.filter(account => !account.isTesting).map(account =>
@@ -68,11 +71,14 @@ const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
           Default Accounts
         </div>
         
-        <div className="list-header">
-          <span className="name">Name</span>
-          <span className="address">Address</span>
-          <span className="balance">Balance</span>
-        </div>
+        {
+          !!accounts.filter(account => !!account.isTesting) &&
+            <div className="list-header">
+              <span className="name">Name</span>
+              <span className="address">Address</span>
+              <span className="balance">Balance</span>
+            </div>
+        }
 
         {
           accounts.filter(account => !!account.isTesting).map(account =>

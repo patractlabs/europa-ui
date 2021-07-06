@@ -50,7 +50,7 @@ const States: FC<{ block: Block }> = ({ block }): ReactElement => {
     <div>
       {
         mutations.map((mutation, index) =>
-          <Args key={index} args={mutation} />
+          <Args key={index} args={mutation} withoutBottom={mutations.length - 1 !== index} />
         )
       }
     </div>

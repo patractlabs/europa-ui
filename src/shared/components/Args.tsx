@@ -1,8 +1,10 @@
-import { FC, CSSProperties, ReactElement } from 'react';
+import { FC, ReactElement } from 'react';
 import styled from 'styled-components';
 import { Style } from '../styled/const';
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isChild: boolean; withoutBottom: boolean }>`
+  border: ${props => props.isChild ? '' : '1px solid ' + Style.color.button.primary};
+  border-bottom-width: ${props => props.isChild || props.withoutBottom ? '0px' : '1px' };
 `;
 
 const Item = styled.div<{ hasChild: boolean }>`
@@ -10,14 +12,13 @@ const Item = styled.div<{ hasChild: boolean }>`
 
   > .key {
     padding: 20px;
-    border: 1px solid ${Style.color.border.default};
+    border-right: 1px solid ${Style.color.button.primary};
     width: 140px;
     display: flex;
     align-items: center;
   }
   > .value {
     padding: ${props => props.hasChild ? '0px' : '20px'};
-    border: 1px solid ${Style.color.border.default};
     overflow: hidden;
     flex: 1;
     white-space: nowrap;
@@ -35,15 +36,15 @@ const isComplexed = (value: any): boolean => {
   return typeof value === 'object' && value !== null;
 };
 
-const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, style, index }): ReactElement => {
+const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast = false, index }): ReactElement => {
   return (
-    <div style={style}>
+    <div style={{ borderBottom: isLast ? '0px' : `1px solid ${Style.color.button.primary}` }}>
       {
         arg instanceof Array ? 
           <Item hasChild={true}>
             <div className="key">{index}</div>
             <div className="value">{
-              <Args args={arg} />
+              <Args args={arg} isChild={true} />
             }</div>
           </Item>
           :
@@ -52,7 +53,7 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
               <Item key={key} hasChild={isComplexed(arg[key])}>
                 <div className="key">{key}</div>
                 <div className="value">{
-                  isComplexed(arg[key]) ? <Args args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
+                  isComplexed(arg[key]) ? <Args isChild={true} args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
                 }</div>
               </Item>
             )
@@ -69,9 +70,10 @@ const Arg: FC<{ style?: CSSProperties; arg: Obj; index: number; }> = ({ arg, sty
   );
 };
 
-export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
-  args = args instanceof Array ?
-    args :
+export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean }> = ({ args, isChild = false, withoutBottom = false }): ReactElement => {
+  console.log('withoutBottom', withoutBottom)
+  const argArray: Obj[] = args instanceof Array ?
+    args as Obj[] :
     Object.keys(args).map(key =>
       ({
         [key]: (args as Obj)[key]
@@ -79,11 +81,11 @@ export const Args: FC<{ args: Obj[] | Obj }> = ({ args }): ReactElement => {
     );
 
   return (
-    <Wrapper>
+    <Wrapper isChild={isChild} withoutBottom={withoutBottom}>
       {
-        args.map((arg, index) =>
+        argArray.map((arg, index) =>
           <div key={index}>
-            <Arg arg={arg} index={index} />
+            <Arg arg={arg} index={index} isLast={index === (argArray.length - 1)} />
           </div>
         )
       }

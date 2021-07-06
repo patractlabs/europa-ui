@@ -75,7 +75,7 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
     <Wrapper>
       {
         mutations.map((mutation, index) =>
-          <Args key={index} args={mutation} />
+          <Args key={index} args={mutation} withoutBottom={index !== mutations.length - 1} />
         )
       }     
     </Wrapper>

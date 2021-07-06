@@ -87,13 +87,21 @@ export default React.memo(styled(Account)`
   }
 
   > .name {
+    text-overflow: ellipsis;
+    overflow: hidden;
     width: 10%;
     font-weight: 600;
   }
   > .address {
+    text-overflow: ellipsis;
+    overflow: hidden;
     width: 50%;
+    padding: 0px 10px;
   }
   > .balance {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
     width: 15%;
     font-weight: 600;
   }
@@ -102,22 +110,25 @@ export default React.memo(styled(Account)`
     display: flex;
     align-items: center;
     width: 25%;
+    overflow: hidden;
 
     .mnemonic {
       display: flex;
       align-items: center;
       margin-right: 20px;
       cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
 
       > img {
         width: 15px;
         height: 15px;
       }
       > div {
+        height: 48px;
         margin-left: 8px;
         font-weight: 600;
         overflow: hidden;
-        word-break: break-all;
       }
     }
   } 

@@ -52,6 +52,7 @@ export const Contract: FC = (): ReactElement => {
       <InfoHeader pairs={
         [
           {
+            style: { width: '35%' },
             label: 'Address',
             render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{address}</span>
           },

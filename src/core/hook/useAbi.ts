@@ -17,7 +17,7 @@ export const useAbi = (codeHash: string, signal?: number) => {
 
     const code = store.getCode(codeHash);
 
-    if (code) {
+    if (code && code.contractAbi) {
       setAbi(code.contractAbi);
       setName(code.json.name);
     } else {

@@ -74,6 +74,7 @@ export const CodeHash: FC = (): ReactElement => {
       <InfoHeader pairs={
         [
           {
+            style: { width: '50%' },
             label: 'Code Hash',
             render: <span style={{ fontSize: '16px', color: Style.color.label.primary }}>{codeHash}</span>
           },

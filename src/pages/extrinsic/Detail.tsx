@@ -13,6 +13,10 @@ import { Col, Row } from 'antd';
 
 const Wrapper = styled.div`
   padding: 20px;
+
+  > div > .call-params {
+    background: #eeece9;
+  }
 `;
 const ExtrinsicHash = styled(TitleWithBottomBorder)`
   color: ${Style.color.label.default};
@@ -23,6 +27,8 @@ const ExtrinsicHash = styled(TitleWithBottomBorder)`
   > .hash {
     font-size: 20px;
     margin-left: 20px;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 `;
 const ExtrinsicInfo = styled(Row)`
@@ -214,9 +220,9 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               <label>
                 Extrinsic Hash
               </label>
-              <span className="hash">
+              <div className="hash">
                 { extrinsic.hash.toString() }
-              </span>
+              </div>
             </ExtrinsicHash>
             <ExtrinsicInfo>
               <Col span={12}>
@@ -247,7 +253,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                 </KeyValueLine>
               </Col>
             </ExtrinsicInfo>
-            <div>
+            <div className="call-params">
               {
                 args &&
                   <div style={{ marginTop: '10px', marginBottom: '20px' }}>

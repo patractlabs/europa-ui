@@ -28,7 +28,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
     };
     update(newSetting);
 
-    startup(dbPath, workspace, { httpPort, wsPort }).then(europa => {
+    startup(dbPath, workspace).then(europa => {
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 

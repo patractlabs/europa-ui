@@ -80,11 +80,10 @@ export const AccountsProvider = React.memo(
                   mnemonic: localStorage.getItem(`mnemonic${keyringAccount.address}`) || '',
                 })),
               )
-            )        
+            )
           )
         ),
       ).subscribe((accounts) => {
-        accounts = accounts.filter((account) => !!account);
         setAccounts(accounts);
         console.log('Stored Accounts:', accounts);
       }, e => console.log('eee', e));

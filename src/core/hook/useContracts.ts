@@ -81,14 +81,11 @@ export const useContracts = (api: ApiRx, blocks: Block[]) => {
         )
       ),
     ).pipe(
-      // map(codes => codes.filter(code => !!code) as DeployedCode[]),
+      map(codes => codes.filter(Boolean) as DeployedCode[]),
     ).subscribe(codes => {
       const codesMap: { [key: string]: DeployedCode } = {};
 
       codes.forEach((code, index) =>{
-        if (!code) {
-          return;
-        }
         _contracts[index].codeHash = code.hash;
 
         if (!codesMap[code.hash] || code.block.height < codesMap[code.hash].block.height) {

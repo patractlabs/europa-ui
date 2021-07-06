@@ -160,14 +160,14 @@ export const ContractTrace: FC<{
                 </Link>
               </ValuePrimary>
             </Col>
-            <Col span={6}>
+            <Col span={12}>
               <LabelDefault>Gas Left</LabelDefault>
               <ValueDefault>{trace.gas_left}</ValueDefault>
             </Col>
-            <Col span={6}>
+            {/* <Col span={6}>
               <LabelDefault>Gas used</LabelDefault>
               <ValueDefault>-</ValueDefault>
-            </Col>
+            </Col> */}
           </Row>
         </MainInfo>
         {
@@ -212,7 +212,7 @@ export const ContractTrace: FC<{
                     <Args>
                       {
                         trace.env_trace.map((env, index) =>
-                          <ArgsDisplay key={index} args={env} />
+                          <ArgsDisplay key={index} args={env} withoutBottom={index !== trace.env_trace.length - 1} />
                         )
                       }
                     </Args>

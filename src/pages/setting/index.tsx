@@ -32,7 +32,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
     };
     update(newSetting);
 
-    change(dbPath, workspace, { httpPort, wsPort }).then(europa => {
+    change(dbPath, workspace).then(europa => {
       europa?.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
 
