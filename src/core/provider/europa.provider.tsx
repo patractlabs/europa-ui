@@ -10,22 +10,22 @@ interface EuropaManageContextProps {
   startup: (
     db: string,
     workspace: string,
-    options?: Options,
+    options?: EuropaOptions,
   ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
   change: (
     db: string,
     workspace: string,
-    options?: Options,
+    options?: EuropaOptions,
   ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
 }
-interface Options {
+export interface EuropaOptions {
   httpPort?: number;
   wsPort?: number;
 }
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
 
-const startEuropa = async (db: string, workspace: string, options?: Options): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
+const startEuropa = async (db: string, workspace: string, options?: EuropaOptions): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
   if (!requireModule.isElectron) {
     return Promise.resolve(undefined);
   }
@@ -87,7 +87,7 @@ export const EuropaManageProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
 
-    const startup = useCallback(async (db: string, workspace: string, options?: Options) => {
+    const startup = useCallback(async (db: string, workspace: string, options?: EuropaOptions) => {
       const europa = await startEuropa(db, workspace, options);
 
       setEuropa(europa);
@@ -95,7 +95,7 @@ export const EuropaManageProvider = React.memo(
       return europa;
     }, []);
 
-    const change = useCallback(async (db: string, workspace: string, options?: Options) => {
+    const change = useCallback(async (db: string, workspace: string, options?: EuropaOptions) => {
       europa?.kill();
       return await startup(db, workspace, options);
     }, [europa, startup]);

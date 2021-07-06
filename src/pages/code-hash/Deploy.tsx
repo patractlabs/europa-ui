@@ -17,8 +17,8 @@ import MoreSvg from '../../assets/imgs/more.svg';
 import RawData from './RawData';
 import LabeledValue from '../developer/shared/LabeledValue';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
-import type { Weight } from '@polkadot/types/interfaces';
 import { RawParams } from '../../react-params/types';
+import { getEstimatedGas } from '../contract/DeployModal';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
@@ -50,9 +50,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   }>({
     sender: accounts[0]?.address || '',
     endowment: 10,
-    gasLimit: (api.consts.system.blockWeights
-      ? api.consts.system.blockWeights.maxBlock
-      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber(),
+    gasLimit: getEstimatedGas(api),
     salt: randomAsHex(),
   });
 

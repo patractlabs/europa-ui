@@ -5,12 +5,13 @@ import { AbiMessage } from '@polkadot/api-contract/types';
 import { AddressInput, Style } from '../../shared';
 import { Button, message as antMessage } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
-import { AccountsContext, handleTxResults } from '../../core';
+import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import keyring from '@polkadot/ui-keyring';
 import Params from './Params';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { encodeTypeDef } from '@polkadot/types/create';
+import { getEstimatedGas } from './DeployModal';
 
 const Wrapper = styled.div`
   margin-bottom: 16px;
@@ -83,36 +84,33 @@ const Result = styled.div`
 
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
+  const { api } = useContext(ApiContext);
   const [ result, setResult ] = useState<any>();
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
 
   useEffect(() => setSender(accounts[0]?.address), [accounts]);
-  // const { tokenDecimal } = useContext(ApiContext);
 
-  // const queryEstimatedWeight = useCallback(
-  //   async (fields: any[], value?: string) => {
-  //     const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
-  //     return result.isOk ? gasConsumed : null;
-  //   },
-  //   [contract, message, sender],
-  // );
+  const queryEstimatedWeight = useCallback(
+    async (fields: any[], value?: string) => {
+      const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
+      return result.isOk ? gasConsumed : null;
+    },
+    [contract, message, sender],
+  );
 
   const send = useCallback(async () => {
-    console.log('send params:', params.map(p => p.toString()), ', address:', sender);
     if (!message.isMutating) {
       const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
-      // const a = new BN(query.output?.toString() ||'');
-      // console.log(a.div(new BN(10).pow(new BN(tokenDecimal))).toString());
-      
-      setResult(`${query.output?.toHuman()}` || '<empty>');
+      console.log('query.output?.toHuman',query.output?.toHuman())
+      setResult(JSON.stringify(query.output?.toHuman()) || '<empty>');
       return;
     }
 
-    // const estimatedGas = await queryEstimatedWeight(fields);
+    const estimatedGas = await queryEstimatedWeight(params);
     const tx = contract.tx[message.method]({
-      gasLimit: 200000000000,
+      gasLimit: estimatedGas || getEstimatedGas(api),
       value: 0,
     }, ...params);
     const account = accounts.find(account => account.address === sender);
@@ -140,7 +138,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
         }
       }, () => {})
     );
-  }, [params, sender, contract, message, accounts]);
+  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api]);
 
   return (
     <Wrapper>

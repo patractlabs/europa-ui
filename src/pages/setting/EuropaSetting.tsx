@@ -11,6 +11,8 @@ import type * as Electron from 'electron';
 import * as _ from 'lodash';
 
 const DEFAULT_WORKSPACE = 'default';
+const DEFAULT_HTTP_PORT = 9933;
+const DEFAULT_WS_PORT = 9944;
 
 const EuropaSetting: FC<{
   type: 'Change' | 'Start';
@@ -22,9 +24,20 @@ const EuropaSetting: FC<{
   const [ currentDbPath, setCurrentDbPath ] = useState<string>(setting.lastChoosed?.database || defaultDataBasePath);
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(setting.lastChoosed?.workspace || DEFAULT_WORKSPACE);
   const [ showMore, setShowMore ] = useState<boolean>(type === 'Change');
-  const [ httpPort, setHttpPort ] = useState<number | undefined>(9933);
-  const [ wsPort, setWsPort ] = useState<number | undefined>(9944);
-
+  const [ httpPort, setHttpPort ] = useState<number | undefined>();
+  const [ wsPort, setWsPort ] = useState<number | undefined>();
+  
+  const changed = useMemo(() =>
+    !setting.lastChoosed ||
+      setting.lastChoosed.database !== currentDbPath ||
+      setting.lastChoosed.workspace !== currentWorkspace ||
+      (setting.lastChoosed.httpPort && httpPort !== setting.lastChoosed.httpPort) ||
+      (!setting.lastChoosed.httpPort && httpPort && httpPort !== DEFAULT_HTTP_PORT) ||
+      (setting.lastChoosed.wsPort && wsPort !== setting.lastChoosed.wsPort) ||
+      (!setting.lastChoosed.wsPort && wsPort && wsPort !== DEFAULT_WS_PORT),
+    [setting.lastChoosed, currentDbPath, currentWorkspace, httpPort, wsPort],
+  );
+  
   useEffect(() => {
   }, [setting]);
 
@@ -161,7 +174,7 @@ const EuropaSetting: FC<{
           <div className="more-options">
             <div className="info-line">
               <div className="span">
-                <span>RPC Port</span>
+                <span>HTTP Port</span>
               </div>
             </div>
             <div className="value-line">
@@ -229,7 +242,7 @@ const EuropaSetting: FC<{
         <Button
           type="primary"
           style={{ width: '124px', height: '40px' }}
-          disabled={!currentDbPath || !currentWorkspace}
+          disabled={!currentDbPath || !currentWorkspace || (type === 'Change' && !changed)}
           loading={loading}
           onClick={() => 
             currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace, httpPort, wsPort)

@@ -21,6 +21,7 @@ import MoreSvg from '../../assets/imgs/more.svg';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import type { Weight } from '@polkadot/types/interfaces';
 import { RawParams } from '../../react-params/types';
+import type { ApiRx } from '@polkadot/api';
 
 const Content = styled(ModalMain)`
   .content {
@@ -93,6 +94,12 @@ const EMPTY: AbiState = {
   isAbiValid: false
 };
 
+export function getEstimatedGas(api: ApiRx) {
+  return (api.consts.system.blockWeights
+    ? api.consts.system.blockWeights.maxBlock
+    : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber()
+}
+
 export const DeployModal: FC<{
   onCancel: () => void;
   onCompleted: () => void;
@@ -115,9 +122,7 @@ export const DeployModal: FC<{
     sender: accounts[0]?.address,
     name: '',
     endowment: 10,
-    gasLimit: (api.consts.system.blockWeights
-      ? api.consts.system.blockWeights.maxBlock
-      : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber(),
+    gasLimit: getEstimatedGas(api),
     salt: randomAsHex(),
   });
 

@@ -3,6 +3,7 @@ import { requireModule } from '../../shared';
 import type * as FS from 'fs';
 import type { App } from 'electron';
 import type * as Path from 'path';
+import { EuropaOptions } from './europa.provider';
 
 let CONFIG_PATH = '';
 let DATA_PATH = '';
@@ -27,7 +28,7 @@ export interface Setting {
   lastChoosed?: {
     database: string;
     workspace: string;
-  }
+  } & EuropaOptions;
 }
 
 interface SettingContextProps {
