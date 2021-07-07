@@ -41,6 +41,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       await update(newSetting);
     } catch (e) {
       message.error(`Could not store setting, code: ${ErrorCode.SaveSettingFailed}`);
+      setLoading(false);
       return;
     }
  

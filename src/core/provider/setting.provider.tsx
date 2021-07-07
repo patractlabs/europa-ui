@@ -14,7 +14,7 @@ if (requireModule.isElectron) {
   const appDataPath = app.getPath('appData');
 
   CONFIG_PATH = path.resolve(appDataPath, 'europa-ui/user-config.json');
-  DATA_PATH = path.resolve(appDataPath, 'europa-ui');
+  DATA_PATH = path.resolve(appDataPath, 'europa-node');
 
   console.log(CONFIG_PATH, 'CONFIG_PATH')
 }
