@@ -12,6 +12,7 @@ import { message } from 'antd';
 import { ActiveTab as ContractActiveTab } from '../contract';
 import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
 import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
+import { isBlockNumber } from '../blocks/BlockDetail';
 
 const Wrapper = styled.div`
   display: flex;
@@ -267,7 +268,11 @@ export const Header: FC = (): ReactElement => {
             const reg = new RegExp(`^/block/(${hashReg})$`);
             const result = reg.exec(pathname);
             const blockHash =  result ? `${result[1]}` : '';
-            const height = blocks.find(block => block.blockHash === blockHash)?.height;
+            const height = blocks.find(_block =>
+              isBlockNumber(blockHash) ?
+                _block.height === parseInt(blockHash) :
+                _block.blockHash === blockHash
+            )?.height;
 
             return  `#${height}`;
           },

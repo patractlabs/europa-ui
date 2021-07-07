@@ -101,19 +101,19 @@ export const EOA: FC = (): ReactElement => {
           columns={[
             {
               title: <HeaderLabel style={{ marginLeft: '4px' }}>Hash</HeaderLabel>,
-              width: '20%',
+              width: '25%',
               key: 'hash',
               render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
             },
             {
               title: <HeaderLabel>Block Number</HeaderLabel>,
-              width: '15%',
+              width: '20%',
               key: 'from',
               render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
             },
             {
               title: <div style={{display: 'flex', color: Style.color.label.default}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
-              width: '35%',
+              width: '45%',
               key: 'transfer',
               render: (_, record) => <Transfer signer={address} record={record} />
             },
@@ -122,12 +122,6 @@ export const EOA: FC = (): ReactElement => {
               width: '15%',
               key: 'value',
               render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
-            },
-            {
-              title: <HeaderLabel>Txn Fee</HeaderLabel>,
-              width: '15%',
-              key: 'txn fee',
-              render: () => <span>-</span>,
             },
           ]}
         />

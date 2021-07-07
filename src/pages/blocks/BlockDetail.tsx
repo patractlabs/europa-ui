@@ -6,6 +6,10 @@ import { ApiContext, Block, BlocksContext, PaginationProvider } from '../../core
 import { Events, Extrinsics, Style, Tabs } from '../../shared';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import States from './States';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
+import { BlockHash } from '@polkadot/types/interfaces';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -84,13 +88,22 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
   );
 };
 
+export function isBlockNumber(which: string): boolean {
+  return `${parseInt(which)}` === which && which !== 'NaN';
+}
+
 export const BlockDetail: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { api } = useContext(ApiContext);
   const { blockHash } = useParams<{ blockHash: string }>();
   const [ infos, setInfos ] = useState<Info[]>([]);
 
-  const block = useMemo(() => blocks.find(_block => _block.blockHash === blockHash), [blocks, blockHash]);
+  const block = useMemo(() => blocks.find(_block =>
+    isBlockNumber(blockHash) ?
+      _block.height === parseInt(blockHash) :
+      _block.blockHash === blockHash),
+    [blocks, blockHash],
+  );
 
   useEffect(() => {
     const setTimeExtrinsic = block?.extrinsics.find(extrinsic =>
@@ -98,8 +111,13 @@ export const BlockDetail: FC = (): ReactElement => {
     );
     const timestamp = parseInt(setTimeExtrinsic?.args[0].toString() || '');
     const time = `${timestamp}` === 'NaN' ? '-' : new Date(timestamp).toUTCString();
-    
-    api.rpc.chain.getHeader(blockHash).subscribe(header => {
+    const isHeight = isBlockNumber(blockHash);
+    let blockHash$: Observable<string | BlockHash>;
+
+    blockHash$ = isHeight ? api.rpc.chain.getBlockHash(blockHash) : of(blockHash);
+    const sub = blockHash$.pipe(
+      mergeMap(blockHash => api.rpc.chain.getHeader(blockHash)),
+    ).subscribe(header => {
       setInfos([
         {
           key: 'TimeStamp',
@@ -123,6 +141,8 @@ export const BlockDetail: FC = (): ReactElement => {
         },
       ]);
     });
+
+    return () => sub.unsubscribe();
   }, [blockHash, blocks, api.rpc.chain, block]);
 
   return (

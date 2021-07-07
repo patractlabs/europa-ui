@@ -20,7 +20,7 @@ function createWindow () {
   })
   win.setMenuBarVisibility(false);
 
-  win.openDevTools({mode:'detach'})
+  // win.openDevTools({mode:'detach'})
 
   // console.log('env', process.env.NODE_ENV)
   // win.loadURL('http://localhost:3000/')

@@ -27,7 +27,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
 const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting, defaultDataBasePath } = useContext(SettingContext);
   const { startup } = useContext(EuropaManageContext);
-  const { connect: connectApi, disconnect } = useContext(ApiContext);
+  const { connect: connectApi } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
@@ -50,9 +50,13 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
     }
  
     try {
-      const europa = await startup(database, workspace, { httpPort, wsPort });
+      const europa = startup(database, workspace, { httpPort, wsPort });
 
-      console.log('operated')
+      console.log('startup', europa)
+
+      if (!europa.pid) {
+        throw new Error('no pid');
+      }
 
       // Wrong setting may cause Europa exit
       europa.once('exit', (e) => {console.log('europa exit', e)})
@@ -61,9 +65,9 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       europa.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
   
+        // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
         if (!!code) {
           setLoading(false);
-          disconnect();
           message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
       });
@@ -86,7 +90,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       setLoading(false);
       history.push('/explorer');
     });
-  }, [setting, update, history, connected$, connectApi, startup, disconnect]);
+  }, [setting, update, history, connected$, connectApi, startup]);
 
   return (
     <div className={className}>

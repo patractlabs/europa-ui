@@ -31,7 +31,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting, defaultDataBasePath } = useContext(SettingContext);
   const { clear: clearBlocks } = useContext(BlocksContext);
-  const { connect: connectApi, disconnect } = useContext(ApiContext);
+  const { connect: connectApi } = useContext(ApiContext);
   const { clear: clearLogs } = useContext(LogsContext);
   const { change } = useContext(EuropaManageContext);
   const [ loading, setLoading ] = useState<boolean>(false);
@@ -53,11 +53,18 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       await update(newSetting);
     } catch (e) {
       message.error(`Could not store setting, code: ${ErrorCode.SaveSettingFailed}`);
+      setLoading(false);
       return;
     }
  
     try {
-      const europa = await change(database, workspace, { httpPort, wsPort });
+      const europa = change(database, workspace, { httpPort, wsPort });
+
+      console.log('change', europa)
+
+      if (!europa.pid) {
+        throw new Error('no pid');
+      }
 
       // Wrong setting may cause Europa exit
       europa.once('exit', (e) => {console.log('europa exit', e)})
@@ -66,9 +73,9 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       europa.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
         
+        // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
         if (!!code) {
           setLoading(false);
-          disconnect();
           message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
       });
@@ -91,7 +98,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       setLoading(false);
       history.push('/explorer');
     });
-  }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi, disconnect]);
+  }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi]);
 
   return (
     <div className={className}>

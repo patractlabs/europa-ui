@@ -83,7 +83,7 @@ export const Extrinsics: FC<{
               title: <span>Block Number</span>,
               width: '15%',
               key: 'from',
-              render: (_, record) => <Link to={`/explorer/eoa/${record.signer.toString()}`}>{record.height}</Link>,
+              render: (_, record) => <Link to={`/block/${record.height}`}>{record.height}</Link>,
             },
             {
               title: <div style={{display: 'flex'}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,

@@ -97,7 +97,6 @@ const ApiContext: Context<{
   wsProvider: WsProvider;
   metadata: Metadata;
   connect: (wsPort: number) => void;
-  disconnect: () => void;
 }> = React.createContext({} as any);
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
@@ -214,7 +213,6 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     systemName,
     metadata,
     connect,
-    disconnect,
   } }>{children}</ApiContext.Provider>;
 });
 

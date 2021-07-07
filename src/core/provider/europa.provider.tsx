@@ -11,12 +11,12 @@ interface EuropaManageContextProps {
     db: string,
     workspace: string,
     options?: EuropaOptions,
-  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams>;
+  ) => ChildProcess.ChildProcessWithoutNullStreams;
   change: (
     db: string,
     workspace: string,
     options?: EuropaOptions,
-  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams>;
+  ) => ChildProcess.ChildProcessWithoutNullStreams;
 }
 export interface EuropaOptions {
   httpPort?: number;
@@ -25,63 +25,55 @@ export interface EuropaOptions {
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
 
-const startEuropa = async (db: string, workspace: string, options?: EuropaOptions): Promise<ChildProcess.ChildProcessWithoutNullStreams> => {
+const startEuropa = (db: string, workspace: string, options?: EuropaOptions): ChildProcess.ChildProcessWithoutNullStreams => {
   if (!requireModule.isElectron) {
-    return Promise.resolve(undefined as unknown as ChildProcess.ChildProcessWithoutNullStreams);
+    return undefined as unknown as ChildProcess.ChildProcessWithoutNullStreams;
   }
 
-  const europa = await new Promise<ChildProcess.ChildProcessWithoutNullStreams>((resolve, reject) => {
-    const childProcess: typeof ChildProcess = requireModule('child_process');
-    const path: typeof Path = requireModule('path');
-    const fs: typeof FS = requireModule('fs');
-    const os: typeof OS = requireModule('os');
-    const platform = os.platform().toLowerCase();
-    const resources = process.env.NODE_ENV === 'development'
-      ? path.resolve('./resources')
-      : path.resolve(__dirname, '../../app.asar.unpacked/resources');
-    let binPath = path.resolve(resources, 'europa.exe');
+  const childProcess: typeof ChildProcess = requireModule('child_process');
+  const path: typeof Path = requireModule('path');
+  const fs: typeof FS = requireModule('fs');
+  const os: typeof OS = requireModule('os');
+  const platform = os.platform().toLowerCase();
+  const resources = process.env.NODE_ENV === 'development'
+    ? path.resolve('./resources')
+    : path.resolve(__dirname, '../../app.asar.unpacked/resources');
+  let binPath = path.resolve(resources, 'europa.exe');
+
+  if (platform === 'linux' || platform === 'darwin') {
+    binPath = path.resolve(resources, 'europa');
+  }
   
-    if (platform === 'linux' || platform === 'darwin') {
-      binPath = path.resolve(resources, 'europa');
-    }
-    
-    try {
-      console.log(process.env.NODE_ENV, process.env.REACT_APP_ELECTRON_ENV);
-      console.log(`platform:`, platform);
-      console.log(`bin:`, binPath);
-      console.log(`dir:`, __dirname);
-      console.log('files:', fs.readdirSync(path.resolve(__dirname)));
-      console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
-      console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
-      console.log('files:', fs.readdirSync(resources));
-      console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
-    } catch(e) {}
+  try {
+    console.log(process.env.NODE_ENV, process.env.REACT_APP_ELECTRON_ENV);
+    console.log(`platform:`, platform);
+    console.log(`bin:`, binPath);
+    console.log(`dir:`, __dirname);
+    console.log('files:', fs.readdirSync(path.resolve(__dirname)));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
+    console.log('files:', fs.readdirSync(resources));
+    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
+  } catch(e) {}
   
-    const optionsMap = {
-      httpPort: '--rpc-port=',
-      wsPort: '--ws-port=',
-    }
-    const args = [`-d=${db}`, `-w=${workspace}`]
-      .concat(!options ?
-        [] :
-        Object
-        .keys(options)
-        .filter(key => options[key as 'httpPort' | 'wsPort'])
-        .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
-      );
+  const optionsMap = {
+    httpPort: '--rpc-port=',
+    wsPort: '--ws-port=',
+  }
+  const args = [`-d=${db}`, `-w=${workspace}`]
+    .concat(!options ?
+      [] :
+      Object
+      .keys(options)
+      .filter(key => options[key as 'httpPort' | 'wsPort'])
+      .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
+    );
 
-    console.log('args:', args);
+  console.log('args:', args);
 
-    const europa = childProcess.spawn(binPath, args);
+  const europa = childProcess.spawn(binPath, args);
 
-    if (europa.pid) {
-      console.log('europa.pid', europa.pid, europa)
-      resolve(europa);
-    } else {
-      console.log('failed')
-      reject('Europa startup failed')
-    }
-  });
+  console.log('europa.pid', europa.pid, europa)
 
   return europa;
 }
@@ -90,17 +82,18 @@ export const EuropaManageProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
 
-    const startup = useCallback(async (db: string, workspace: string, options?: EuropaOptions) => {
-      const europa = await startEuropa(db, workspace, options);
+    const startup = useCallback((db: string, workspace: string, options?: EuropaOptions) => {
+      const europa = startEuropa(db, workspace, options);
 
       setEuropa(europa);
 
       return europa;
     }, []);
 
-    const change = useCallback(async (db: string, workspace: string, options?: EuropaOptions) => {
+    const change = useCallback((db: string, workspace: string, options?: EuropaOptions) => {
       europa?.kill();
-      return await startup(db, workspace, options);
+
+      return startup(db, workspace, options);
     }, [europa, startup]);
 
     return <EuropaManageContext.Provider value={{
