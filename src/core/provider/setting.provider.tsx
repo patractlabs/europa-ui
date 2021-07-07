@@ -7,6 +7,10 @@ import { EuropaOptions } from './europa.provider';
 
 let CONFIG_PATH = '';
 let DATA_PATH = '';
+const DEFAULT_SETTING: Setting = {
+  databases: [],
+  redspots: [],
+};
 
 if (requireModule.isElectron) {
   const app: App = requireModule('electron').remote.app;
@@ -90,7 +94,7 @@ export const SettingProvider = React.memo(
         return;
       }
 
-      load().then(setting => setSetting(setting), () => {});
+      load().then(setting => setSetting(setting), () => setSetting(DEFAULT_SETTING));
     }, []);
 
     return <SettingContext.Provider value={{
