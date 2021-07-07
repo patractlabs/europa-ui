@@ -18,6 +18,7 @@ const createOptions = (api: ApiRx) => {
     .keys(api.rpc)
     .sort()
     .filter((section) => Object.keys((api.rpc as Record<string, Record<string, unknown>>)[section]).length !== 0)
+    .filter(section => section !== 'contractsExt' && section !==  'europa');
 }
 
 const createMethods = (api: ApiRx, rpcs: Record<string, Record<string, DefinitionRpcExt>>, sectionName: string) => {
