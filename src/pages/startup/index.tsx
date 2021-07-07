@@ -2,56 +2,80 @@ import React, { FC, ReactElement, useCallback, useContext, useState } from 'reac
 import { message, } from 'antd';
 import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
-import { BusContext, EuropaManageContext, SettingContext } from '../../core';
+import { ApiContext, BusContext, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
 import { Style } from '../../shared';
 import * as _ from 'lodash';
 
+function createNewSetting(setting: Setting, database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) {
+  const newSetting = _.cloneDeep(setting);
+  const db = newSetting.databases.find(db => db.path === database)
+  
+  !db?.workspaces.includes(workspace) && db?.workspaces.push(workspace);
+  newSetting.lastChoosed = {
+    database,
+    workspace,
+    httpPort,
+    wsPort,
+  };
+
+  return newSetting;
+}
+
 const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting } = useContext(SettingContext);
   const { startup } = useContext(EuropaManageContext);
+  const { start: connectApi } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
 
-  const onStart = useCallback((dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
+  const onStart = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     setLoading(true)
 
-    const newSetting = _.cloneDeep(setting);
-    const db = newSetting.databases.find(db => db.path === dbPath)
-    
-    !db?.workspaces.includes(workspace) && db?.workspaces.push(workspace);
-    newSetting.lastChoosed = {
-      database: dbPath,
-      workspace,
-    };
-    update(newSetting);
+    const newSetting = createNewSetting(setting, database, workspace, httpPort, wsPort);
 
-    startup(dbPath, workspace).then(europa => {
-      europa?.once('close', (code, signal) => {
+    try {
+      await update(newSetting);
+    } catch (e) {
+      message.error(`Could not store setting, code: ${ErrorCode.SaveSettingFailed}`);
+      return;
+    }
+ 
+    try {
+      const europa = await startup(database, workspace, { httpPort, wsPort });
+
+      // Wrong setting may cause Europa exit
+      europa.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
-
+  
         if (!!code) {
           setLoading(false);
-          message.error(`Europa exited unexpectly`, 3);
+          message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
       });
-      connected$.pipe(
-        filter(c => !!c),
-        take(1),
-      ).subscribe(() => {
-        console.log('history.push(explorer);');
-        setLoading(false);
-        history.push('/explorer');
-      });
-    }, err => {
-      console.log(err);
+    } catch (e) {
+      console.log(e);
+
       setLoading(false);
-      message.error('Failed to start europa', 1);
+      message.error(`Failed to start Europa, code: ${ErrorCode.StartFailed}`, 3);
+      return;
+    }
+
+    connectApi(wsPort || 9944);
+
+    connected$.pipe(
+      filter(c => !!c),
+      take(1),
+    ).subscribe(() => {
+      console.log('history.push(explorer);');
+
+      setLoading(false);
+      history.push('/explorer');
     });
-  }, [setting, update, history, startup, connected$]);
+  }, [setting, update, history, connected$, connectApi, startup]);
 
   return (
     <div className={className}>

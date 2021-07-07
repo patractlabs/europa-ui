@@ -8,7 +8,7 @@ import { randomAsHex } from '@polkadot/util-crypto';
 import { isWasm } from '@polkadot/util';
 import { Abi, CodeRx } from '@polkadot/api-contract';
 import BN from 'bn.js';
-import keyring from '@polkadot/ui-keyring';
+import { keyring } from '@polkadot/ui-keyring';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -89,8 +89,6 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
           antMessage.success('deployed');
         },
         fail(e) {
-          console.log(e.events.map(e => e.toHuman()));
-          
           antMessage.error('failed');
         },
         update(r) {

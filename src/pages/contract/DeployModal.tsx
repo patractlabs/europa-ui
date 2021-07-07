@@ -5,7 +5,7 @@ import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
 import { handleTxResults, ApiContext, AccountsContext, CodeJson, store } from '../../core';
 import { CodeRx } from '@polkadot/api-contract';
-import keyring from '@polkadot/ui-keyring';
+import { keyring } from '@polkadot/ui-keyring';
 import BN from 'bn.js';
 import { randomAsHex } from '@polkadot/util-crypto';
 import { map, catchError } from 'rxjs/operators';
@@ -235,8 +235,6 @@ export const DeployModal: FC<{
             });
         },
         fail(e) {
-          console.log(e.events.map(e => e.toHuman()));
-          
           antMessage.error('failed');
         },
         update(r) {

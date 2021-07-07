@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
 import { Button, Input, Modal } from 'antd';
-import keyring from '@polkadot/ui-keyring';
+import { keyring } from '@polkadot/ui-keyring';
 import { ApiContext } from '../../core';
 import { ModalMain, Style } from '../../shared';
 import styled from 'styled-components';

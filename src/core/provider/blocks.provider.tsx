@@ -1,13 +1,11 @@
 import { ApiRx } from '@polkadot/api';
-import React, { Context, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { Context, useCallback, useContext, useRef, useState } from 'react';
 import { ApiContext } from './api.provider';
-import { zip } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { zip, from, Subscription } from 'rxjs';
+import { map, finalize, tap, switchMap } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { AnyTuple } from '@polkadot/types/types';
-import { BusContext } from './bus.provider';
-import { filter, skip } from 'rxjs/operators';
 import type { ExtendedEventRecord } from '../../shared';
 
 export type Extrinsic = GenericExtrinsic<AnyTuple> & {
@@ -26,6 +24,7 @@ interface BlockContextProps {
   backward: (height: number) => void;
   backwarding: boolean;
   clear: () => void;
+  retrive: () => void;
 }
 
 export const BlocksContext: Context<BlockContextProps> = React.createContext({}as unknown as BlockContextProps);
@@ -117,21 +116,11 @@ const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]>
 };
 
 export const BlocksProvider = React.memo(({ children }: { children: React.ReactNode }): React.ReactElement => {
-  const { connected$ } = useContext(BusContext);
-  const { api, systemName } = useContext(ApiContext);
+  const { api } = useContext(ApiContext);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [ backwarding, setBackwarding ] = useState<boolean>(false);
   const blocksRef = useRef<Block[]>([]);
-  const [ signal, updateSignal ] = useState(0);
-  
-  useEffect(() => {
-    const sub = connected$.pipe(
-      filter(c => !!c),
-      skip(1),
-    ).subscribe(() => updateSignal(v => v + 1));
-
-    return () => sub.unsubscribe();
-  }, [connected$]);
+  const [ sub, setSub ] = useState<Subscription>();
 
   const clear = useCallback(() => {
     blocksRef.current = [];
@@ -154,29 +143,36 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
     );
   }, [api]);
 
-  useEffect(() => {
+  const retrive = useCallback(() => {
     if (!api || !api.isReady) { 
       return;
     }
 
-    retriveLatestBlocks(api).then(
-      _blocks => {
+    sub && sub.unsubscribe();
+    
+    const newSub = from(retriveLatestBlocks(api)).pipe(
+      tap(_blocks => {
         blocksRef.current = _blocks;
-        console.log('retive blocks', _blocks);
         setBlocks(_blocks);
-      },
-      () => {},
-    ).then(() =>
-      api.derive.chain.subscribeNewHeads().subscribe(async header => {
+        
+        console.log('retive blocks', _blocks);
+      }),
+      switchMap(() => api.derive.chain.subscribeNewHeads()),
+      switchMap(header => {
         console.log('new header: height=' + header.number.toNumber());
         console.log(header.toHuman());
 
-        const { block, extrinsics } = await retriveBlock(
-          api,
-          header.hash.toString(),
-          header.number.toNumber(),
+        return from(
+          retriveBlock(
+            api,
+            header.hash.toString(),
+            header.number.toNumber(),
+          )
+        ).pipe(
+          map(old => ({...old, header }))
         );
-        
+      }),
+    ).subscribe(({ block, extrinsics, header }) => {
         blocksRef.current = patchBlocks(blocksRef.current, [
           Object.assign(block, {
             blockHash: header.hash.toString(),
@@ -185,16 +181,17 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
           })
         ]);
         setBlocks(blocksRef.current);
-      }),
-      () => {},
-    );
-  }, [api, systemName, signal]);
+    }, (e) => {console.log('err', e)});
+
+    setSub(newSub);
+  }, [api, sub]);
 
   return <BlocksContext.Provider value={{
       blocks,
       backward,
       backwarding,
       clear,
+      retrive,
     }}>{children}</BlocksContext.Provider>;
   }
 );

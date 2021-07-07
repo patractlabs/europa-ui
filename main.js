@@ -8,6 +8,8 @@ function createWindow () {
     movable: true,
     frame: true,
     title: 'Europa',
+    width: 950,
+    height: 800,
     useContentSize: false,
     webPreferences: {
       webSecurity: false,

@@ -1,60 +1,89 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { message } from 'antd';
 import styled from 'styled-components';
-import { BlocksContext, BusContext, EuropaManageContext, LogsContext, SettingContext } from '../../core';
+import { ApiContext, BlocksContext, BusContext, ErrorCode, EuropaManageContext, LogsContext, Setting, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
 import { take, filter } from 'rxjs/operators';
 import { Style } from '../../shared';
 import * as _ from 'lodash';
 
+function createNewSetting(setting: Setting, database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) {
+  const newSetting = _.cloneDeep(setting);
+  const db = newSetting.databases.find(db => db.path === database)
+  
+  if (!db) {
+    newSetting.databases.push({ path: database, workspaces: [workspace] });
+  } else if (!db.workspaces.includes(workspace)) {
+    db.workspaces.push(workspace);
+  }
+
+  newSetting.lastChoosed = {
+    database,
+    workspace,
+    httpPort,
+    wsPort,
+  };
+
+  return newSetting;
+}
+
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting } = useContext(SettingContext);
   const { clear: clearBlocks } = useContext(BlocksContext);
+  const { start: connectApi } = useContext(ApiContext);
   const { clear: clearLogs } = useContext(LogsContext);
   const { change } = useContext(EuropaManageContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
   const { connected$ } = useContext(BusContext);
 
-  const onChange = useCallback((dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
+  const onChange = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     setLoading(true);
     clearLogs();
     clearBlocks();
     
-    const newSetting = _.cloneDeep(setting);
-    const db = newSetting.databases.find(db => db.path === dbPath)
-    
-    !db?.workspaces.includes(workspace) && db?.workspaces.push(workspace);
-    newSetting.lastChoosed = {
-      database: dbPath,
-      workspace,
-    };
-    update(newSetting);
+    const newSetting = createNewSetting(setting, database, workspace, httpPort, wsPort);
 
-    change(dbPath, workspace).then(europa => {
-      europa?.once('close', (code, signal) => {
+    try {
+      await update(newSetting);
+    } catch (e) {
+      message.error(`Could not store setting, code: ${ErrorCode.SaveSettingFailed}`);
+      return;
+    }
+ 
+    try {
+      const europa = await change(database, workspace, { httpPort, wsPort });
+
+      // Wrong setting may cause Europa exit
+      europa.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
-
+  
         if (!!code) {
           setLoading(false);
-          message.error(`Europa exited unexpectly`, 3);
+          message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
       });
-      connected$.pipe(
-        filter(c => !!c),
-        take(1),
-      ).subscribe(() => {
-        console.log('history.push(explorer);');
-        setLoading(false);
-        history.push('/explorer');
-      });
-    }, err => {
-      console.log(err);
+    } catch (e) {
+      console.log(e);
+
       setLoading(false);
-      message.error('Failed to start europa', 1);
+      message.error(`Failed to start Europa, code: ${ErrorCode.StartFailed}`, 3);
+      return;
+    }
+
+    connectApi(wsPort || 9944);
+
+    connected$.pipe(
+      filter(c => !!c),
+      take(1),
+    ).subscribe(() => {
+      console.log('history.push(explorer);');
+
+      setLoading(false);
+      history.push('/explorer');
     });
-  }, [setting, update, history, change, clearLogs, clearBlocks, connected$]);
+  }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi]);
 
   return (
     <div className={className}>

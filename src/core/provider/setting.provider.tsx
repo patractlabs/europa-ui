@@ -57,7 +57,7 @@ async function load(): Promise<Setting> {
   setting.redspots = setting.redspots || [];
   setting.databases = (setting.databases || []).map(d => ({path: d.path, workspaces: d.workspaces || []}));
   
-  console.log('config', setting);
+  console.log('load config', setting);
 
   return setting;
 }
@@ -74,7 +74,7 @@ async function write(setting: Setting): Promise<void> {
     flag: 'w'
   });
 
-  console.log('writed', data);
+  console.log('writed config', data);
 }
 
 export const SettingProvider = React.memo(

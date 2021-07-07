@@ -12,7 +12,7 @@ import Methods from '../shared/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
 import { AddressInput } from '../../../shared';
-import keyring from '@polkadot/ui-keyring';
+import { keyring } from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { u8aToHex } from '@polkadot/util';
@@ -132,7 +132,6 @@ export const Submission: FC = (): ReactElement => {
         message.success('executed');
       },
       fail(e) {
-        console.log(e.events.map(e => e.toHuman()));
         message.error('failed');
       },
       update(r) {
@@ -160,7 +159,6 @@ export const Submission: FC = (): ReactElement => {
         message.success('executed');
       },
       fail(e) {
-        console.log(e.events.map(e => e.toHuman()));
         message.error('failed');
       },
       update(r) {

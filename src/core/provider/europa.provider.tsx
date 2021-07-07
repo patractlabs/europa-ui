@@ -11,12 +11,12 @@ interface EuropaManageContextProps {
     db: string,
     workspace: string,
     options?: EuropaOptions,
-  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams>;
   change: (
     db: string,
     workspace: string,
     options?: EuropaOptions,
-  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined>;
+  ) => Promise<ChildProcess.ChildProcessWithoutNullStreams>;
 }
 export interface EuropaOptions {
   httpPort?: number;
@@ -25,9 +25,9 @@ export interface EuropaOptions {
 
 export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
 
-const startEuropa = async (db: string, workspace: string, options?: EuropaOptions): Promise<ChildProcess.ChildProcessWithoutNullStreams | undefined> => {
+const startEuropa = async (db: string, workspace: string, options?: EuropaOptions): Promise<ChildProcess.ChildProcessWithoutNullStreams> => {
   if (!requireModule.isElectron) {
-    return Promise.resolve(undefined);
+    return Promise.resolve(undefined as unknown as ChildProcess.ChildProcessWithoutNullStreams);
   }
 
   const europa = await new Promise<ChildProcess.ChildProcessWithoutNullStreams>((resolve, reject) => {
@@ -61,15 +61,24 @@ const startEuropa = async (db: string, workspace: string, options?: EuropaOption
       httpPort: '--rpc-port=',
       wsPort: '--ws-port=',
     }
-    console.log(binPath, db, workspace)
+    console.log('binPath: ', binPath, 'database:', db, 'workspace:', workspace, 'options: ', options, 'args:', [`-d=${db}`, `-w=${workspace}`]
+      .concat(!options ?
+        [] :
+        Object
+        .keys(options)
+        .filter(key => options[key as 'httpPort' | 'wsPort'])
+        .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
+      )
+    );
+
     const europa = childProcess.spawn(binPath,
       [`-d=${db}`, `-w=${workspace}`]
         .concat(!options ?
           [] :
           Object
           .keys(options)
-          .filter(Boolean)
-          .map(key => optionsMap[key as 'httpPort' | 'wsPort' ])
+          .filter(key => options[key as 'httpPort' | 'wsPort'])
+          .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
         )
     );
     if (europa.pid) {

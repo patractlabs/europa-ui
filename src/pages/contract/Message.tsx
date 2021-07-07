@@ -6,7 +6,7 @@ import { AddressInput, Style } from '../../shared';
 import { Button, message as antMessage } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
-import keyring from '@polkadot/ui-keyring';
+import { keyring } from '@polkadot/ui-keyring';
 import Params from './Params';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -103,8 +103,9 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const send = useCallback(async () => {
     if (!message.isMutating) {
       const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
-      console.log('query.output?.toHuman',query.output?.toHuman())
+
       setResult(JSON.stringify(query.output?.toHuman()) || '<empty>');
+
       return;
     }
 
@@ -130,7 +131,6 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
           antMessage.success('executed');
         },
         fail(e) {
-          console.log(e.events.map(e => e.toHuman()));
           antMessage.error('failed');
         },
         update(r) {

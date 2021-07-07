@@ -203,7 +203,6 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     wsProvider.send('contractsExt_tracing', [
       extrinsic.height, extrinsic.index      
     ]).then(({ trace }: { trace: Trace}) => {
-      console.log('trace', trace);
       setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {
       console.log('e', e);

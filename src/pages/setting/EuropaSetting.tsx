@@ -26,6 +26,17 @@ const EuropaSetting: FC<{
   const [ showMore, setShowMore ] = useState<boolean>(type === 'Change');
   const [ httpPort, setHttpPort ] = useState<number | undefined>();
   const [ wsPort, setWsPort ] = useState<number | undefined>();
+
+  useEffect(() => {
+    if (!setting.lastChoosed) {
+      return;
+    }
+
+    setCurrentDbPath(setting.lastChoosed.database);
+    setCurrentWorkspace(setting.lastChoosed.workspace);
+    setHttpPort(setting.lastChoosed.httpPort);
+    setWsPort(setting.lastChoosed.wsPort);
+  }, [setting.lastChoosed]);
   
   const changed = useMemo(() =>
     !setting.lastChoosed ||
@@ -88,7 +99,6 @@ const EuropaSetting: FC<{
       const newSetting = _.cloneDeep(setting);
       
       newSetting.redspots = newSetting.redspots.concat(redspotPath);
-      console.log('set', newSetting)
       update(newSetting);
     });
   }, [setting, update]);
@@ -103,7 +113,6 @@ const EuropaSetting: FC<{
   const workspaceMenu = useMemo(() => {
     const workspaces = setting.databases.find(db => db.path === currentDbPath)?.workspaces;
 
-    console.log('workspaces', workspaces, currentDbPath, setting.databases);
     return workspaces && workspaces.length ? 
       <Menu>
         {

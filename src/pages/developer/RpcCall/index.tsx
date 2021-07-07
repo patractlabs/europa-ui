@@ -71,11 +71,9 @@ export const RpcCall: FC = (): ReactElement => {
     !params.length && setParamValues([]);
   }, [params]);
 
-  console.log('method params:', params)
   const [results, setResults] = useState<any[]>([]);
 
   const onExec = useCallback(async () => {
-    console.log('rpc call', section, method, 'values:', paramValues);
     const exec = (api.rpc as any)[section][method.value];
 
     exec(...(paramValues.map(p => p.value) as any[])).subscribe(
@@ -109,10 +107,7 @@ export const RpcCall: FC = (): ReactElement => {
             !!params.length &&
               <div className="params">
                 <Params
-                  onChange={(...a) => {
-                    console.log('init change: ', method, section, 'values:', a)
-                    setParamValues(...a)
-                  }}
+                  onChange={setParamValues}
                   params={params}
                 />
               </div>

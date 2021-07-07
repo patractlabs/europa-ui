@@ -4,3 +4,4 @@ export * from './store/store';
 export * from './store/types';
 export * from './SingleAccountSigner';
 export * from './handle-result';
+export * from './error-code';
