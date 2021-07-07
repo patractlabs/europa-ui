@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { message } from 'antd';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, BusContext, DEFAULT_HTTP_PORT, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, LogsContext, Setting, SettingContext } from '../../core';
+import { ApiContext, BlocksContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, LogsContext, Setting, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
 import { take, filter } from 'rxjs/operators';
@@ -102,8 +102,8 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
               <EuropaSetting initialSetting={{
                 database: setting.lastChoosed?.database || defaultDataBasePath,
                 workspace: setting.lastChoosed?.workspace || 'default',
-                httpPort: setting.lastChoosed?.httpPort || DEFAULT_HTTP_PORT,
-                wsPort: setting.lastChoosed?.wsPort || DEFAULT_WS_PORT,
+                httpPort: setting.lastChoosed?.httpPort,
+                wsPort: setting.lastChoosed?.wsPort,
               }}
               type="Change"
               onSubmit={onChange}

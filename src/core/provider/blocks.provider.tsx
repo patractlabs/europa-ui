@@ -2,7 +2,7 @@ import { ApiRx } from '@polkadot/api';
 import React, { Context, useCallback, useContext, useRef, useState } from 'react';
 import { ApiContext } from './api.provider';
 import { zip, from, Subscription } from 'rxjs';
-import { map, finalize, tap, switchMap } from 'rxjs/operators';
+import { finalize, tap, switchMap } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { AnyTuple } from '@polkadot/types/types';

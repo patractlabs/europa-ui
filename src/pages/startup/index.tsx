@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useCallback, useContext, useState } from 'reac
 import { message, } from 'antd';
 import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
-import { ApiContext, BusContext, DEFAULT_HTTP_PORT, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
+import { ApiContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
@@ -101,8 +101,8 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
               <EuropaSetting initialSetting={{
                 database: setting.lastChoosed?.database || defaultDataBasePath,
                 workspace: setting.lastChoosed?.workspace || 'default',
-                httpPort: setting.lastChoosed?.httpPort || DEFAULT_HTTP_PORT,
-                wsPort: setting.lastChoosed?.wsPort || DEFAULT_WS_PORT,
+                httpPort: setting.lastChoosed?.httpPort,
+                wsPort: setting.lastChoosed?.wsPort,
               }}
               type="Start"
               onSubmit={onStart}
