@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import { message } from 'antd';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, BusContext, ErrorCode, EuropaManageContext, LogsContext, Setting, SettingContext } from '../../core';
+import { ApiContext, BlocksContext, BusContext, DEFAULT_HTTP_PORT, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, LogsContext, Setting, SettingContext } from '../../core';
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
 import { take, filter } from 'rxjs/operators';
@@ -29,7 +29,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
 }
 
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
-  const { update, setting } = useContext(SettingContext);
+  const { update, setting, defaultDataBasePath } = useContext(SettingContext);
   const { clear: clearBlocks } = useContext(BlocksContext);
   const { connect: connectApi, disconnect } = useContext(ApiContext);
   const { clear: clearLogs } = useContext(LogsContext);
@@ -39,6 +39,10 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
   const { connected$ } = useContext(BusContext);
 
   const onChange = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
+    if (!setting) {
+      return;
+    }
+
     setLoading(true);
     clearLogs();
     clearBlocks();
@@ -76,7 +80,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       return;
     }
 
-    connectApi(wsPort || 9944);
+    connectApi(wsPort || DEFAULT_WS_PORT);
 
     connected$.pipe(
       filter(c => !!c),
@@ -93,7 +97,19 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
     <div className={className}>
       <div className="content">
         <div className="setting">
-          <EuropaSetting type="Change" onSubmit={onChange} loading={loading} />
+          {
+            setting &&
+              <EuropaSetting initialSetting={{
+                database: setting.lastChoosed?.database || defaultDataBasePath,
+                workspace: setting.lastChoosed?.workspace || 'default',
+                httpPort: setting.lastChoosed?.httpPort || DEFAULT_HTTP_PORT,
+                wsPort: setting.lastChoosed?.wsPort || DEFAULT_WS_PORT,
+              }}
+              type="Change"
+              onSubmit={onChange}
+              loading={loading}
+            />
+          }
         </div>
       </div>
     </div>

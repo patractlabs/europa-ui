@@ -265,7 +265,7 @@ export const ContractsPage: FC = (): ReactElement => {
   const { contracts, codesHash } = useContracts(api, blocks);
   const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.redspots || []
+    setting?.redspots || []
   );
 
   useEffect(() => store.loadAll(), []);

@@ -9,7 +9,7 @@ export const useAbi = (codeHash: string, signal?: number) => {
   const [ abi, setAbi ] = useState<Abi>();
   const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.redspots || []
+    setting?.redspots || []
   );
 
   useEffect(() => {

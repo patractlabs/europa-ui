@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Checkbox, Dropdown, Menu, Tooltip, Button } from 'antd';
 import styled from 'styled-components';
-import { SettingContext } from '../../core';
+import { DEFAULT_HTTP_PORT, DEFAULT_WS_PORT, EuropaOptions, SettingContext } from '../../core';
 import { requireModule, Style } from '../../shared';
 import AddSvg from '../../assets/imgs/add-redspot.svg';
 import InfoSvg from '../../assets/imgs/info.svg';
@@ -10,53 +10,45 @@ import DeleteSvg from '../../assets/imgs/delete-redspot.svg';
 import type * as Electron from 'electron';
 import * as _ from 'lodash';
 
-const DEFAULT_WORKSPACE = 'default';
-const DEFAULT_HTTP_PORT = 9933;
-const DEFAULT_WS_PORT = 9944;
-let GOT_SETTING_TIMES = 0;
-
 const EuropaSetting: FC<{
   type: 'Change' | 'Start';
-  className: string;
+  className?: string;
   onSubmit: (dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => void;
   loading: boolean;
-}> = ({ className, onSubmit, type, loading }): ReactElement => {
-  const { setting, update, defaultDataBasePath } = useContext(SettingContext);
-  const [ currentDbPath, setCurrentDbPath ] = useState<string>(setting.lastChoosed?.database || defaultDataBasePath);
-  const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(setting.lastChoosed?.workspace || DEFAULT_WORKSPACE);
+  initialSetting: {
+    database: string;
+    workspace: string;
+  } & EuropaOptions;
+}> = ({ className, onSubmit, type, loading, initialSetting }): ReactElement => {
+  const { setting, update } = useContext(SettingContext);
+  const [ currentDbPath, setCurrentDbPath ] = useState<string>(initialSetting.database);
+  const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(initialSetting.workspace);
   const [ showMore, setShowMore ] = useState<boolean>(type === 'Change');
-  const [ httpPort, setHttpPort ] = useState<number | undefined>();
-  const [ wsPort, setWsPort ] = useState<number | undefined>();
-
-  useEffect(() => {
-    if (!setting.lastChoosed || GOT_SETTING_TIMES > 0) {
-      return;
-    }
-
-    GOT_SETTING_TIMES ++;
-
-    setCurrentDbPath(setting.lastChoosed.database);
-    setCurrentWorkspace(setting.lastChoosed.workspace);
-    setHttpPort(setting.lastChoosed.httpPort);
-    setWsPort(setting.lastChoosed.wsPort);
-  }, [setting.lastChoosed]);
+  const [ httpPort, setHttpPort ] = useState<number | undefined>(initialSetting.httpPort);
+  const [ wsPort, setWsPort ] = useState<number | undefined>(initialSetting.wsPort);
   
-  const changed = useMemo(() =>
-    !setting.lastChoosed ||
-      setting.lastChoosed.database !== currentDbPath ||
-      setting.lastChoosed.workspace !== currentWorkspace ||
-      (setting.lastChoosed.httpPort && httpPort !== setting.lastChoosed.httpPort) ||
-      (!setting.lastChoosed.httpPort && httpPort && httpPort !== DEFAULT_HTTP_PORT) ||
-      (setting.lastChoosed.wsPort && wsPort !== setting.lastChoosed.wsPort) ||
-      (!setting.lastChoosed.wsPort && wsPort && wsPort !== DEFAULT_WS_PORT),
-    [setting.lastChoosed, currentDbPath, currentWorkspace, httpPort, wsPort],
+  const changed = useMemo(
+    () => {
+      if (!setting) {
+        return false;
+      }
+
+      return !setting.lastChoosed ||
+        setting.lastChoosed.database !== currentDbPath ||
+        setting.lastChoosed.workspace !== currentWorkspace ||
+        (setting.lastChoosed.httpPort && httpPort !== setting.lastChoosed.httpPort) ||
+        (!setting.lastChoosed.httpPort && httpPort && httpPort !== DEFAULT_HTTP_PORT) ||
+        (setting.lastChoosed.wsPort && wsPort !== setting.lastChoosed.wsPort) ||
+        (!setting.lastChoosed.wsPort && wsPort && wsPort !== DEFAULT_WS_PORT);
+    },
+    [setting, currentDbPath, currentWorkspace, httpPort, wsPort],
   );
   
   useEffect(() => {
   }, [setting]);
 
   const onAddDb = useCallback(() => {
-    if (!requireModule.isElectron) {
+    if (!requireModule.isElectron || !setting) {
       return;
     }
 
@@ -81,7 +73,7 @@ const EuropaSetting: FC<{
   }, [setting, update]);
 
   const onAddRedspot = useCallback(() => {
-    if (!requireModule.isElectron) {
+    if (!requireModule.isElectron || !setting) {
       return;
     }
 
@@ -107,6 +99,10 @@ const EuropaSetting: FC<{
   }, [setting, update]);
 
   const onDeleteRedspot = useCallback(() => {
+    if (!setting) {
+      return;
+    }
+
     const newSetting = _.cloneDeep(setting);
     
     newSetting.redspots = newSetting.redspots.slice(0, setting.redspots.length - 1);
@@ -114,7 +110,7 @@ const EuropaSetting: FC<{
   }, [setting, update]);
 
   const workspaceMenu = useMemo(() => {
-    const workspaces = setting.databases.find(db => db.path === currentDbPath)?.workspaces;
+    const workspaces = setting?.databases.find(db => db.path === currentDbPath)?.workspaces;
 
     return workspaces && workspaces.length ? 
       <Menu>
@@ -132,7 +128,7 @@ const EuropaSetting: FC<{
   );
 
   const DatabaseMenu = useMemo(() => 
-    setting.databases.length ?
+    setting?.databases.length ?
       <Menu>
         {
           setting.databases.map((d, index) =>
@@ -143,7 +139,7 @@ const EuropaSetting: FC<{
         }
       </Menu> :
       <></>,
-    [setting.databases],
+    [setting?.databases],
   );
 
   return (
@@ -191,7 +187,7 @@ const EuropaSetting: FC<{
             </div>
             <div className="value-line">
               <input
-                placeholder="9933"
+                placeholder={`${DEFAULT_HTTP_PORT}`}
                 value={httpPort}
                 onChange={e =>
                   setHttpPort(
@@ -210,7 +206,7 @@ const EuropaSetting: FC<{
             </div>
             <div className="value-line">
               <input
-                placeholder="9944"
+                placeholder={`${DEFAULT_WS_PORT}`}
                 value={wsPort}
                 onChange={e =>
                   setWsPort(
@@ -236,7 +232,7 @@ const EuropaSetting: FC<{
               </div>
             </div>
              {
-              setting.redspots.map((redspot, index) =>
+              setting?.redspots.map((redspot, index) =>
                 <div className="redspot-line" key={index}>
                   <input disabled={true} value={redspot} />
                 </div>
@@ -265,7 +261,7 @@ const EuropaSetting: FC<{
   );
 };
 
-export default React.memo(styled(EuropaSetting)`
+export default styled(EuropaSetting)`
   .database {
     position: relative;
 
@@ -372,4 +368,4 @@ export default React.memo(styled(EuropaSetting)`
       border-color: #beac92;
     }
   }
-`);
+`;

@@ -46,7 +46,7 @@ export const CodeHash: FC = (): ReactElement => {
   const choosedCode = useMemo(() => codesHash.find(code => code.hash === codeHash), [codesHash, codeHash]);
   const { setting } = useContext(SettingContext);
   const { redspotContracts } = useRedspotContracts(
-    setting.redspots || []
+    setting?.redspots || []
   );
   const name = useMemo(() =>
     store.getCode(codeHash)?.json.name ||

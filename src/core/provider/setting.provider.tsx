@@ -32,18 +32,15 @@ export interface Setting {
 }
 
 interface SettingContextProps {
-  setting: Setting;
+  setting?: Setting;
   reload: () => Promise<void>;
   update: (newSetting: Setting) => Promise<void>;
   defaultDataBasePath: string;
   configPath: string;
 }
-
-const DEFAULT_SETTING: Setting = {
-  databases: [],
-  redspots: [],
-};
-
+export const DEFAULT_WORKSPACE = 'default';
+export const DEFAULT_HTTP_PORT = 9933;
+export const DEFAULT_WS_PORT = 9944;
 export const SettingContext: Context<SettingContextProps> = React.createContext({}as unknown as SettingContextProps);
 
 async function load(): Promise<Setting> {
@@ -79,7 +76,7 @@ async function write(setting: Setting): Promise<void> {
 
 export const SettingProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
-    const [ setting, setSetting ] = useState<Setting>(DEFAULT_SETTING);
+    const [ setting, setSetting ] = useState<Setting>();
     const [ [defaultDataBasePath, configPath] ] = useState<[string, string]>([DATA_PATH, CONFIG_PATH]);
 
     const reload = useCallback(async () => {}, []);
