@@ -13,6 +13,7 @@ import * as _ from 'lodash';
 const DEFAULT_WORKSPACE = 'default';
 const DEFAULT_HTTP_PORT = 9933;
 const DEFAULT_WS_PORT = 9944;
+let GOT_SETTING_TIMES = 0;
 
 const EuropaSetting: FC<{
   type: 'Change' | 'Start';
@@ -28,9 +29,11 @@ const EuropaSetting: FC<{
   const [ wsPort, setWsPort ] = useState<number | undefined>();
 
   useEffect(() => {
-    if (!setting.lastChoosed) {
+    if (!setting.lastChoosed || GOT_SETTING_TIMES > 0) {
       return;
     }
+
+    GOT_SETTING_TIMES ++;
 
     setCurrentDbPath(setting.lastChoosed.database);
     setCurrentWorkspace(setting.lastChoosed.workspace);
