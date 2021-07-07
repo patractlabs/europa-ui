@@ -27,7 +27,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
 const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting } = useContext(SettingContext);
   const { startup } = useContext(EuropaManageContext);
-  const { start: connectApi } = useContext(ApiContext);
+  const { connect: connectApi, disconnect } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
@@ -54,6 +54,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   
         if (!!code) {
           setLoading(false);
+          disconnect();
           message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
       });
@@ -76,7 +77,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       setLoading(false);
       history.push('/explorer');
     });
-  }, [setting, update, history, connected$, connectApi, startup]);
+  }, [setting, update, history, connected$, connectApi, startup, disconnect]);
 
   return (
     <div className={className}>

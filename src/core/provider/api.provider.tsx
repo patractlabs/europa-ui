@@ -96,7 +96,8 @@ const ApiContext: Context<{
   systemName: string;
   wsProvider: WsProvider;
   metadata: Metadata;
-  start: (wsPort: number) => void;
+  connect: (wsPort: number) => void;
+  disconnect: () => void;
 }> = React.createContext({} as any);
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
@@ -133,7 +134,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     setEndpoint(undefined);
   }, [endpoint]);
 
-  const start = useCallback((wsPort: number) => {
+  const connect = useCallback((wsPort: number) => {
     if (endpoint) {
       disconnect();
     }
@@ -212,7 +213,8 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     tokenSymbol,
     systemName,
     metadata,
-    start,
+    connect,
+    disconnect,
   } }>{children}</ApiContext.Provider>;
 });
 
