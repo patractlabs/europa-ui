@@ -23,11 +23,11 @@ jobs:
             platform: "x86_64-win"
             appType: "exe" 
 
-          # - os: macos-latest
-          #   artifactName: "^europa.*darwin$"
-          #   targetName: "europa"
-          #   platform: "x86_64-darwin"
-          #   appType: "dmg" 
+          - os: macos-latest
+            artifactName: "^europa.*darwin$"
+            targetName: "europa"
+            platform: "x86_64-darwin"
+            appType: "dmg" 
 
     steps:
       - uses: actions/checkout@v2
@@ -72,16 +72,16 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
           # macOS code signing certificate
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
+          # mac_certs: ${{ secrets.mac_certs }}
+          # mac_certs_password: ${{ secrets.mac_certs_password }}
 
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           # release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-        env:
-          # macOS notarization API key
-          API_KEY_ID: ${{ secrets.api_key_id }}
-          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+        # env:
+        #   # macOS notarization API key
+        #   API_KEY_ID: ${{ secrets.api_key_id }}
+        #   API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
 
       - name: Rename artifact
         run: yarn run rename:artifact
