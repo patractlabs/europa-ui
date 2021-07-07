@@ -166,7 +166,7 @@ const EuropaSetting: FC<{
       <div className="info-line">
         <div className="span">
           <span>Workspace</span>
-          <Tooltip placement="top" title="subdirectory in database you choosed">
+          <Tooltip placement="top" title="Subdirectory in database you choosed">
             <img src={InfoSvg} alt="" />
           </Tooltip>
         </div>
