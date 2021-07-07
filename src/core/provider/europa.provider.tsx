@@ -61,27 +61,21 @@ const startEuropa = async (db: string, workspace: string, options?: EuropaOption
       httpPort: '--rpc-port=',
       wsPort: '--ws-port=',
     }
-    console.log('binPath: ', binPath, 'database:', db, 'workspace:', workspace, 'options: ', options, 'args:', [`-d=${db}`, `-w=${workspace}`]
+    const args = [`-d=${db}`, `-w=${workspace}`]
       .concat(!options ?
         [] :
         Object
         .keys(options)
         .filter(key => options[key as 'httpPort' | 'wsPort'])
         .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
-      )
-    );
+      );
 
-    const europa = childProcess.spawn(binPath,
-      [`-d=${db}`, `-w=${workspace}`]
-        .concat(!options ?
-          [] :
-          Object
-          .keys(options)
-          .filter(key => options[key as 'httpPort' | 'wsPort'])
-          .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
-        )
-    );
+    console.log('args:', args);
+
+    const europa = childProcess.spawn(binPath, args);
+
     if (europa.pid) {
+      console.log('europa.pid', europa.pid, europa)
       resolve(europa);
     } else {
       console.log('failed')
