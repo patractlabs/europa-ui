@@ -158,21 +158,15 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
         console.log('retive blocks', _blocks);
       }),
       switchMap(() => api.derive.chain.subscribeNewHeads()),
-      switchMap(header => {
+    ).subscribe(async header => {
         console.log('new header: height=' + header.number.toNumber());
-        console.log(header.toHuman());
+        
+        const { block, extrinsics } = await retriveBlock(
+          api,
+          header.hash.toString(),
+          header.number.toNumber(),
+        )
 
-        return from(
-          retriveBlock(
-            api,
-            header.hash.toString(),
-            header.number.toNumber(),
-          )
-        ).pipe(
-          map(old => ({...old, header }))
-        );
-      }),
-    ).subscribe(({ block, extrinsics, header }) => {
         blocksRef.current = patchBlocks(blocksRef.current, [
           Object.assign(block, {
             blockHash: header.hash.toString(),

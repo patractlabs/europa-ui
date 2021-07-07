@@ -23,8 +23,8 @@ function createWindow () {
   win.openDevTools({mode:'detach'})
 
   // console.log('env', process.env.NODE_ENV)
-  // win.loadURL('http://localhost:3000/')
-  win.loadFile('./build/index.html')
+  win.loadURL('http://localhost:3000/')
+  // win.loadFile('./build/index.html')
   // if (process.env.NODE_ENV === 'development') {
   //   win.loadURL('http://localhost:3000/')
   // } else {
