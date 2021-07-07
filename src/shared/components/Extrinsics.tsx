@@ -87,13 +87,13 @@ export const Extrinsics: FC<{
             },
             {
               title: <div style={{display: 'flex'}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
-              width: '50%',
+              width: '45%',
               key: 'transfer',
               render: (_, record) => <Transfer record={record} />
             },
             {
               title: <span>Value</span>,
-              width: '20%',
+              width: '25%',
               key: 'value',
               render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
             },

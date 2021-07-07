@@ -4,6 +4,8 @@ import type { Metadata } from '@polkadot/metadata';
 import { keyring } from '@polkadot/ui-keyring';
 import { zip } from 'rxjs';
 import { BusContext } from './bus.provider';
+import { formatBalance } from '@polkadot/util';
+import { TokenUnit } from '../../react-components/InputNumber';
 
 interface Props {
   children: React.ReactNode;
@@ -167,6 +169,13 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
         ).toPromise();
         const decimals = tokenDecimals.toHuman() as string[];
   
+        // first setup the UI helpers
+        formatBalance.setDefaults({
+          decimals: decimals.map(d => parseInt(d)),
+          unit: 'DOT',
+        });
+        TokenUnit.setAbbr('DOT');
+
         isKeyringLoaded() || keyring.loadAll({
           genesisHash: _api.genesisHash,
           ss58Format: parseInt(_api.consts.system?.ss58Prefix.toString() || ss58Format.toString()),
