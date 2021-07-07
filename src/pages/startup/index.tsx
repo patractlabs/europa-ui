@@ -49,6 +49,9 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       const europa = await startup(database, workspace, { httpPort, wsPort });
 
       // Wrong setting may cause Europa exit
+      europa.once('exit', (e) => {console.log('europa exit', e)})
+      europa.once('disconnect', (e: any) => {console.log('europa disconnect', e)})
+      europa.once('error', (e) => {console.log('europa error', e)})
       europa.once('close', (code, signal) => {
         console.log('code', code, signal, typeof code);
   
