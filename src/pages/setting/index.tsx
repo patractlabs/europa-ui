@@ -72,12 +72,13 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       europa.once('disconnect', (e: any) => {console.log('europa disconnect', e)})
       europa.once('error', (e) => {console.log('europa error', e)})
       europa.once('close', (code, signal) => {
-        const { ipcRenderer }: typeof Electron = requireModule('electron');
-        
         console.log('code', code, signal, typeof code);
-        ipcRenderer.send('message:pid-change', 0);
+
         // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
         if (!!code) {
+          const { ipcRenderer }: typeof Electron = requireModule('electron');
+
+          ipcRenderer.send('message:pid-change', 0);
           setLoading(false);
           message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
         }
