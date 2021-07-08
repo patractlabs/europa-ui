@@ -52,7 +52,7 @@ export const BreadCrumb: FC<{
             {
               index === divides.length - 1 ?
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
-                <a>
+                <a style={{ cursor: 'default' }}>
                   {
                     typeof divide.name === 'string' ?
                       divide.name :

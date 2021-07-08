@@ -11,16 +11,28 @@ const Wrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-`;
-const Content = styled.div`
-  padding: 20px;
-  flex: 1;
-`;
-const TabArea = styled.div`
-  height: 48px;
-  padding-top: 8px;
-  background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
-  color: white;
+
+  .tabs-area {
+    height: 48px;
+    padding-top: 8px;
+    background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
+    color: white;
+  }
+  .content {
+    flex: 1;
+    position: relative;
+
+    > div {
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      top: 0px;
+      right: 0px;
+      padding: 20px;
+    }
+  }
 `;
 
 export enum ActiveTab {
@@ -57,26 +69,28 @@ export const Developer: FC = (): ReactElement => {
 
   return (
     <Wrapper>
-      <TabArea>
+      <div className="tabs-area">
         <PageTabs options={tabs} />
-      </TabArea>
+      </div>
 
-      <Content>
-        <Switch>
-          <Route path={tabs[0].link}>
-            <ChainState/>
-          </Route>
-          <Route path={tabs[1].link}>
-            <Extrinsic />
-          </Route>
-          <Route path={tabs[2].link}>
-            <RpcCall />
-          </Route>
-          <Route path={tabs[3].link}>
-            <Log />
-          </Route>
-        </Switch>
-      </Content>
+      <div className="content">
+        <div>
+          <Switch>
+            <Route path={tabs[0].link}>
+              <ChainState/>
+            </Route>
+            <Route path={tabs[1].link}>
+              <Extrinsic />
+            </Route>
+            <Route path={tabs[2].link}>
+              <RpcCall />
+            </Route>
+            <Route path={tabs[3].link}>
+              <Log />
+            </Route>
+          </Switch>
+        </div>
+      </div>
     </Wrapper>
   );
 };

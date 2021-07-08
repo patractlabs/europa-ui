@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 8</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Europa-menus" transform="translate(-30.000000, -316.000000)">
+            <g id="编组-8" transform="translate(30.000000, 316.000000)">
+                <rect id="矩形备份-6" x="0" y="0" width="24" height="24"></rect>
+                <path d="M12,2.56954382 L21.9558363,8 L12,13.4304562 L2.04416367,8 L12,2.56954382 Z" id="多边形" stroke="#FFFFFF"></path>
+                <path d="M6.5,13 L7.569,13.583 L3.1373,16 L12,20.833 L20.8616,16 L16.43,13.583 L17.5,13 L23,16 L12,22 L1,16 L6.5,13 Z" id="形状结合" fill="#FFFFFF" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

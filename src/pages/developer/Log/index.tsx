@@ -7,11 +7,13 @@ const Wrapper = styled.div`
   border: 1px solid ${Style.color.button.primary};
   padding: 20px;
   background-color: ${Style.color.bg.second};
-  height: 450px;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 100%;
-
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  top: 20px;
+  right: 20px;
   > .line {
     padding-bottom: 6px;
     word-break: break-all;

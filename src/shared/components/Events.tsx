@@ -13,6 +13,16 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     background-color: white;
+
+    > .no-data {
+      padding: 12px 20px;
+      height: 47px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 0, 0, 0.25);
+      border-bottom: 1px solid #DEDEDE;
+    }
   }
   flex: 1;
   display: flex;
@@ -41,6 +51,10 @@ export const Events: FC<{
           events.map((event, index) =>
             <Event showIndex={showIndex} key={index} event={event} />
           )
+        }
+        {
+          !events.length &&
+            <div className="no-data">No Data</div>
         }
       </div>
       <PageLine style={{ paddingTop: '16px', ...paginationStyle }} />

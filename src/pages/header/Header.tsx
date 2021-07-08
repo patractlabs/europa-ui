@@ -5,6 +5,14 @@ import LogoSVG from '../../assets/imgs/Europa.svg';
 import CloseSVG from '../../assets/imgs/close.svg';
 import MoreSVG from '../../assets/imgs/more-option.svg';
 import SearchSVG from '../../assets/imgs/search.svg';
+import ExplorerSVG from '../../assets/imgs/explorer.svg';
+import AccountsSVG from '../../assets/imgs/accounts.svg';
+import BlocksSVG from '../../assets/imgs/blocks.svg';
+import ExtrinsicsSVG from '../../assets/imgs/extrinsics.svg';
+import EventsSVG from '../../assets/imgs/events-menu.svg';
+import ContractsSVG from '../../assets/imgs/contracts.svg';
+import DeveloperSVG from '../../assets/imgs/developer.svg';
+import SettingSVG from '../../assets/imgs/setting.svg';
 import { BreadCrumb, Divide } from '../../shared';
 import { Style } from '../../shared';
 import { BlocksContext, Extrinsic } from '../../core';
@@ -151,37 +159,37 @@ interface TabStructure {
 }
 const TabGroupOne: TabStructure[] = [
   {
-    img: MoreSVG,
+    img: ExplorerSVG,
     title: 'Explorer',
     link: '/explorer',
   },
   {
-    img: MoreSVG,
+    img: AccountsSVG,
     title: 'Accounts',
     link: '/account',
   },
   {
-    img: MoreSVG,
+    img: BlocksSVG,
     title: 'Blocks',
     link: '/block',
   },
   {
-    img: MoreSVG,
+    img: ExtrinsicsSVG,
     title: 'Extrinsics',
     link: '/extrinsic',
   },
   {
-    img: MoreSVG,
+    img: EventsSVG,
     title: 'Events',
     link: '/event',
   },
   {
-    img: MoreSVG,
+    img: ContractsSVG,
     title: 'Contracts',
     link: '/contract',
   },
   {
-    img: MoreSVG,
+    img: DeveloperSVG,
     title: 'Developer',
     link: '/developer',
   }
@@ -189,7 +197,7 @@ const TabGroupOne: TabStructure[] = [
 
 const TabGroupTwo: TabStructure[] = [
   {
-    img: MoreSVG,
+    img: SettingSVG,
     title: 'Setting',
     link: '/setting',
   }
@@ -221,14 +229,24 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`^/explorer/code-hash/${hashReg}$`),
+      reg: new RegExp(`^/contract/codes/${hashReg}$`),
       divides: [
         {
-          name: 'Explorer',
-          link: '/explorer',
+          name: 'Contract',
+          link: '/contract',
         },
         {
-          name: 'Code Hash',
+          name: 'Codes',
+          link: '/contract/codes'
+        },
+        {
+          name: (pathname) => {
+            const reg = new RegExp(`^/contract/codes/${hashReg}$`);
+            const result = reg.exec(pathname);
+            const codeHash =  result ? `${result[1]}` : '';
+
+            return  `#${codeHash.slice(0, 7)}`;
+          },
         },
       ],
     },
@@ -245,14 +263,24 @@ export const Header: FC = (): ReactElement => {
       ],
     },
     {
-      reg: new RegExp(`^/explorer/contract/${addressReg}$`),
+      reg: new RegExp(`^/contract/instances/${addressReg}$`),
       divides: [
         {
-          name: 'Explorer',
-          link: '/explorer',
+          name: 'Contract',
+          link: '/contract',
         },
         {
-          name: 'Contract',
+          name: 'Instance',
+          link: '/contract/instances'
+        },
+        {
+          name: (pathname) => {
+            const reg = new RegExp(`^/contract/instances/${addressReg}$`);
+            const result = reg.exec(pathname);
+            const address =  result ? `${result[1]}` : '';
+
+            return  `#${address.slice(0, 7)}`;
+          },
         },
       ],
     },

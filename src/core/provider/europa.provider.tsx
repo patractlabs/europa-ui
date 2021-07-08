@@ -2,7 +2,6 @@ import React, { Context, useCallback, useState } from 'react';
 import { requireModule } from '../../shared';
 import type * as ChildProcess from 'child_process';
 import type * as Path from 'path';
-import type * as FS from 'fs';
 import type * as OS from 'os';
 
 interface EuropaManageContextProps {
@@ -32,7 +31,6 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
 
   const childProcess: typeof ChildProcess = requireModule('child_process');
   const path: typeof Path = requireModule('path');
-  const fs: typeof FS = requireModule('fs');
   const os: typeof OS = requireModule('os');
   const platform = os.platform().toLowerCase();
   const resources = process.env.NODE_ENV === 'development'
@@ -45,15 +43,10 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
   }
   
   try {
-    console.log(process.env.NODE_ENV, process.env.REACT_APP_ELECTRON_ENV);
+    console.log('NODE_ENV', process.env.NODE_ENV);
     console.log(`platform:`, platform);
     console.log(`bin:`, binPath);
     console.log(`dir:`, __dirname);
-    console.log('files:', fs.readdirSync(path.resolve(__dirname)));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../')));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../resources')));
-    console.log('files:', fs.readdirSync(resources));
-    console.log('files:', fs.readdirSync(path.resolve(__dirname, '../../')));
   } catch(e) {}
   
   const optionsMap = {

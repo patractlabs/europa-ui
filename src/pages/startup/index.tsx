@@ -131,6 +131,8 @@ export default React.memo(styled(StartUp)`
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    justify-content: center;
 
     > .title {
       height: 60px;
@@ -141,6 +143,8 @@ export default React.memo(styled(StartUp)`
       margin-bottom: 40px;
       position: relative;
       justify-content: center;
+      position: absolute;
+      top: 40px;
 
       > img {
         position: absolute;

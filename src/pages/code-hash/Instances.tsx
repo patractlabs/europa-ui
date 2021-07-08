@@ -45,7 +45,7 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
             title: <span>Address</span>,
             width: '50%',
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/contract/${record.address}`}>{record.address}</Link>,
+            render: (_, record) => <Link to={`/contract/instances/${record.address}`}>{record.address}</Link>,
           },
           {
             title: <span>Deployed transaction</span>,

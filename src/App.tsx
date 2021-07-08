@@ -33,7 +33,7 @@ const Main: FC = (): ReactElement => {
         <Route path='/explorer' exact>
           <Explorer />
         </Route>
-        <Route path='/explorer/code-hash/:codeHash'>
+        <Route path='/contract/codes/:codeHash'>
           <CodeHash />
         </Route>
         <Route path='/explorer/eoa/:address'>
@@ -41,7 +41,7 @@ const Main: FC = (): ReactElement => {
             <EOA />
           </PaginationProvider>
         </Route>
-        <Route path='/explorer/contract/:address'>
+        <Route path='/contract/instances/:address'>
           <PaginationProvider>
             <Contract />
           </PaginationProvider>

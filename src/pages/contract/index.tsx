@@ -64,7 +64,7 @@ const Instances: FC<{ contracts: DeployedContract[], redspotsContracts: RedspotC
           {
             title: <span>Address</span>,
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/contract/${record.address}`}>{formatAddress(record.address)}</Link>,
+            render: (_, record) => <Link to={`/contract/instances/${record.address}`}>{formatAddress(record.address)}</Link>,
           },
           {
             title: <span>Deployed Extrinsic</span>,
@@ -121,7 +121,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             title: <span>Code Hash</span>,
             width: '20%',
             key: 'hash',
-            render: (_, record) => <Link to={`/explorer/code-hash/${record.hash}`}>{formatAddress(record.hash)}</Link>,
+            render: (_, record) => <Link to={`/contract/codes/${record.hash}`}>{formatAddress(record.hash)}</Link>,
           },
           {
             title: <span>Uploaded At Extrinsic</span>,
@@ -205,7 +205,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             width: '20%',
             dataIndex: 'codeHash',
             key: 'codeHash',
-            render: (codeHash) => <Link to={`/explorer/code-hash/${codeHash}`}>{formatAddress(codeHash)}</Link>,
+            render: (codeHash) => <Link to={`/contract/codes/${codeHash}`}>{formatAddress(codeHash)}</Link>,
           },
           {
             title: <span>Disk Path</span>,

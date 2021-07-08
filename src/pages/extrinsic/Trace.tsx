@@ -156,7 +156,7 @@ export const ContractTrace: FC<{
               <ValuePrimary>
                 {
                   contract?.address.toString() ?
-                    <Link to={`/explorer/contract/${contract?.address.toString()}`}>
+                    <Link to={`/contract/instances/${contract?.address.toString()}`}>
                       {name && name + ' : '}
                       {trace.self_account}
                     </Link> :
