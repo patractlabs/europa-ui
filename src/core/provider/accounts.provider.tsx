@@ -86,7 +86,7 @@ export const AccountsProvider = React.memo(
       ).subscribe((accounts) => {
         setAccounts(accounts);
         console.log('Stored Accounts:', accounts);
-      }, e => console.log('eee', e));
+      }, e => console.log('err', e));
   
       return () => sub.unsubscribe();
     }, [api, tokenDecimal, signal]);
