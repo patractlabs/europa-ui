@@ -3,6 +3,8 @@ import { requireModule } from '../../shared';
 import type * as ChildProcess from 'child_process';
 import type * as Path from 'path';
 import type * as OS from 'os';
+// import { ipcRenderer } from 'electron';
+import type * as Electron from 'electron';
 
 interface EuropaManageContextProps {
   europa?: ChildProcess.ChildProcessWithoutNullStreams;
@@ -77,7 +79,9 @@ export const EuropaManageProvider = React.memo(
 
     const startup = useCallback((db: string, workspace: string, options?: EuropaOptions) => {
       const europa = startEuropa(db, workspace, options);
+      const { ipcRenderer }: typeof Electron = requireModule('electron');
 
+      ipcRenderer.send('message:pid-change', europa.pid);
       setEuropa(europa);
 
       return europa;

@@ -5,7 +5,8 @@ import { ApiContext, BlocksContext, BusContext, DEFAULT_WS_PORT, ErrorCode, Euro
 import { useHistory } from 'react-router-dom';
 import EuropaSetting from './EuropaSetting';
 import { take, filter } from 'rxjs/operators';
-import { Style } from '../../shared';
+import { requireModule, Style } from '../../shared';
+import type * as Electron from 'electron';
 import * as _ from 'lodash';
 
 function createNewSetting(setting: Setting, database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) {
@@ -71,8 +72,10 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       europa.once('disconnect', (e: any) => {console.log('europa disconnect', e)})
       europa.once('error', (e) => {console.log('europa error', e)})
       europa.once('close', (code, signal) => {
-        console.log('code', code, signal, typeof code);
+        const { ipcRenderer }: typeof Electron = requireModule('electron');
         
+        console.log('code', code, signal, typeof code);
+        ipcRenderer.send('message:pid-change', 0);
         // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
         if (!!code) {
           setLoading(false);
