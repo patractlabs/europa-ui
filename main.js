@@ -22,9 +22,9 @@ function createWindow () {
   });
 
   win.setMenuBarVisibility(false);
-  // win.openDevTools({mode:'detach'});
-  // win.loadURL('http://localhost:3000/');
-  win.loadFile('./build/index.html');
+  win.openDevTools({mode:'detach'});
+  win.loadURL('http://localhost:3000/');
+  // win.loadFile('./build/index.html');
 
   return win;
 }
@@ -59,15 +59,17 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform === 'darwin') {
-    pid && process.kill(pid);
-  } else {
-    app.quit()
-  }
-})
-
-app.on('quit', () => {
+  pid && process.kill(pid);
+  pid = 0;
   if (process.platform !== 'darwin') {
-    pid && process.kill(pid);
+    app.quit();
   }
+});
+app.on('quit', () => {
+  pid && process.kill(pid);
+  pid = 0;
 })
+process.on('exit', () => {
+  pid && process.kill(pid);
+  pid = 0;
+});
