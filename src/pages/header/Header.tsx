@@ -270,7 +270,7 @@ export const Header: FC = (): ReactElement => {
           link: '/contract',
         },
         {
-          name: 'Instance',
+          name: 'Instances',
           link: '/contract/instances'
         },
         {

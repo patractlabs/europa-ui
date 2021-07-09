@@ -22,9 +22,13 @@ function createWindow () {
   });
 
   win.setMenuBarVisibility(false);
-  // win.openDevTools({mode:'detach'});
-  // win.loadURL('http://localhost:3000/');
-  win.loadFile('./build/index.html');
+
+  if (process.env.ElECTRON_ENV === 'development') {
+    win.openDevTools({mode:'detach'});
+    win.loadURL('http://localhost:3000/');
+  } else {
+    win.loadFile('./build/index.html');
+  }
 
   return win;
 }

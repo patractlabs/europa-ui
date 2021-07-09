@@ -7,6 +7,7 @@ import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
   flex: 1;
+  width: -webkit-fill-available;
   > .content {
     background-color: white;
     flex: 1;

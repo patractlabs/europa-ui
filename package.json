@@ -53,7 +53,7 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "start:electron": "cross-env REACT_APP_ELECTRON_ENV=development electron ./",
+    "start:electron": "cross-env ElECTRON_ENV=development electron ./",
     "pack:win:dir": " electron-builder --dir",
     "pack:win": "electron-builder --win",
     "pack:mac:dir": "electron-builder --mac --dir",
