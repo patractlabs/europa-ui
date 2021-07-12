@@ -180,6 +180,11 @@ interface TabStructure {
 }
 const TabGroupOne: TabStructure[] = [
   {
+    img: ContractsSVG,
+    title: 'Contracts',
+    link: '/contract',
+  },
+  {
     img: ExplorerSVG,
     title: 'Explorer',
     link: '/explorer',
@@ -203,11 +208,6 @@ const TabGroupOne: TabStructure[] = [
     img: EventsSVG,
     title: 'Events',
     link: '/event',
-  },
-  {
-    img: ContractsSVG,
-    title: 'Contracts',
-    link: '/contract',
   },
   {
     img: DeveloperSVG,
