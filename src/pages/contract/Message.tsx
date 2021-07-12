@@ -57,6 +57,12 @@ const Call = styled.div`
   border-top: 1px solid #DEDEDE;
   padding: 16px 20px;
 
+  .result {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 18px;
+  }
+
 `;
 const ParamsContainer = styled.div`
   width: 90%;
@@ -76,9 +82,10 @@ const Caller = styled.div`
 `;
 
 const Result = styled.div`
-  padding-top: 18px;
-
+  display: flex;
+  align-items: center;
   > .type {
+    margin-right: 8px;
     font-size: 16px;
     font-weight: bold;
     color: ${Style.color.label.primary};
@@ -89,6 +96,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [ expanded, setExpanded ] = useState(false);
   const { api } = useContext(ApiContext);
   const [ result, setResult ] = useState<any>();
+  const [ gasComsumed, setGasComsumed ] = useState<string>();
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
@@ -108,7 +116,9 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     if (!message.isMutating) {
       const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
 
+      console.log('query')
       setResult(JSON.stringify(query.output?.toHuman()) || '<empty>');
+      setGasComsumed(query.gasConsumed.toString());
 
       return;
     }
@@ -191,10 +201,17 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
             </Exec>
             {
               !message.isMutating && result &&
-                <Result>
-                  <span className="type">{ message.returnType && encodeTypeDef(message.returnType) }: </span>
-                  <span className="value">{ result }</span>
-                </Result>
+                <div className="result">
+                  <Result>
+                    <span className="type">{ message.returnType && encodeTypeDef(message.returnType) }: </span>
+                    <pre className="value">{ result }</pre>
+                  </Result>
+                  <Result>
+                    <span className="type">Gas Comsumed: </span>
+                    <span className="value">{ gasComsumed }</span>
+                  </Result>
+
+                </div>
             }
           </Call>
       }
