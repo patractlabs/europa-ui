@@ -6,7 +6,6 @@ import MoveSVG from '../../assets/imgs/more.svg';
 import { ApiContext, BlocksContext, useContracts, useAbi } from '../../core';
 import { hexToU8a } from '@polkadot/util';
 import { Abi } from '@polkadot/api-contract';
-import type { Codec } from '@polkadot/types/types';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'antd';
 import { Args as ArgsDisplay } from '../../shared';
@@ -57,6 +56,12 @@ const Line = styled.div`
 const Detail = styled.div`
   border-top: 1px solid ${Style.color.border.default};
   padding: 20px;
+
+  .no-abi {
+    margin-bottom: 8px;
+    padding-left: 12px;
+    font-weight: 600;
+  }
 `;
 const Error = styled.div`
   color: ${Style.color.label.error};
@@ -192,20 +197,18 @@ export const ContractTrace: FC<{
                   </KeyValueLine>
                   <Line>
                     <LabelDefault>Args</LabelDefault>
-                    <div style={{ flex: 1 }}>
-                      <Args>{
+                    <div>
+                      <p className="no-abi">Please upload ABI first!</p>
+                      <Args  style={{ height: '470px' }}>
+                      {
                         abi ?
-                          // getArgs(abi, trace.selector, trace.args).map((arg, index) =>
-                          //   <div style={{ marginBottom: '15px' }} key={index}>{arg.toString()}</div>
-                          // )
-                          <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} />
-                          :
-                          trace.args
-                      }</Args>
-                      {/* {
-                        !abi &&
-                          <Button>Decode Parameters</Button>
-                      } */}
+                            <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} />
+                            :
+                            <div>
+                            {trace.args}
+                          </div>
+                      }
+                      </Args>
                     </div>
                   </Line>
                 </Col>

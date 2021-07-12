@@ -21,7 +21,7 @@ const Wrapper = styled.div`
       > .span {
         height: 16px;
         font-size: 12px;
-        color: #8c8b8c;
+        color: ${Style.color.label.default};
         line-height: 16px;
       }
       > .ant-input {

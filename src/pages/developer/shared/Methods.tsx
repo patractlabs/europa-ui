@@ -53,7 +53,7 @@ export default React.memo(styled(Methods)`
   > .span {
     height: 16px;
     font-size: 12px;
-    color: #8c8b8c;
+    color: ${Style.color.label.default};
     line-height: 16px;
     overflow: hidden;
     padding-right: 16px;
