@@ -12,6 +12,9 @@ import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { encodeTypeDef } from '@polkadot/types/create';
 import { getEstimatedGas } from './DeployModal';
+import type BN from 'bn.js';
+import LabeledInput from '../developer/shared/LabeledInput';
+import { InputBalance } from '../../react-components';
 
 const Wrapper = styled.div`
   margin-bottom: 16px;
@@ -89,6 +92,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
+  const [ tip, setTip ] = useState<BN>();
 
   useEffect(() => setSender(accounts[0]?.address), [accounts]);
 
@@ -120,7 +124,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     }
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
-    tx.signAndSend(pair).pipe(
+    tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
         antMessage.error(e.message || 'failed');
         return throwError('');
@@ -138,7 +142,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
         }
       }, () => {})
     );
-  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api]);
+  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api, tip]);
 
   return (
     <Wrapper>
@@ -167,6 +171,19 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
                     <div className="caller">Caller</div>
                     <AddressInput defaultValue={accounts[0]?.address} onChange={setSender}/>
                   </Caller>
+              }
+              
+              {
+                message.isMutating &&
+                  <LabeledInput style={{ background: 'white', marginBottom: '16px' }}>
+                    <div className="span">Tip</div>
+                    <InputBalance
+                      siWidth={15}
+                      label="Tip"
+                      onChange={setTip}
+                      value={tip}
+                    />
+                  </LabeledInput>
               }
             </ParamsContainer>
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
