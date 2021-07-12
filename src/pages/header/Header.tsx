@@ -12,6 +12,7 @@ import ExtrinsicsSVG from '../../assets/imgs/extrinsics.svg';
 import EventsSVG from '../../assets/imgs/events-menu.svg';
 import ContractsSVG from '../../assets/imgs/contracts.svg';
 import DeveloperSVG from '../../assets/imgs/developer.svg';
+import NaviBackSVG from '../../assets/imgs/naviback.svg';
 import SettingSVG from '../../assets/imgs/setting.svg';
 import { BreadCrumb, Divide } from '../../shared';
 import { Style } from '../../shared';
@@ -28,9 +29,29 @@ const Wrapper = styled.div`
   justify-content: space-between;
   height: 68px;
   background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
-`;
-const HeaderLeft = styled.div`
-  display: flex;
+
+  > .header-left {
+    display: flex;
+  }
+
+  > .header-right {
+    display: flex;
+    align-items: center;
+
+    > .navi {
+      margin-right: 24px;
+
+      > img {
+        cursor: pointer;
+      }
+      > img:first-child {
+        margin-right: 8px;
+      }
+      > img:last-child {
+        transform: scaleX(-1);
+      }
+    }
+  }
 `;
 
 const More = styled.div`
@@ -210,7 +231,7 @@ export const Header: FC = (): ReactElement => {
   const [ showSider, toggoleSider ] = useState<boolean>(false);
   const [ showSiderBg, toggoleSiderBg ] = useState<boolean>(false);
   const [ divides, setDivides ] = useState<Divide[]>([]);
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation<{from: string}>();
   const [ search, setSearch ] = useState('');
   const { blocks } = useContext(BlocksContext);
   const h = useHistory();
@@ -496,16 +517,22 @@ export const Header: FC = (): ReactElement => {
         }
       </Tabs>
     </Sider>
-    <HeaderLeft>
+    <div className="header-left">
       <More>
         <img src={MoreSVG} alt="" onClick={onToggle} />
       </More>
       <BreadCrumb divides={divides} />
-    </HeaderLeft>
-    <Search>
-      <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
-      <img onClick={onSearch} src={SearchSVG} alt="" />
-    </Search>
+    </div>
+    <div className="header-right">
+      <div className="navi">
+        <img src={NaviBackSVG} alt="" onClick={() => state?.from !== '/' && h.goBack()} />
+        <img src={NaviBackSVG} alt="" onClick={() => h.goForward()} />
+      </div>
+      <Search>
+        <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
+        <img onClick={onSearch} src={SearchSVG} alt="" />
+      </Search>
+    </div>
   </Wrapper>
   );
 };

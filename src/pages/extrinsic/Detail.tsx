@@ -6,7 +6,7 @@ import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args } from '../../shared';
+import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args, Address } from '../../shared';
 import { ContractTrace } from './Trace';
 import { Abi } from '@polkadot/api-contract';
 import { Col, Row } from 'antd';
@@ -235,6 +235,17 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                   <LabelDefault>Method</LabelDefault>
                   <ValuePrimary>{ extrinsic.method.section }.{extrinsic.method.method}</ValuePrimary>
                 </KeyValueLine>
+                <KeyValueLine>
+                  <LabelDefault>Signer</LabelDefault>
+                  <ValuePrimary>
+                    <Address address={
+                      extrinsic.method.section.toLowerCase() === 'timestamp' && extrinsic.method.method.toLowerCase() === 'set' ?
+                        '-' :
+                        extrinsic.signer.toString()
+                      }
+                    />
+                  </ValuePrimary>
+                </KeyValueLine>
               </Col>
               <Col span={12}>
                 <KeyValueLine>
@@ -249,6 +260,10 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                 <KeyValueLine>
                   <LabelDefault>Timestamp</LabelDefault>
                   <ValuePrimary>{ (new Date(parseInt(extrinsic.timestamp))).toUTCString() }</ValuePrimary>
+                </KeyValueLine>
+                <KeyValueLine>
+                  <LabelDefault>Nonce</LabelDefault>
+                  <ValuePrimary>{ extrinsic.nonce.toString() }</ValuePrimary>
                 </KeyValueLine>
               </Col>
             </ExtrinsicInfo>

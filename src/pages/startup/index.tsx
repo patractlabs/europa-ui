@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
 import { ApiContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
 import { requireModule, Style } from '../../shared';
 import type * as Electron from 'electron';
@@ -32,6 +32,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { connected$ } = useContext(BusContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
+  const { pathname } = useLocation();
 
   const onStart = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     if (!setting) {
@@ -92,9 +93,11 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       console.log('history.push(explorer);');
 
       setLoading(false);
-      history.push('/explorer');
+      history.push('/explorer', { 
+        from: pathname
+      });
     });
-  }, [setting, update, history, connected$, connectApi, startup]);
+  }, [setting, update, history, connected$, connectApi, startup, pathname]);
 
   return (
     <div className={className}>

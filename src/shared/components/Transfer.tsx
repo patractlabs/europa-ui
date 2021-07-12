@@ -26,7 +26,7 @@ const AddressWrapper = styled.div`
   align-items: center;
 `;
 
-const Address: FC<{ address: string; signer?: string }> = ({ address, signer }): ReactElement => {
+export const Address: FC<{ address: string; signer?: string }> = ({ address, signer }): ReactElement => {
   return (
     <AddressWrapper>
       <Identicon
