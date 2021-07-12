@@ -81,7 +81,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     setState(old => ({ ...old, salt: randomAsHex() }));
     await tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        antMessage.error(e.message || 'failed')
+        antMessage.error(e.message || 'Failed')
         return throwError('');
       })
     ).subscribe(

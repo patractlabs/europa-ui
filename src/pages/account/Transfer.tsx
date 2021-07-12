@@ -8,6 +8,8 @@ import { InputBalance } from '../../react-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import type BN from 'bn.js';
 import { message } from 'antd';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 const Content = styled(ModalMain)`
   .content {
@@ -43,7 +45,12 @@ const Transfer: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, 
       return;
     }
 
-    api.tx.balances.transfer(to, amount).signAndSend(pair, { tip }).subscribe(
+    api.tx.balances.transfer(to, amount).signAndSend(pair, { tip }).pipe(
+      catchError(e => {
+        message.error(e.message || 'Failed')
+        return throwError('');
+      })
+    ).subscribe(
       handleTxResults({
         success() {
           message.success('Transfered');

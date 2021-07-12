@@ -47,7 +47,7 @@ const States: FC<{ block: Block }> = ({ block }): ReactElement => {
   }, [block, wsProvider]);
 
   return (
-    <div style={{ background: 'white'}}>
+    <div style={{ background: 'white', padding: '20px'}}>
       {
         mutations.map((mutation, index) =>
           <Args key={index} args={mutation} withoutBottom={mutations.length - 1 !== index} />

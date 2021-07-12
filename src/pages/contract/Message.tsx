@@ -126,7 +126,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
 
     tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        antMessage.error(e.message || 'failed');
+        antMessage.error(e.message || 'Failed');
         return throwError('');
       })
     ).subscribe(

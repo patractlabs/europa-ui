@@ -127,7 +127,7 @@ export const Submission: FC = (): ReactElement => {
 
     exec(...values).send().pipe(
       catchError(e => {
-        message.error(e.message || 'failed');
+        message.error(e.message || 'Failed');
         return throwError('');
       })
     ).subscribe(handleTxResults({
@@ -154,7 +154,7 @@ export const Submission: FC = (): ReactElement => {
 
     exec(...values).signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        message.error(e.message || 'failed');
+        message.error(e.message || 'Failed');
         return throwError('');
       })
     ).subscribe(handleTxResults({
