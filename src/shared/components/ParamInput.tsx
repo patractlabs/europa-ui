@@ -48,14 +48,21 @@ export const ParamInput: FC<{
   defaultValue?: any;
   style?: CSSProperties;
   unit?: string;
-}> = ({ style, defaultValue, onChange, label, unit }): ReactElement => {
+  value?: string;
+}> = ({ style, defaultValue, value, onChange, label, unit }): ReactElement => {
 
   return (
     <Wrapper style={style}>
       <Label>{ label }</Label>
-      <Input style={{ borderWidth: '0px', padding: '0px' }} defaultValue={defaultValue} suffix={
-        <span style={{ color: Style.color.label.default, fontSize: '14px' }}>{unit}</span>
-      } onChange={e => onChange(e.target.value)} />
+      {
+        value !== undefined ?
+          <Input value={value} style={{ borderWidth: '0px', padding: '0px' }} defaultValue={defaultValue} suffix={
+            <span style={{ color: Style.color.label.default, fontSize: '14px' }}>{unit}</span>
+          } onChange={e => onChange(e.target.value)} /> :
+          <Input style={{ borderWidth: '0px', padding: '0px' }} defaultValue={defaultValue} suffix={
+            <span style={{ color: Style.color.label.default, fontSize: '14px' }}>{unit}</span>
+          } onChange={e => onChange(e.target.value)} />
+      }
     </Wrapper>
   );
 };

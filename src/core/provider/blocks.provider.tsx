@@ -2,7 +2,7 @@ import { ApiRx } from '@polkadot/api';
 import React, { Context, useCallback, useContext, useRef, useState } from 'react';
 import { ApiContext } from './api.provider';
 import { zip, from, Subscription } from 'rxjs';
-import { finalize, tap, switchMap } from 'rxjs/operators';
+import { finalize, tap, mergeMap } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { AnyTuple } from '@polkadot/types/types';
@@ -76,7 +76,7 @@ const retriveBlock = async (api: ApiRx, blockHash: string, height: number): Prom
   };
 };
 
-const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Promise<Block[]> => {
+const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 0): Promise<Block[]> => {
   type NullableBlock = Block | null;
 
   if (endHeight < startHeight) {
@@ -109,7 +109,7 @@ const retriveBlocks = async (api: ApiRx, endHeight: number, startHeight = 1): Pr
   return blocks.filter(block => !!block) as Block[];
 };
 
-const retriveLatestBlocks = async (api: ApiRx, startIndex = 1): Promise<Block[]> => {
+const retriveLatestBlocks = async (api: ApiRx, startIndex = 0): Promise<Block[]> => {
   const header = await api.rpc.chain.getHeader().toPromise();
 
   return retriveBlocks(api, header.number.toNumber(), startIndex);
@@ -149,32 +149,36 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
     }
 
     sub && sub.unsubscribe();
-    
+
     const newSub = from(retriveLatestBlocks(api)).pipe(
       tap(_blocks => {
         blocksRef.current = _blocks;
         setBlocks(_blocks);
-        
+
         console.log('retive blocks', _blocks);
       }),
-      switchMap(() => api.derive.chain.subscribeNewHeads()),
+      mergeMap(() => api.derive.chain.subscribeNewHeads()),
     ).subscribe(async header => {
         console.log('new header: height=' + header.number.toNumber());
-        
-        const { block, extrinsics } = await retriveBlock(
-          api,
-          header.hash.toString(),
-          header.number.toNumber(),
-        )
 
-        blocksRef.current = patchBlocks(blocksRef.current, [
-          Object.assign(block, {
-            blockHash: header.hash.toString(),
-            height: header.number.toNumber(),
-            extrinsics,
-          })
-        ]);
-        setBlocks(blocksRef.current);
+        try {
+          const { block, extrinsics } = await retriveBlock(
+            api,
+            header.hash.toString(),
+            header.number.toNumber(),
+          )
+
+          blocksRef.current = patchBlocks(blocksRef.current, [
+            Object.assign(block, {
+              blockHash: header.hash.toString(),
+              height: header.number.toNumber(),
+              extrinsics,
+            })
+          ]);
+          setBlocks(blocksRef.current);
+        } catch (e) {
+          console.log('Error when fetching new header', e)
+        }
     }, (e) => {console.log('err', e)});
 
     setSub(newSub);

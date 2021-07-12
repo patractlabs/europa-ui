@@ -2,12 +2,13 @@ import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } fro
 import { Link } from "react-router-dom";
 import { Button, Table } from 'antd';
 import styled from 'styled-components';
-import EnterSVG from '../../assets/imgs/enter.svg';
+import EnterSVG from '../../assets/imgs/return.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
 import EventsSVG from '../../assets/imgs/events.svg';
 import { Block, BlocksContext } from '../../core';
 import { Style, Transfer } from '../../shared';
 import JumpToBlock from './JumpToBlock';
+import ConfirmBack from './ConfrimBack';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);
@@ -55,12 +56,6 @@ const BlockInfoWrapper = styled.div`
     height: 50px;
 
     > .left {
-      display: flex;
-
-      > img {
-        margin-right: 20px;
-      }
-
       > .block-name {
         > span {
           font-size: 14px;
@@ -68,10 +63,19 @@ const BlockInfoWrapper = styled.div`
           line-height: 16px;
         }
         > h4 {
+          display: flex;
+          align-items: center;
           height: 24px;
           font-size: 24px;
           font-weight: bold;
           line-height: 24px;
+          
+          > img {
+            width:  20px;
+            height: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+          }
         }
       }
     }
@@ -167,25 +171,27 @@ const Events = styled.div`
 `;
 
 const BlockInfo: FC<{
-  currentBlock?: Block;
+  currentBlock: Block;
   viewing: boolean;
   backward: () => void;
   forward: () => void;
+  onBack: (height: number) => void;
 }> = ({
   currentBlock,
   viewing,
   backward,
   forward,
+  onBack,
 }): ReactElement => {
   return (
     <BlockInfoWrapper className={ viewing ? 'viewing-block' : 'not-viewing-block' }>
       <div className="block-info">
         <div className="left">
-          <img src={EnterSVG} alt=""/>
           <div className="block-name">
             <span>Block</span>
             <h4>
               <Link to={`/block/${currentBlock?.blockHash}`}>{currentBlock?.height}</Link>
+              <img onClick={() => onBack(currentBlock?.height)} src={EnterSVG} alt=""/>
             </h4>
           </div>
         </div>
@@ -213,6 +219,7 @@ export const Explorer: FC = (): ReactElement => {
   const [ viewingBlock, setViewingBlock ] = useState<string>('');
   const [ showJumpModal, setShowJumpModal ] = useState<boolean>(false);
   const [ direction, setDirection ] = useState<'backward' | 'forward'>('forward');
+  const [ backHeight, setBackHeight ] = useState<number>(-1);
   
   const blocks = useMemo(() => ([...source].reverse()), [source]);
 
@@ -273,10 +280,11 @@ export const Explorer: FC = (): ReactElement => {
                 setDirection('backward');
                 setShowJumpModal(true);
               }}
-              forward={() =>{
+              forward={() => {
                 setDirection('forward');
                 setShowJumpModal(true);
               }}
+              onBack={setBackHeight}
             />
             <SpaceFill viewing={viewingBlock === block.blockHash} />
             <Table
@@ -321,6 +329,10 @@ export const Explorer: FC = (): ReactElement => {
       {
         showJumpModal &&
           <JumpToBlock direction={direction} onClose={() => setShowJumpModal(false)} />
+      }
+      {
+        backHeight >=0 &&
+          <ConfirmBack height={backHeight} onClose={() => setBackHeight(-1)} />
       }
     </Wrapper>
   );

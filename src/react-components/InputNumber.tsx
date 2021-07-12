@@ -16,6 +16,8 @@ import Input, { KEYS_PRE } from './Input';
 import { useTranslation } from './translate';
 import { ApiContext } from '../core';
 import { Input as AntInput, Select } from 'antd';
+import MoreSvg from '../assets/imgs/more.svg';
+import { Style } from '../shared';
 
 interface Props {
   autoFocus?: boolean;
@@ -42,6 +44,7 @@ interface Props {
   siDecimals?: number;
   siDefault?: SiDef;
   siSymbol?: string;
+  siWidth?: number;
   value?: BN | null;
   withEllipsis?: boolean;
   withLabel?: boolean;
@@ -174,7 +177,7 @@ function getValues (api: ApiRx, value: BN | string = BN_ZERO, si: SiDef | null, 
     : getValuesFromString(api, value, si, bitLength, isZeroable, maxValue, decimals);
 }
 
-function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, className = '', defaultValue, help, isDecimal, isFull, isSi, isDisabled, isError = false, isWarning, isZeroable = true, label, labelExtra, maxLength, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siDefault, siSymbol, value: propsValue }: Props): React.ReactElement<Props> {
+function InputNumber ({ siWidth, autoFocus, bitLength = DEFAULT_BITLENGTH, children, className = '', defaultValue, help, isDecimal, isFull, isSi, isDisabled, isError = false, isWarning, isZeroable = true, label, labelExtra, maxLength, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siDefault, siSymbol, value: propsValue }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useContext(ApiContext);
   const [si, setSi] = useState<SiDef | null>(() =>
@@ -269,9 +272,11 @@ function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, clas
 
   if (isSi && si) {
     return (
-      <AntInput.Group compact>
+      <AntInput.Group compact
+        className={className}
+      >
         <Input
-          style={{ width: '75%' }}
+          style={{ width: siWidth ? `${100 - siWidth}%` : '75%' }}
           autoFocus={autoFocus}
           className={`ui--InputNumber${isDisabled ? ' isDisabled' : ''} ${className}`}
           help={help}
@@ -295,7 +300,13 @@ function InputNumber ({ autoFocus, bitLength = DEFAULT_BITLENGTH, children, clas
         >
           {children}
         </Input>
-        <Select style={{ width: '25%' }} defaultValue={si.value} onChange={_onSelectSiUnit}>
+        <Select
+          suffixIcon={<img src={MoreSvg} alt="" />}
+          bordered={!siWidth}
+          style={{ width: !!siWidth ? `${siWidth}%` : '25%' }}
+          defaultValue={si.value}
+          onChange={_onSelectSiUnit}
+        >
           {
             siOptions.map((option, index) =>
               <Select.Option key={index} value={option.value}>{option.text}</Select.Option>
@@ -352,5 +363,20 @@ export default React.memo(styled(InputNumber)`
   .ui.buttons+.ui--Toggle.isOverlay {
     bottom: 1.1rem;
     right: 6.5rem;
+  }
+
+  .ant-input {
+    color: ${Style.color.label.primary};
+    font-weight: bold;
+  }
+  .ant-select > .ant-select-selector > .ant-select-selection-item {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2A292B;
+  }
+  .ant-select > .ant-select-arrow {
+    width: 16px;
+    height: 16px;
+    top: 42%;
   }
 `);

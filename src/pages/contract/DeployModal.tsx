@@ -21,6 +21,8 @@ import MoreSvg from '../../assets/imgs/more.svg';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import type { Weight } from '@polkadot/types/interfaces';
 import { RawParams } from '../../react-params/types';
+import { InputBalance } from '../../react-components';
+
 import type { ApiRx } from '@polkadot/api';
 
 const Content = styled(ModalMain)`
@@ -112,22 +114,20 @@ export const DeployModal: FC<{
   const { accounts } = useContext(AccountsContext);
   const [ message, setMessage ] = useState<AbiMessage>();
   const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
-  const [ { sender, endowment, gasLimit, salt }, setState ] = useState<{
-    sender: string;
-    name: string;
-    endowment: number;
+  const [ endowment, setEndowment ] = useState<BN>();
+  const [ tip, setTip ] = useState<BN>();
+  const [ { sender, gasLimit, salt }, setState ] = useState<{
+    sender: string | undefined;
     gasLimit: number;
     salt: string;
   }>({
     sender: accounts[0]?.address,
-    name: '',
-    endowment: 10,
     gasLimit: getEstimatedGas(api),
     salt: randomAsHex(),
   });
 
   const isDisabled = useMemo(() => {
-    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || !gasLimit || !sender || !params.every(param => param.isValid);
+    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || endowment.toNumber() === 0 || !gasLimit || !sender || !params.every(param => param.isValid);
   }, [abi, message, endowment, gasLimit, sender,params]);
 
   useEffect(() => {
@@ -198,10 +198,9 @@ export const DeployModal: FC<{
     }
 
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const value = (new BN(endowment)).mul((BN_TEN).pow(new BN(tokenDecimal)));
     const tx = code.tx[message.method]({
       gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
-      value,
+      value: endowment,
       salt,
     }, ...params.map(v => v.value as any));
     const account = accounts.find(account => account.address === sender);
@@ -210,7 +209,9 @@ export const DeployModal: FC<{
     }
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
-    await tx.signAndSend(pair).pipe(
+    setState(old => ({ ...old, salt: randomAsHex() }));
+
+    await tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
         antMessage.error(e.message || 'failed')
         return throwError('');
@@ -242,7 +243,7 @@ export const DeployModal: FC<{
         }
       }, () => {})
     );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tokenDecimal, onCompleted, codeJSON]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, onCompleted, codeJSON, tip]);
 
   return (
     <Modal
@@ -254,7 +255,11 @@ export const DeployModal: FC<{
     >
       <Content>
         <div className="header">
-          <h2>Upload & deploy contract</h2>
+          <h2>{
+            !!abi ?
+              'Deploy Contract':
+              'Upload & Deploy Contract'
+          }</h2>
         </div>
         <div className="content">
           {
@@ -271,32 +276,45 @@ export const DeployModal: FC<{
                     onMessageChange={setMessage}
                     onParamsChange={setParams}
                   />
+                  
+                  <LabeledInput style={{ borderBottom: '0px', marginTop: '16px' }}>
+                    <div className="span">endowment</div>
+                    <InputBalance
+                      siWidth={15}
+                      defaultValue={(new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal)))}
+                      label="endowment"
+                      onChange={setEndowment}
+                      value={endowment}
+                    />
+                  </LabeledInput>
                   <ParamInput
-                    defaultValue={endowment}
-                    style={{ margin: '16px 0px' }}
-                    onChange={
-                      value => setState(pre => ({...pre, endowment: parseInt(value)}))
-                    }
-                    label="Endowment" unit="DOT"
-                  />  
-                  <ParamInput
-                    defaultValue={salt}
                     style={{ borderBottomWidth: '0px' }}
-                    onChange={
-                      value => setState(pre => ({...pre, salt: value}))
-                    }
-                    label="unique deployment salt"
-                  />
-                  <ParamInput
                     defaultValue={gasLimit}
-                    style={{ borderBottomWidth: '0px' }}
                     onChange={
                       value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
                     }
                     label="max gas allowed"
                   />
+                  <ParamInput
+                    defaultValue={salt}
+                    value={salt}
+                    onChange={
+                      value => setState(pre => ({...pre, salt: value}))
+                    }
+                    label="unique deployment salt"
+                  />
                   
-                  <LabeledInput>
+                  <LabeledInput style={{  marginTop: '16px' }}>
+                    <div className="span">Tip</div>
+                    <InputBalance
+                      siWidth={15}
+                      label="Tip"
+                      onChange={setTip}
+                      value={tip}
+                    />
+                  </LabeledInput>
+                  
+                  <LabeledInput style={{ marginTop: '16px' }}>
                     <div className="span">Caller</div>
                     <AddressInput
                       defaultValue={accounts[0]?.address}

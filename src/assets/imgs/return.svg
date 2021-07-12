@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>-mockplus-</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Explorer" transform="translate(-129.000000, -184.000000)" fill="#BEAC92" fill-rule="nonzero">
+            <g id="return" transform="translate(129.000000, 184.000000)">
+                <path d="M10,0 C15.5228475,0 20,4.4771525 20,10 C20,15.5228475 15.5228475,20 10,20 C4.4771525,20 0,15.5228475 0,10 C0,4.4771525 4.4771525,0 10,0 Z M10,1 C5.02943725,1 1,5.02943725 1,10 C1,14.9705627 5.02943725,19 10,19 C14.9705627,19 19,14.9705627 19,10 C19,5.02943725 14.9705627,1 10,1 Z M8.56450795,5.12824706 L9.5,5.79876511 L6.298,9.49924706 L15.5,9.5 L15.5,10.5 L6.298,10.4992471 L9.5,14.2012349 L8.56450795,14.8717529 L4.5,10 L8.56450795,5.12824706 Z" id="形状结合"></path>
+            </g>
+        </g>
+    </g>
+</svg>

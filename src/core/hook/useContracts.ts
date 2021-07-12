@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Block, Extrinsic } from './../provider/blocks.provider';
 import { of, zip } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -20,28 +20,6 @@ export interface DeployedCode {
 export const useContracts = (api: ApiRx, blocks: Block[]) => {
   const [ codesHash, setCodesHash ] = useState<DeployedCode[]>([]);
   const [ contracts, setContracts ] = useState<DeployedContract[]>([]);
-
-  useMemo(() => {
-    const contracts: DeployedContract[] = [];
-
-    blocks.forEach(block =>
-      block.extrinsics.filter(extrinsic =>
-        extrinsic.method.section === 'contracts'
-          && (extrinsic.method.method === 'instantiate' || extrinsic.method.method === 'instantiateWithCode')
-          && extrinsic.events.find(event => event.event.section === 'system' && event.event.method === 'ExtrinsicSuccess')
-      ).forEach(extrinsic =>
-        contracts.push({
-          codeHash: '',
-          address: extrinsic.events.find(event => event.event.section === 'contracts' && event.event.method === 'Instantiated')?.event.data[1].toString() || '',
-          extrinsic,
-          block,
-        })
-      )
-    );
-
-    return contracts;
-  }, [blocks]);
-
 
   useEffect(() => {
     const _contracts: DeployedContract[] = [];
@@ -88,6 +66,7 @@ export const useContracts = (api: ApiRx, blocks: Block[]) => {
       codes.forEach((code, index) =>{
         _contracts[index].codeHash = code.hash;
 
+        // 寻找第一次实例化该合约的块高
         if (!codesMap[code.hash] || code.block.height < codesMap[code.hash].block.height) {
           codesMap[code.hash] = code;
         }

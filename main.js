@@ -10,8 +10,8 @@ function createWindow () {
     movable: true,
     frame: true,
     title: 'Europa',
-    width: 950,
-    height: 900,
+    width: 1200,
+    height: 720,
     useContentSize: false,
     webPreferences: {
       webSecurity: false,
@@ -23,8 +23,8 @@ function createWindow () {
 
   win.setMenuBarVisibility(false);
 
+  win.openDevTools({mode:'detach'});
   if (process.env.ElECTRON_ENV === 'development') {
-    win.openDevTools({mode:'detach'});
     win.loadURL('http://localhost:3000/');
   } else {
     win.loadFile('./build/index.html');

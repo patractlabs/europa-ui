@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import styled from 'styled-components';
 import { Style } from '../../../shared';
-import DeleteSvg from '../../../assets/imgs/delete.svg';
+import DeleteSvg from '../../../assets/imgs/delete-result.svg';
 
 const Result: FC<{ className?: string; results: any[], onDelete: (index: number) => void }> = ({ className, results, onDelete }) => {
   return (
@@ -46,8 +46,8 @@ margin-top: 20px;
     width: 40px;
     img {
       cursor: pointer;
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
     }
   }   
 }

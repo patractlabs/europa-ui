@@ -19,6 +19,8 @@ import { u8aToHex } from '@polkadot/util';
 import Encoded from '../shared/Encoded';
 import LabeledInput from '../shared/LabeledInput';
 import MoreSvg from '../../../assets/imgs/more.svg';
+import { InputBalance } from '../../../react-components';
+import type BN from 'bn.js';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -86,6 +88,7 @@ export const Submission: FC = (): ReactElement => {
   const { api } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [sender, setAccountId] = useState<string>();
+  const [tip, setTip] = useState<BN>();
   const [ section, setSection ] = useState<string>(createOptions(api)[0]);
   const [ methods, setMethods ] = useState<{
     value: string;
@@ -149,7 +152,7 @@ export const Submission: FC = (): ReactElement => {
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
     const values = paramValues.map(p => p.value) as any[];
 
-    exec(...values).signAndSend(pair).pipe(
+    exec(...values).signAndSend(pair, { tip }).pipe(
       catchError(e => {
         message.error(e.message || 'failed');
         return throwError('');
@@ -165,7 +168,7 @@ export const Submission: FC = (): ReactElement => {
         message.info(r.events.map(e => e.toHuman()));
       }
     }, () => {}));
-  }, [accounts, api.tx, method.value, paramValues, section, sender]);
+  }, [accounts, api.tx, method.value, paramValues, section, sender, tip]);
 
   const onSectionChange = useCallback((sectionName: string) => {
     const methods = createMethods(api, sectionName);
@@ -208,6 +211,17 @@ export const Submission: FC = (): ReactElement => {
         onChange={setParamValues}
         params={params}
       />
+      
+      <LabeledInput style={{  marginTop: '20px' }}>
+        <div className="span">Tip</div>
+        <InputBalance
+          siWidth={15}
+          label="Tip"
+          onChange={setTip}
+          value={tip}
+        />
+      </LabeledInput>
+
       <Encoded style={{ marginTop: '20px' }}>
         <span>encoded call data</span>
         <p>{extrinsicHex}</p>

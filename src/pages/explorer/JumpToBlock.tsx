@@ -33,6 +33,7 @@ const Content = styled(ModalMain)`
   .footer {
     .ant-btn {
       width: 320px;
+      height: 52px;
     }
     .warning-btn {
       background-color: ${Style.color.label.primary};

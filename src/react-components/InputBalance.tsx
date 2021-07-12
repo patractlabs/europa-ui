@@ -33,6 +33,7 @@ interface Props {
   placeholder?: string;
   siDecimals?: number;
   siSymbol?: string;
+  siWidth?: number;
   value?: BN;
   withEllipsis?: boolean;
   withLabel?: boolean;
@@ -60,7 +61,7 @@ function reformat (value?: string | BN, isDisabled?: boolean, siDecimals?: numbe
 }
 
 
-function InputBalance ({ autoFocus, children, className = '', defaultValue: inDefault, help, isDisabled, isError, isFull, isWarning, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siSymbol, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
+function InputBalance ({ siWidth, autoFocus, children, className = '', defaultValue: inDefault, help, isDisabled, isError, isFull, isWarning, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, siDecimals, siSymbol, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
   const [defaultValue] = useMemo(
     () => reformat(inDefault, isDisabled, siDecimals),
     [inDefault, isDisabled, siDecimals]
@@ -68,6 +69,7 @@ function InputBalance ({ autoFocus, children, className = '', defaultValue: inDe
 
   return (
     <InputNumber
+      siWidth={siWidth}
       autoFocus={autoFocus}
       bitLength={DEFAULT_BITLENGTH}
       className={`ui--InputBalance ${className}`}

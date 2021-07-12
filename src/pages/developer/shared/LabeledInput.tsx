@@ -31,7 +31,12 @@ const LabeledInput = styled.div<{ error?: boolean }>`
     
   .ant-select {
     width: 100%;
-
+  
+    .ant-select-arrow {
+      width: 16px;
+      height: 16px;
+      top: 42%;
+    }
     .ant-select-selector {
       padding: 0px;
       height: 16px;

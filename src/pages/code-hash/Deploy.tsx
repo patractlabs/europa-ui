@@ -19,6 +19,7 @@ import LabeledValue from '../developer/shared/LabeledValue';
 import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import { RawParams } from '../../react-params/types';
 import { getEstimatedGas } from '../contract/DeployModal';
+import { InputBalance } from '../../react-components';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
@@ -42,20 +43,20 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   const { accounts } = useContext(AccountsContext);
   const [ params, setParams ] = useState<RawParams>([]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
-  const [ { sender, endowment, gasLimit, salt }, setState ] = useState<{
+  const [ endowment, setEndowment ] = useState<BN | undefined>();
+  const [ tip, setTip ] = useState<BN>();
+  const [ { sender, gasLimit, salt }, setState ] = useState<{
     sender: string;
-    endowment: number;
     gasLimit: number;
     salt: string;
   }>({
     sender: accounts[0]?.address || '',
-    endowment: 10,
     gasLimit: getEstimatedGas(api),
     salt: randomAsHex(),
   });
 
   const isDisabled = useMemo(() => {
-    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || !gasLimit || !sender || !params.every(param => param.isValid);
+    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || endowment.toNumber() === 0 || !gasLimit || !sender || !params.every(param => param.isValid);
   }, [abi, message, endowment, gasLimit, sender,params]);
 
   const deploy = useCallback(async () => {
@@ -71,14 +72,14 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
 
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const value = (new BN(endowment)).mul((BN_TEN).pow(new BN(tokenDecimal)));
     const tx = code.tx[message.method]({
       gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
-      value,
+      value: endowment,
       salt,
     }, ...params.map(param => param.value as any));
 
-    await tx.signAndSend(pair).pipe(
+    setState(old => ({ ...old, salt: randomAsHex() }));
+    await tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
         antMessage.error(e.message || 'failed')
         return throwError('');
@@ -96,7 +97,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
         }
       }, () => {})
     );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tokenDecimal]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tip]);
 
   useEffect(() => setMessage(abi?.constructors[0]), [abi]);
 
@@ -117,22 +118,17 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                 onMessageChange={setMessage}
                 onParamsChange={setParams}
               />
-              <ParamInput
-                defaultValue={endowment}
-                style={{ margin: '20px 0px' }}
-                onChange={
-                  value => setState(pre => ({...pre, endowment: parseInt(value)}))
-                }
-                label="Endowment" unit="DOT"
-              />
-              <ParamInput
-                defaultValue={salt}
-                style={{ borderBottomWidth: '0px' }}
-                onChange={
-                  value => setState(pre => ({...pre, salt: value}))
-                }
-                label="unique deployment salt"
-              />
+                  
+              <LabeledInput style={{ marginTop: '16px', borderBottom: '0px' }}>
+                <div className="span">endowment</div>
+                <InputBalance
+                  siWidth={15}
+                  defaultValue={(new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal)))}
+                  label="endowment"
+                  onChange={setEndowment}
+                  value={endowment}
+                />
+              </LabeledInput>
               <ParamInput
                 defaultValue={gasLimit}
                 style={{ borderBottomWidth: '0px' }}
@@ -141,8 +137,26 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                 }
                 label="max gas allowed"
               />
+              <ParamInput
+                defaultValue={salt}
+                value={salt}
+                onChange={
+                  value => setState(pre => ({...pre, salt: value}))
+                }
+                label="unique deployment salt"
+              />
+                  
+              <LabeledInput style={{  marginTop: '16px' }}>
+                <div className="span">Tip</div>
+                <InputBalance
+                  siWidth={15}
+                  label="Tip"
+                  onChange={setTip}
+                  value={tip}
+                />
+              </LabeledInput>
 
-              <LabeledInput>
+              <LabeledInput style={{ marginTop: '16px' }}>
                 <div className="span">Caller</div>
                 <AddressInput
                   defaultValue={accounts[0]?.address}

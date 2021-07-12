@@ -165,9 +165,11 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
             contractName={choosedContract?.name}
             onCancel={() => {
               toggleDeploy(false);
+              setChoosedContract(undefined);
             }}
             onCompleted={() => {
               toggleDeploy(false);
+              setChoosedContract(undefined);
             }}
           />
       }
