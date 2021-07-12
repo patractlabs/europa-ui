@@ -18,8 +18,6 @@ const Wrapper = styled.div`
   }
   > .from, > .to {
     width: 155px;
-  }
-  > .to {
     color: ${Style.color.label.default};
   }
 `;
@@ -38,7 +36,7 @@ const Address: FC<{ address: string; signer?: string }> = ({ address, signer }):
           theme='polkadot'
         />
         {
-          signer === address ? 
+          signer === address || address === '-' ? 
             <span>{formatAddress(address)}</span>
             :
             <Link to={`/explorer/eoa/${address}`}>
@@ -53,7 +51,11 @@ export const Transfer: FC<{ signer?: string; style?: CSSProperties, record: Extr
   return (
     <Wrapper style={style}>
       <div className="from">
-        <Address address={record.signer.toString()} signer={signer} />
+        <Address address={
+          record.method.section.toLowerCase() === 'timestamp' && record.method.method.toLowerCase() === 'set' ?
+            '-' :
+            record.signer.toString()
+          } signer={signer} />
       </div>
       <img src={TransferArrowSVG} alt="" />
       <div className="to">

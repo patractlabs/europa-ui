@@ -110,7 +110,7 @@ const getIdentifer = (abi: Abi, selector: string): string => {
     abi.constructors.find(c => c.selector.toString() === selector)?.identifier || selector;
 };
 
-const getArgs = (abi: Abi, selector: string, args: string): Codec[] => {
+const getArgs = (abi: Abi, selector: string, args: string) => {
   const message = abi.messages.find(c => c.selector.toString() === selector) ||
     abi.constructors.find(c => c.selector.toString() === selector);
   
@@ -118,7 +118,12 @@ const getArgs = (abi: Abi, selector: string, args: string): Codec[] => {
     return [];
   }
 
-  return message.fromU8a(hexToU8a(args)).args;
+  const values = message.fromU8a(hexToU8a(args)).args;
+
+  return message.args.reduce((old: {[key: string]: any}, {name}, index) => {
+    old[name] = values[index]?.toJSON();
+    return old;
+  }, {})
 };
 
 export const ContractTrace: FC<{
@@ -190,9 +195,10 @@ export const ContractTrace: FC<{
                     <div style={{ flex: 1 }}>
                       <Args>{
                         abi ?
-                          getArgs(abi, trace.selector, trace.args).map((arg, index) =>
-                            <div style={{ marginBottom: '15px' }} key={index}>{arg.toString()}</div>
-                          )
+                          // getArgs(abi, trace.selector, trace.args).map((arg, index) =>
+                          //   <div style={{ marginBottom: '15px' }} key={index}>{arg.toString()}</div>
+                          // )
+                          <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} />
                           :
                           trace.args
                       }</Args>
