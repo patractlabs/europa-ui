@@ -30,9 +30,10 @@ const Button = styled.span`
 const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
   const [ isCreateModalOpen, setCreateModalOpen ] = useState<boolean>(false);
   const [ isImportModalOpen, setImportModalOpen ] = useState<boolean>(false);
+  const [ signal, setSignal ] = useState<number>(0);
   const { accounts, update } = useContext(AccountsContext);
 
-  useEffect(() => update(), [update]);
+  useEffect(() => update(), [update, signal]);
 
   return (
     <div className={className}>
@@ -62,7 +63,7 @@ const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
         
         {
           accounts.filter(account => !account.isTesting).map(account =>
-            <Account account={account} key={account.address} />
+            <Account account={account} key={account.address} onUpdateList={() => setSignal(old => old + 1)} />
           )
         }
       </div>
@@ -82,7 +83,7 @@ const Accounts: FC<{ className?: string }> = ({ className }): ReactElement => {
 
         {
           accounts.filter(account => !!account.isTesting).map(account =>
-            <Account account={account} key={account.address} />
+            <Account account={account} key={account.address} onUpdateList={() => setSignal(old => old + 1)} />
           )
         }
       </div>

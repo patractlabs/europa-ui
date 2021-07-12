@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="17px" height="16px" viewBox="0 0 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>send</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Accounts" transform="translate(-915.000000, -190.000000)">
+            <g id="send" transform="translate(915.963353, 190.000000)">
+                <polygon id="路径" points="0.0366469527 0 16.036647 0 16.036647 16 0.0366469527 16"></polygon>
+                <path d="M2.5687618,6.78693434 L8.04844652,4.59608183 L3.69738279,7.9257691 L2.5687618,6.78693434 Z M10.8521249,7.40997398 L8.6612724,12.8896587 L7.52754452,11.7559308 L10.8521249,7.40997398 Z M0,6.26092546 L3.56971073,9.84084996 L12.2514107,3.20190296 L5.61246366,11.8836029 L9.19238816,15.4533136 L15.31554,0.137773576 L0,6.26092546 Z" id="形状" fill="#B19E83" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

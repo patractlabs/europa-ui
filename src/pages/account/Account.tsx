@@ -4,9 +4,11 @@ import { AccountInfo } from '../../core';
 import { Style } from '../../shared';
 import MnemonicSvg from '../../assets/imgs/mnemonic.svg';
 import DeleteSvg from '../../assets/imgs/delete.svg';
+import SendSvg from '../../assets/imgs/send.svg';
 import { Link } from 'react-router-dom';
 import DeleteAccount from './Delete';
 import AccountDetail from './AccountDetail';
+import Transfer from './Transfer';
 
 const Button = styled.span`
   cursor: pointer;
@@ -30,10 +32,12 @@ const Button = styled.span`
 const Account: FC<{
   account: AccountInfo;
   className?: string;
-}> = ({ account, className }): ReactElement => {
+  onUpdateList: () => void;
+}> = ({ account, className, onUpdateList }): ReactElement => {
   const [ isDeleteModalOpen, setDeleteModalOpen ] = useState<boolean>(false);
   const [ isDetailModalOpen, setDetailModalOpen ] = useState<boolean>(false);
-
+  const [ isTransferModalOpen, setTransferModalOpen ] = useState<boolean>(false);
+  
   return (
     <div className={className}>
       <div className="name">{account.name}</div>
@@ -43,21 +47,28 @@ const Account: FC<{
         </Link>
       </div>
       <div className="balance">{account.balance}</div>
-      {
-        !account.isTesting &&
           <div className="operation">
-            <div className="mnemonic"  onClick={() => setDetailModalOpen(true)}>
-              <img src={MnemonicSvg} alt="" />
-              <div>Show Mnemonic</div>
+            <div className="transfer"  onClick={() => setTransferModalOpen(true)}>
+              <img src={SendSvg} alt="" />
+              <span>Transfer</span>
             </div>
-            <Button onClick={() => setDeleteModalOpen(true)}>
-              <img src={DeleteSvg} alt="" />
-              <span style={{ color: Style.color.icon.fail }}>
-                Delete
-              </span>
-            </Button>
+            {
+              !account.isTesting &&
+                <div className="mnemonic"  onClick={() => setDetailModalOpen(true)}>
+                  <img src={MnemonicSvg} alt="" />
+                  <span>Mnemonic</span>
+                </div>
+            }
+            {
+              !account.isTesting &&
+                <Button style={{ marginLeft: '20px' }} onClick={() => setDeleteModalOpen(true)}>
+                  <img src={DeleteSvg} alt="" />
+                  <span style={{ color: Style.color.icon.fail }}>
+                    Delete
+                  </span>
+                </Button>
+            }
           </div>
-      }
       {
         isDeleteModalOpen &&
           <DeleteAccount account={account} onClose={() => setDeleteModalOpen(false)} />
@@ -65,6 +76,13 @@ const Account: FC<{
       {
         isDetailModalOpen &&
           <AccountDetail account={account} onClose={() => setDetailModalOpen(false)} />
+      }
+      {
+        isTransferModalOpen &&
+          <Transfer account={account} onClose={() => {
+            setTransferModalOpen(false);
+            onUpdateList();
+          }} />
       }
     </div>
   );
@@ -112,10 +130,10 @@ export default React.memo(styled(Account)`
     width: 25%;
     overflow: hidden;
 
-    .mnemonic {
+    .mnemonic, .transfer {
       display: flex;
       align-items: center;
-      margin-right: 20px;
+      margin-left: 20px;
       cursor: pointer;
       overflow: hidden;
       white-space: nowrap;
@@ -124,12 +142,16 @@ export default React.memo(styled(Account)`
         width: 15px;
         height: 15px;
       }
-      > div {
-        height: 48px;
+      > span {
+        font-weight: 600;
+        color: ${Style.color.primary};
         margin-left: 8px;
         font-weight: 600;
         overflow: hidden;
       }
+    }
+    .transfer {
+      margin-left: 0px;
     }
   } 
 `);
