@@ -145,7 +145,7 @@ const Codes: FC<{ codes: DeployedCode[], redspotsContracts: RedspotContract[] }>
                 <a onClick={() => {
                   setChoosedCode(record);
                   toggleUploadAbi(true);
-                }}>upload ABI</a> :
+                }}>upload metadata</a> :
                 // eslint-disable-next-line jsx-a11y/anchor-is-valid
                 <a onClick={() => {
                   setChoosedContract({

@@ -20,31 +20,40 @@ import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import { RawParams } from '../../react-params/types';
 import { getEstimatedGas } from '../contract/DeployModal';
 import { InputBalance } from '../../react-components';
+import {extractState } from '../contract/Message';
+import { Trace } from '../extrinsic/Detail';
+import { Call } from '@polkadot/types/interfaces';
+import { ContractTrace } from '../extrinsic/Trace';
 
 const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
-  display: flex;
-  justify-content: center;
   padding: 20px;
   flex: 1;
   height: ${props => !props.hasAbi ? 0 : '' };
 
-  .deploy {
+  > .deploy {
+    margin: 0px auto;
     padding: 40px 0px;
-  }
-  .form {
     width: 480px;
-    margin: 16px 0px 30px 0px;
+    > .form {
+      margin: 16px 0px 30px 0px;
+    }
+    > .button-group {
+      > button:last-child {
+        margin-left: 8px;
+      }
+    }
   }
 `;
 
 export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi, name, codeHash }): ReactElement => {
-  const { api, tokenDecimal } = useContext(ApiContext);
+  const { api, wsProvider, tokenDecimal } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ params, setParams ] = useState<RawParams>([]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
   const [ endowment, setEndowment ] = useState<BN | undefined>();
   const [ tip, setTip ] = useState<BN>();
+  const [ trace, setTrace ] = useState<Trace>();
   const [ { sender, gasLimit, salt }, setState ] = useState<{
     sender: string;
     gasLimit: number;
@@ -58,6 +67,49 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   const isDisabled = useMemo(() => {
     return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || endowment.toNumber() === 0 || !gasLimit || !sender || !params.every(param => param.isValid);
   }, [abi, message, endowment, gasLimit, sender,params]);
+
+  const CallWithTrace = useCallback(async () => {
+    if (!message || !endowment) {
+      return;
+    }
+
+    const code = new CodeRx(api, abi, abi?.project.source.wasm);
+    const gas = (new BN(gasLimit)).mul(BN_MILLION);
+    const tx = code.tx[message.method]({
+      gasLimit: gas,
+      value: endowment,
+      salt,
+    }, ...params.map(param => param.value as any));
+    const hex = tx.toHex();
+    let extrinsicCall: Call;
+
+    try {
+      // cater for an extrinsic input...
+      extrinsicCall = api.createType('Call', api.tx(hex).method);
+    } catch (e) {
+      extrinsicCall = api.createType('Call', hex);
+    }
+
+    const { params: paramsDef, values } = extractState(extrinsicCall);
+    const dataIndex = paramsDef.findIndex(p => p.name === 'data');
+    const codeIndex = paramsDef.findIndex(p => p.name === 'code');
+    const data = values[dataIndex].value.toHex();
+    const rawCode = values[codeIndex].value.toHex();
+
+    wsProvider.send('contractsExt_instantiate', [{
+      origin: sender,
+      endowment: endowment.toNumber(),
+      gasLimit: gas.toNumber(),
+      code: { upload: rawCode },
+      data,
+      salt,
+    }]).then(({ trace }: { trace: Trace}) => {
+      setTrace(trace.depth ? trace : undefined);
+    }, (e: any) => {
+      console.log('e', e);
+      setTrace(undefined);
+    });
+  }, [wsProvider, sender, api, abi, endowment, salt, gasLimit, message, params]);
 
   const deploy = useCallback(async () => {
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
@@ -166,9 +218,16 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                 />
               </LabeledInput>
             </div>
-            <div>
+            <div className="button-group">
               <Button disabled={isDisabled} type="primary" onClick={deploy}>Deploy</Button>
+              <Button type="primary" onClick={CallWithTrace}>Call With Trace</Button>
             </div>
+          </div>
+      }
+      {
+        trace &&
+          <div style={{ marginTop: '20px' }}>
+            <ContractTrace codeHash={codeHash} index={0} trace={trace} />
           </div>
       }
     </Wrapper>

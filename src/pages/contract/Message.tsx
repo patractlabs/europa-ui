@@ -10,11 +10,17 @@ import { keyring } from '@polkadot/ui-keyring';
 import Params from './Params';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { encodeTypeDef } from '@polkadot/types/create';
+import { encodeTypeDef, getTypeDef } from '@polkadot/types/create';
 import { getEstimatedGas } from './DeployModal';
-import type BN from 'bn.js';
+import BN from 'bn.js';
 import LabeledInput from '../developer/shared/LabeledInput';
 import { InputBalance } from '../../react-components';
+import { Trace } from '../extrinsic/Detail';
+import { ApiRx } from '@polkadot/api';
+import type { Call } from '@polkadot/types/interfaces/runtime';
+import { Codec, IExtrinsic, IMethod, TypeDef } from '@polkadot/types/types';
+import { GenericCall } from '@polkadot/types';
+import { ContractTrace } from '../extrinsic/Trace';
 
 const Wrapper = styled.div`
   margin-bottom: 16px;
@@ -23,47 +29,53 @@ const Wrapper = styled.div`
   &:last-child {
     margin-bottom: 0px;
   }
+
+  > .message-signature {
+    padding: 0px 20px;
+    cursor: pointer;
+    height: 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .message-id {
+      display: inline-block;
+      font-size: 16px;
+      font-weight: bold;
+      color: ${Style.color.label.primary};
+      width: 70px;
+    }
+    
+    .signature {
+      font-size: 16px;
+      color: ${Style.color.label.primary};
+    }
+  }
+  > .call {
+    
+    border-top: 1px solid #DEDEDE;
+    padding: 16px 20px;
+
+    .result {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 18px;
+    }
+  }
 `;
 
-const MessageSignature = styled.div`
-  padding: 0px 20px;
-  cursor: pointer;
-  height: 52px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .message-id {
-    display: inline-block;
-    font-size: 16px;
-    font-weight: bold;
-    color: ${Style.color.label.primary};
-    width: 70px;
-  }
-  
-  .signature {
-    font-size: 16px;
-    color: ${Style.color.label.primary};
-  }
-`;
 const Toggle = styled.img`
   width: 16px;
   height: 16px;
 `;
+
 const Exec = styled.div`
-`;
 
-const Call = styled.div`
-  border-top: 1px solid #DEDEDE;
-  padding: 16px 20px;
-
-  .result {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 18px;
+  > button:first-child {
+    margin-right: 8px;
   }
-
 `;
+
 const ParamsContainer = styled.div`
   width: 90%;
   max-width: 800px;
@@ -92,15 +104,63 @@ const Result = styled.div`
   }
 `;
 
+interface Param {
+  name: string;
+  type: TypeDef;
+}
+
+interface Value {
+  isValid: boolean;
+  value: Codec;
+}
+
+export function extractState (value: IExtrinsic | IMethod) {
+  const params = GenericCall.filterOrigin(value.meta).map(({ name, type }): Param => ({
+    name: name.toString(),
+    type: getTypeDef(type.toString())
+  }));
+  const values = value.args.map((value): Value => ({
+    isValid: true,
+    value
+  }));
+
+
+  return { params, values };
+}
+
+export function extractCallData(api: ApiRx, contractPromise: ContractRx, message: AbiMessage, params: any[], gasLimit: BN) {
+  const tx = contractPromise.tx[message.method]({
+    gasLimit,
+    value: 0,
+  }, ...params);
+  
+  const hex = tx.toHex();
+  let extrinsicCall: Call;
+
+  try {
+    // cater for an extrinsic input...
+    extrinsicCall = api.createType('Call', api.tx(hex).method);
+    console.log('api.tx(hex).method````````````````````````', api.tx(hex).method);
+  } catch (e) {
+    extrinsicCall = api.createType('Call', hex);
+  }
+
+  const { params: paramsDef, values } = extractState(extrinsicCall);
+  const dataIndex = paramsDef.findIndex(p => p.name === 'data');
+
+  return values[dataIndex].value.toHex();
+}
+
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
-  const { api } = useContext(ApiContext);
+  const { api, wsProvider } = useContext(ApiContext);
   const [ result, setResult ] = useState<any>();
   const [ gasComsumed, setGasComsumed ] = useState<string>();
   const [params, setParams] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
   const [ tip, setTip ] = useState<BN>();
+  const [ trace, setTrace ] = useState<Trace>();
 
   useEffect(() => setSender(accounts[0]?.address), [accounts]);
 
@@ -112,11 +172,29 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
     [contract, message, sender],
   );
 
+  const CallWithTrace = useCallback(async () => {
+    const estimatedGas = await queryEstimatedWeight(params);
+    const gas = estimatedGas || (new BN(200000)).mul(new BN(1000000));
+    const data = extractCallData(api, contract, message, params, gas)
+
+    wsProvider.send('contractsExt_call', [{
+      origin: sender,
+      dest: contract.address,
+      value: 0,
+      gasLimit: gas,
+      inputData: data,
+    }]).then(({ trace }: { trace: Trace}) => {
+      setTrace(trace.depth ? trace : undefined);
+    }, (e: any) => {
+      console.log('e', e);
+      setTrace(undefined);
+    });
+  }, [wsProvider, sender, api, contract, message, params, queryEstimatedWeight]);
+
   const send = useCallback(async () => {
     if (!message.isMutating) {
-      const query = await contract.query[message.method](accounts[0].address, {}, ...params).toPromise();
+      const query = await contract.query[message.method](sender, {}, ...params).toPromise();
 
-      console.log('query')
       setResult(JSON.stringify(query.output?.toHuman()) || '<empty>');
       setGasComsumed(query.gasConsumed.toString());
 
@@ -156,16 +234,16 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
 
   return (
     <Wrapper>
-      <MessageSignature onClick={() => setExpanded(!expanded)}>
+      <div className="message-signature" onClick={() => setExpanded(!expanded)}>
         <div>
           <span className="message-id">{index}</span>
           <span className="signature">{message.method}</span>
         </div>
         <Toggle src={MoreSvg} alt="" style={{ transform: expanded ? 'scaleY(-1)' : '' }} />
-      </MessageSignature>
+      </div>
       {
         expanded &&
-          <Call>
+          <div className="call">
             <ParamsContainer>
               {
                 <Params
@@ -198,6 +276,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
             </ParamsContainer>
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
               <Button type="primary" onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
+              <Button type="primary" onClick={CallWithTrace}>Call With Trace</Button>
             </Exec>
             {
               !message.isMutating && result &&
@@ -210,10 +289,16 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
                     <span className="type">Gas Comsumed: </span>
                     <span className="value">{ gasComsumed }</span>
                   </Result>
-
                 </div>
             }
-          </Call>
+            
+            {
+              trace &&
+                <div style={{ marginTop: '20px' }}>
+                  <ContractTrace index={0} trace={trace} />
+                </div>
+            }
+          </div>
       }
     </Wrapper>
   );

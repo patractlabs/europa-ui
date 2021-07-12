@@ -134,7 +134,8 @@ const getArgs = (abi: Abi, selector: string, args: string) => {
 export const ContractTrace: FC<{
   index: number;
   trace: Trace;
-}> = ({ trace }): ReactElement => {
+  codeHash?: string;
+}> = ({ trace, codeHash }): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
@@ -143,7 +144,7 @@ export const ContractTrace: FC<{
     () => contracts.find(contracts => contracts.address === trace.self_account),
     [contracts, trace],
   );
-  const { abi, name } = useAbi(contract?.codeHash || '');
+  const { abi, name } = useAbi(contract?.codeHash || codeHash || '');
 
   return (
     <Wrapper err={!!trace.ext_result.Err} depth={trace.depth}>
@@ -197,17 +198,19 @@ export const ContractTrace: FC<{
                   </KeyValueLine>
                   <Line>
                     <LabelDefault>Args</LabelDefault>
-                    <div>
-                      <p className="no-abi">Please upload ABI first!</p>
-                      <Args  style={{ height: '470px' }}>
-                      {
-                        abi ?
-                            <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} />
-                            :
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      { !abi && <p className="no-abi">Please upload metadata first!</p> }
+                      <Args  style={{ height: !!abi ? '500px' : '470px', position: 'absolute', left: '0px', right: '0px' }}>
+                        {
+                          abi ?
+                            trace.args?.length ?
+                              <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} /> :
+                              <div></div>
+                              :
                             <div>
-                            {trace.args}
-                          </div>
-                      }
+                              {trace.args}
+                            </div>
+                        }
                       </Args>
                     </div>
                   </Line>

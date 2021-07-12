@@ -114,7 +114,7 @@ export const UploadAbi: FC<{
       >
         <Content>
           <div className="header">
-            <h2>Upload ABI bundle</h2>
+            <h2>Upload Metadata</h2>
           </div>
           <div className="content">
             <div className="upload">
@@ -136,7 +136,7 @@ export const UploadAbi: FC<{
               codeJSON ?
                 <DefaultButton type="primary" disabled={codeJSON.codeHash !== codeHash} onClick={upload}>Confirm</DefaultButton> :
                 <Upload fileList={[]} beforeUpload={beforeUpload}>
-                  <DefaultButton type="primary">Upload ABI Bundle</DefaultButton>
+                  <DefaultButton type="primary">Upload Metadata</DefaultButton>
                 </Upload>
             }
           </div>

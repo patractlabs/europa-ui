@@ -86,7 +86,7 @@ export const Contract: FC = (): ReactElement => {
         ></Tabs>
         {
           !abi &&
-            <Button onClick={() => setShow(true)}>Upload ABI</Button>
+            <Button onClick={() => setShow(true)}>Upload Metadata</Button>
         }
       </div>
       {
