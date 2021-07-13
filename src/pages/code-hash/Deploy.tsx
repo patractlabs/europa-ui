@@ -51,7 +51,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   const { accounts } = useContext(AccountsContext);
   const [ params, setParams ] = useState<RawParams>([]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
-  const [ endowment, setEndowment ] = useState<BN | undefined>();
+  const [ endowment, setEndowment ] = useState<BN>((new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal))));
   const [ tip, setTip ] = useState<BN>();
   const [ trace, setTrace ] = useState<Trace>();
   const [ { sender, gasLimit, salt }, setState ] = useState<{
@@ -179,12 +179,11 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
                 onMessageChange={setMessage}
                 onParamsChange={setParams}
               />
-                  
+
               <LabeledInput style={{ marginTop: '16px', borderBottom: '0px' }}>
                 <div className="span">endowment</div>
                 <InputBalance
                   siWidth={15}
-                  defaultValue={(new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal)))}
                   label="endowment"
                   onChange={setEndowment}
                   value={endowment}

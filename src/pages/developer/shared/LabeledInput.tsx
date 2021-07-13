@@ -6,6 +6,7 @@ const LabeledInput = styled.div<{ error?: boolean }>`
   height: 48px;
   padding: 4px 16px;
   padding-right: 0px;
+  background-color: white;
 
   > .span {
     height: 16px;

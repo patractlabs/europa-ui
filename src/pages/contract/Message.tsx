@@ -1,8 +1,8 @@
-import React, { FC, ReactElement, useState, useCallback, useContext, useEffect } from 'react';
+import React, { FC, ReactElement, useState, useCallback, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
-import { TxError, AddressInput, notification, Style } from '../../shared';
+import { TxError, AddressInput, notification, Style, ParamInput } from '../../shared';
 import { Button } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
@@ -11,7 +11,6 @@ import Params from './Params';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { encodeTypeDef, getTypeDef } from '@polkadot/types/create';
-import { getEstimatedGas } from './DeployModal';
 import BN from 'bn.js';
 import LabeledInput from '../developer/shared/LabeledInput';
 import { InputBalance } from '../../react-components';
@@ -21,6 +20,8 @@ import type { Call } from '@polkadot/types/interfaces/runtime';
 import { Codec, IExtrinsic, IMethod, TypeDef } from '@polkadot/types/types';
 import { GenericCall } from '@polkadot/types';
 import { ContractTrace } from '../extrinsic/Trace';
+import { BN_MILLION } from '@polkadot/util';
+import { RawParams } from '../../react-params/types';
 
 const Wrapper = styled.div`
   margin-bottom: 16px;
@@ -84,7 +85,7 @@ const ParamsContainer = styled.div`
 const Caller = styled.div`
   margin-top: 20px;
   margin-bottom: 20px;
-
+  background-color: white;
   > .caller {
     font-size: 16px;
     font-weight: bold;
@@ -140,7 +141,6 @@ export function extractCallData(api: ApiRx, contractPromise: ContractRx, message
   try {
     // cater for an extrinsic input...
     extrinsicCall = api.createType('Call', api.tx(hex).method);
-    console.log('api.tx(hex).method````````````````````````', api.tx(hex).method);
   } catch (e) {
     extrinsicCall = api.createType('Call', hex);
   }
@@ -155,33 +155,44 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   const [ expanded, setExpanded ] = useState(false);
   const { api, wsProvider, metadata } = useContext(ApiContext);
   const [ result, setResult ] = useState<any>();
-  const [ gasComsumed, setGasComsumed ] = useState<string>();
-  const [ params, setParams ] = useState<any[]>([]);
+  const [ gasConsumed, setGasConsumed ] = useState<string>();
+  const [ params, setParams ] = useState<RawParams>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
   const [ tip, setTip ] = useState<BN>();
   const [ trace, setTrace ] = useState<Trace>();
+  const [ gasLimit, setGasLimit ] = useState<number>(200000);
+  const [ endowment, setEndowment ] = useState<BN>(new BN(0));
+
+  const isDisabled = useMemo(() => !gasLimit || !sender || !params.every(param => param.isValid), [gasLimit, sender,params]);
 
   useEffect(() => setSender(accounts[0]?.address), [accounts]);
 
-  const queryEstimatedWeight = useCallback(
-    async (fields: any[], value?: string) => {
-      const { gasConsumed, result } = await contract.query[message.method](sender, { gasLimit: -1, value: value || '0' }, ...fields).toPromise();
-      return result.isOk ? gasConsumed : null;
-    },
-    [contract, message, sender],
-  );
+  useEffect(() => {
+    try {
+      console.log('params', params.map(p => p.value), sender);
+      
+      const sub = contract.query[message.method](sender, { gasLimit: -1, value: 0 }, ...params.map(p => p.value as any))
+        .subscribe(({ gasConsumed, result }) => {
+          console.log('gasC', gasConsumed.toString(), result.toHuman(), (new BN(gasConsumed.toString())).div(BN_MILLION).toNumber())
+          if (result.isOk) {
+            setGasLimit((new BN(gasConsumed.toString())).div(BN_MILLION).toNumber() + 1);
+          }
+        });
+  
+      return () => sub.unsubscribe();
+    } catch (e) {}
+  }, [params, contract, sender, message]);
 
   const CallWithTrace = useCallback(async () => {
-    const estimatedGas = await queryEstimatedWeight(params);
-    const gas = estimatedGas || (new BN(200000)).mul(new BN(1000000));
-    const data = extractCallData(api, contract, message, params, gas)
+    const data = extractCallData(api, contract, message, params.map(p => p.value), (new BN(gasLimit)).mul(BN_MILLION))
 
+    console.log('data', data)
     wsProvider.send('contractsExt_call', [{
       origin: sender,
       dest: contract.address,
-      value: 0,
-      gasLimit: gas,
+      value: endowment?.toNumber(),
+      gasLimit: new BN(gasLimit).mul(BN_MILLION).toNumber(),
       inputData: data,
     }]).then(({ trace }: { trace: Trace}) => {
       setTrace(trace.depth ? trace : undefined);
@@ -189,23 +200,22 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       console.log('e', e);
       setTrace(undefined);
     });
-  }, [wsProvider, sender, api, contract, message, params, queryEstimatedWeight]);
+  }, [wsProvider, sender, api, contract, message, params, gasLimit]);
 
   const send = useCallback(async () => {
     if (!message.isMutating) {
-      const query = await contract.query[message.method](sender, {}, ...params).toPromise();
+      const query = await contract.query[message.method](sender, {}, ...params.map(p => p.value as any)).toPromise();
 
       setResult(JSON.stringify(query.output?.toHuman()) || '<empty>');
-      setGasComsumed(query.gasConsumed.toString());
+      setGasConsumed(query.gasConsumed.toString());
 
       return;
     }
 
-    const estimatedGas = await queryEstimatedWeight(params);
     const tx = contract.tx[message.method]({
-      gasLimit: estimatedGas || getEstimatedGas(api),
-      value: 0,
-    }, ...params);
+      gasLimit: new BN(gasLimit).mul(BN_MILLION),
+      value: endowment,
+    }, ...params.map(p => p.value as any));
     const account = accounts.find(account => account.address === sender);
     if (!account) {
       return
@@ -238,7 +248,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
         },
       }, () => {})
     );
-  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api, tip, metadata]);
+  }, [params, sender, contract, message, accounts, gasLimit, tip, metadata, endowment]);
 
   return (
     <Wrapper>
@@ -260,18 +270,43 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
                   registry={contract.abi.registry}
                 />
               }
-              
               {
                 message.isMutating &&
-                  <Caller>
-                    <div className="caller">Caller</div>
-                    <AddressInput defaultValue={accounts[0]?.address} onChange={setSender}/>
-                  </Caller>
+                  <ParamInput
+                    style={{ marginTop: '20px', borderBottom: '0px' }}
+                    value={`${gasLimit}`}
+                    onChange={value => setGasLimit(`${parseInt(value)}` === 'NaN' ? 0 : parseInt(value))}
+                    label="max gas allowed"
+                  />
+              }
+              {
+                message.isMutating &&
+                  <LabeledInput style={{  }}>
+                    <div className="span">endowment</div>
+                    <InputBalance
+                      siWidth={15}
+                      label="endowment"
+                      onChange={setEndowment}
+                      value={endowment}
+                    />
+                  </LabeledInput>
+              }
+              {
+                message.isMutating &&
+                  <LabeledInput style={{ marginTop: '20px' }}>
+                    <div className="span">Caller</div>
+                    <AddressInput
+                      defaultValue={accounts[0]?.address}
+                      bordered={false}
+                      suffixIcon={<img src={MoreSvg} alt="" />}
+                      onChange={setSender} 
+                    />
+                  </LabeledInput>
               }
               
               {
                 message.isMutating &&
-                  <LabeledInput style={{ background: 'white', marginBottom: '16px' }}>
+                  <LabeledInput style={{ background: 'white', margin: '20px 0px' }}>
                     <div className="span">Tip</div>
                     <InputBalance
                       siWidth={15}
@@ -283,8 +318,8 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
               }
             </ParamsContainer>
             <Exec style={{ marginTop: message.isMutating ? '0px' : '20px' }}>
-              <Button type="primary" onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
-              <Button type="primary" onClick={CallWithTrace}>Call With Trace</Button>
+              <Button disabled={isDisabled} type="primary" onClick={send}>{ message.isMutating ? 'Execute' : 'Read' }</Button>
+              <Button disabled={isDisabled} type="primary" onClick={CallWithTrace}>Call With Trace</Button>
             </Exec>
             {
               !message.isMutating && result &&
@@ -295,7 +330,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
                   </Result>
                   <Result>
                     <span className="type">Gas Comsumed: </span>
-                    <span className="value">{ gasComsumed }</span>
+                    <span className="value">{ gasConsumed }</span>
                   </Result>
                 </div>
             }

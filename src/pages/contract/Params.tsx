@@ -3,14 +3,13 @@
 
 import type { RawParams } from '../../react-params/types';
 import type { Registry, TypeDef } from '@polkadot/types/types';
-
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import UIParams from '../../react-params';
 
 interface Props {
   isDisabled?: boolean;
   params?: ParamDef[] | null | '';
-  onChange: (values: any[]) => void;
+  onChange: (values: RawParams) => void;
   onEnter?: () => void;
   registry: Registry;
 }
@@ -27,20 +26,14 @@ function Params ({ isDisabled, onChange, onEnter, params: propParams, registry }
     propParams && setParams(propParams);
   }, [propParams]);
 
-  const _onChange = useCallback(
-    (values: RawParams) => onChange(values.map(({ value }) => value)),
-    [onChange]
-  );
-
   if (!params.length) {
     return null;
   }
 
   return (
     <UIParams
-      isRoot={true}
       isDisabled={isDisabled}
-      onChange={_onChange}
+      onChange={onChange}
       onEnter={onEnter}
       params={params}
       registry={registry}

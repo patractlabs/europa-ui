@@ -39,7 +39,6 @@ const Transfer: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, 
   const isDisabled = useMemo(() => !to || !amount || amount.toNumber() === 0, [amount, to]);
 
   const exec = useCallback(() => {
-
     if (!pair || !to || !amount) {
       return;
     }
@@ -68,8 +67,9 @@ const Transfer: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, 
           });
         },
         update(r) {
+          console.log('update')
         }
-      }, () => {})
+      }, () => {console.log('eeeeeee')})
     );
 
   }, [api, amount, pair, tip, to, onClose, metadata]);

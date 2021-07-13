@@ -135,6 +135,7 @@ export const ContractTrace: FC<{
   index: number;
   trace: Trace;
   codeHash?: string;
+  gasLeft?: number;
 }> = ({ trace, codeHash }): ReactElement => {
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
@@ -158,13 +159,13 @@ export const ContractTrace: FC<{
             </Col>
             <Col span={12}>
               <LabelDefault>Value</LabelDefault>
-              <ValuePrimary>{trace.value}</ValuePrimary>
+              <ValueDefault>{trace.value}</ValueDefault>
             </Col>
           </Row>
           <Row>
             <Col className="text-overflow" span={12}>
               <LabelDefault>To</LabelDefault>
-              <ValuePrimary>
+              <ValueDefault>
                 {
                   contract?.address.toString() ?
                     <Link to={`/contract/instances/${contract?.address.toString()}`}>
@@ -173,16 +174,24 @@ export const ContractTrace: FC<{
                     </Link> :
                     <span>{trace.self_account}</span>
                 }
-              </ValuePrimary>
+              </ValueDefault>
             </Col>
             <Col span={12}>
+              <LabelDefault>Gas Limit</LabelDefault>
+              <ValueDefault>{trace.gas_limit}</ValueDefault>
+            </Col>
+          </Row>
+          <Row>
+            <Col className="text-overflow" span={12}>
+              <LabelDefault>Gas Consumed</LabelDefault>
+              <ValueDefault>
+                {trace.gas_limit - trace.gas_left}
+              </ValueDefault>
+            </Col>
+            <Col className="text-overflow" span={12}>
               <LabelDefault>Gas Left</LabelDefault>
               <ValueDefault>{trace.gas_left}</ValueDefault>
             </Col>
-            {/* <Col span={6}>
-              <LabelDefault>Gas used</LabelDefault>
-              <ValueDefault>-</ValueDefault>
-            </Col> */}
           </Row>
         </MainInfo>
         {
@@ -192,9 +201,9 @@ export const ContractTrace: FC<{
                 <Col span={12} style={{ paddingRight: '40px' }}>
                   <KeyValueLine>
                     <LabelDefault>Function</LabelDefault>
-                    <ValueDefault>{
+                    <ValuePrimary>{
                       abi ? getIdentifer(abi, trace.selector) : trace.selector
-                    }</ValueDefault>
+                    }</ValuePrimary>
                   </KeyValueLine>
                   <Line>
                     <LabelDefault>Args</LabelDefault>
