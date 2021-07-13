@@ -82,18 +82,6 @@ const ParamsContainer = styled.div`
   max-width: 800px;
 `;
 
-const Caller = styled.div`
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-color: white;
-  > .caller {
-    font-size: 16px;
-    font-weight: bold;
-    color: ${Style.color.label.primary};
-    padding-bottom: 8px;
-  }
-`;
-
 const Result = styled.div`
   display: flex;
   align-items: center;
@@ -200,7 +188,7 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       console.log('e', e);
       setTrace(undefined);
     });
-  }, [wsProvider, sender, api, contract, message, params, gasLimit]);
+  }, [wsProvider, sender, api, contract, message, params, gasLimit, endowment]);
 
   const send = useCallback(async () => {
     if (!message.isMutating) {
