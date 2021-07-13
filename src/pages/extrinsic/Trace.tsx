@@ -162,7 +162,7 @@ export const ContractTrace: FC<{
               <ValueDefault>{trace.value}</ValueDefault>
             </Col>
           </Row>
-          <Row>
+          <Row style={{ marginBottom: '10px' }}>
             <Col className="text-overflow" span={12}>
               <LabelDefault>To</LabelDefault>
               <ValueDefault>

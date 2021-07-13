@@ -31,14 +31,10 @@ const Wrapper = styled.div`
 
   > .header-left {
     display: flex;
-  }
-
-  > .header-right {
-    display: flex;
     align-items: center;
 
     > .navi {
-      margin-right: 24px;
+      margin-right: 20px;
 
       > img {
         cursor: pointer;
@@ -50,6 +46,9 @@ const Wrapper = styled.div`
         transform: scaleX(-1);
       }
     }
+  }
+
+  > .header-right {
   }
 `;
 
@@ -523,13 +522,13 @@ export const Header: FC = (): ReactElement => {
       <More>
         <img src={MoreSVG} alt="" onClick={onToggle} />
       </More>
-      <BreadCrumb divides={divides} />
-    </div>
-    <div className="header-right">
       <div className="navi">
         <img src={NaviBackSVG} alt="" onClick={() => state?.from !== '/' && h.goBack()} />
         <img src={NaviBackSVG} alt="" onClick={() => h.goForward()} />
       </div>
+      <BreadCrumb divides={divides} />
+    </div>
+    <div className="header-right">
       <Search>
         <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
         <img onClick={onSearch} src={SearchSVG} alt="" />

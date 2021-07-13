@@ -157,12 +157,13 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   useEffect(() => setSender(accounts[0]?.address), [accounts]);
 
   useEffect(() => {
+    if (!expanded) {
+      return;
+    }
+
     try {
-      console.log('params', params.map(p => p.value), sender);
-      
       const sub = contract.query[message.method](sender, { gasLimit: -1, value: 0 }, ...params.map(p => p.value as any))
         .subscribe(({ gasConsumed, result }) => {
-          console.log('gasC', gasConsumed.toString(), result.toHuman(), (new BN(gasConsumed.toString())).div(BN_MILLION).toNumber())
           if (result.isOk) {
             setGasLimit((new BN(gasConsumed.toString())).div(BN_MILLION).toNumber() + 1);
           }
@@ -170,12 +171,11 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
   
       return () => sub.unsubscribe();
     } catch (e) {}
-  }, [params, contract, sender, message]);
+  }, [params, contract, sender, message, expanded]);
 
   const CallWithTrace = useCallback(async () => {
     const data = extractCallData(api, contract, message, params.map(p => p.value), (new BN(gasLimit)).mul(BN_MILLION))
 
-    console.log('data', data)
     wsProvider.send('contractsExt_call', [{
       origin: sender,
       dest: contract.address,
