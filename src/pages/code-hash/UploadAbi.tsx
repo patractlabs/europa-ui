@@ -1,10 +1,10 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { Button, message, Modal, Upload } from 'antd';
+import { Button, Modal, Upload } from 'antd';
 import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
 import type { RcFile } from 'antd/lib/upload';
 import { ApiContext, CodeJson, store } from '../../core';
 import styled from 'styled-components';
-import { ModalMain, Style } from '../../shared';
+import { ModalMain, notification, Style } from '../../shared';
 import LabeledValue from '../developer/shared/LabeledValue';
 import { Abi } from '@polkadot/api-contract';
 
@@ -76,7 +76,10 @@ export const UploadAbi: FC<{
       const hash = abi.project?.source?.wasmHash?.toString();
 
       if (hash !== codeHash) {
-        message.error('Code hash is not equal')
+        notification.warning({
+          message: 'Wrong file',
+          description: 'Code hash is not equal',
+        });
       }
 
       setCodeJSON({
@@ -88,7 +91,10 @@ export const UploadAbi: FC<{
         whenCreated: blockHeight,
       });
     } catch (error) {
-      message.error('Please upload .contact file');
+      notification.warning({
+        message: 'Wrong file',
+        description: 'Please upload .contact file',
+      });
       console.error(error);
     }
 

@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
-import { Col, Button, message, Row } from 'antd';
+import { Col, Button, Row } from 'antd';
 import styled from 'styled-components';
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { TypeDef } from '@polkadot/types/types';
@@ -11,7 +11,7 @@ import Sections from '../shared/Sections';
 import Methods from '../shared/Methods';
 import { RawParamOnChangeValue } from '../../../react-params/types';
 import Params from '../../../react-params';
-import { AddressInput } from '../../../shared';
+import { AddressInput, notification, TxError } from '../../../shared';
 import { keyring } from '@polkadot/ui-keyring';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
@@ -85,7 +85,7 @@ const createMethods = (api: ApiRx, sectionName: string) => {
 };
 
 export const Submission: FC = (): ReactElement => {
-  const { api } = useContext(ApiContext);
+  const { api, metadata } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [sender, setAccountId] = useState<string>();
   const [tip, setTip] = useState<BN>();
@@ -127,21 +127,29 @@ export const Submission: FC = (): ReactElement => {
 
     exec(...values).send().pipe(
       catchError(e => {
-        message.error(e.message || 'Failed');
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(handleTxResults({
       success() {
-        message.success('executed');
+        notification.success({
+          message: 'Executed',
+          description: 'The extrinsic executed',
+        });
       },
-      fail(e) {
-        message.error('failed');
+      fail(status) {
+        notification.fail({
+          message: 'Failed',
+          description: <TxError metadata={metadata} error={status.dispatchError} />,
+        });
       },
       update(r) {
-        message.info(r.events.map(e => e.toHuman()));
       }
     }, () => {}));
-  }, [api.tx, method.value, paramValues, section]);
+  }, [api.tx, method.value, paramValues, section, metadata]);
 
   const onSignedSubmit = useCallback(async () => {
     const exec = api.tx[section][method.value];
@@ -154,21 +162,29 @@ export const Submission: FC = (): ReactElement => {
 
     exec(...values).signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        message.error(e.message || 'Failed');
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(handleTxResults({
       success() {
-        message.success('executed');
+        notification.success({
+          message: 'Executed',
+          description: 'The extrinsic executed',
+        });
       },
-      fail(e) {
-        message.error('failed');
+      fail(status) {
+        notification.fail({
+          message: 'Failed',
+          description: <TxError metadata={metadata} error={status.dispatchError} />,
+        });
       },
       update(r) {
-        message.info(r.events.map(e => e.toHuman()));
       }
     }, () => {}));
-  }, [accounts, api.tx, method.value, paramValues, section, sender, tip]);
+  }, [accounts, api.tx, method.value, paramValues, section, sender, tip, metadata]);
 
   const onSectionChange = useCallback((sectionName: string) => {
     const methods = createMethods(api, sectionName);

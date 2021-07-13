@@ -14,10 +14,9 @@ import ContractsSVG from '../../assets/imgs/contracts.svg';
 import DeveloperSVG from '../../assets/imgs/developer.svg';
 import NaviBackSVG from '../../assets/imgs/naviback.svg';
 import SettingSVG from '../../assets/imgs/setting.svg';
-import { BreadCrumb, Divide } from '../../shared';
+import { BreadCrumb, Divide, notification } from '../../shared';
 import { Style } from '../../shared';
 import { BlocksContext, Extrinsic } from '../../core';
-import { message } from 'antd';
 import { ActiveTab as ContractActiveTab } from '../contract';
 import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
 import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
@@ -455,8 +454,11 @@ export const Header: FC = (): ReactElement => {
       setSearch('');
       return h.push(`/extrinsic/${extrinsic.hash.toString()}/details`);
     }
-
-    message.info('nothing found!')
+    
+    notification.warning({
+      message: 'Nothing found',
+      description: 'No item found',
+    });
   }, [blocks, search, h]);
 
   useMemo(() => {

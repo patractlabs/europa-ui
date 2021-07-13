@@ -5,6 +5,7 @@ const LabeledInput = styled.div<{ error?: boolean }>`
   border: 1px solid ${props => props.error ? Style.color.border.error : Style.color.border.default};
   height: 48px;
   padding: 4px 16px;
+  background-color: ${props => props.error ? Style.color.bg.error : Style.color.bg.default};
 
   > .span {
     height: 16px;
@@ -18,7 +19,7 @@ const LabeledInput = styled.div<{ error?: boolean }>`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: ${props => props.error ? Style.color.label.error : Style.color.label.primary};
+    color: ${Style.color.label.primary};
   }
 `;
 

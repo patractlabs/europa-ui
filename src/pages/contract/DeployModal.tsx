@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Button, message as antMessage, Modal, Upload } from 'antd';
+import { Button, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
 import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
@@ -12,7 +12,7 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Constructor } from '../code-hash/Constructor';
 import styled from 'styled-components';
-import { AddressInput, ModalMain, ParamInput, Style } from '../../shared';
+import { TxError, AddressInput, ModalMain, notification, ParamInput, Style } from '../../shared';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 import LabeledInput from '../developer/shared/LabeledInput';
@@ -22,7 +22,6 @@ import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import type { Weight } from '@polkadot/types/interfaces';
 import { RawParams } from '../../react-params/types';
 import { InputBalance } from '../../react-components';
-
 import type { ApiRx } from '@polkadot/api';
 
 const Content = styled(ModalMain)`
@@ -108,7 +107,7 @@ export const DeployModal: FC<{
   abi?: Abi;
   contractName?: string;
 }> = ({ abi: abiInput, onCancel, onCompleted, contractName }): ReactElement => {
-  const { api, tokenDecimal, genesisHash } = useContext(ApiContext);
+  const { api, tokenDecimal, genesisHash, metadata } = useContext(ApiContext);
   const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
   const [ params, setParams ] = useState<RawParams>([]);
   const { accounts } = useContext(AccountsContext);
@@ -213,7 +212,10 @@ export const DeployModal: FC<{
 
     await tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        antMessage.error(e.message || 'Failed')
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(
@@ -221,7 +223,10 @@ export const DeployModal: FC<{
         async success(result: CodeSubmittableResult) {
           const contract =  result.contract?.address.toString();
 
-          antMessage.success('deployed');
+          notification.success({
+            message: 'Deployed',
+            description: 'Contract deployed',
+          });
           api.query.contracts.contractInfoOf(contract)
             .pipe(
               map(info => info.toHuman() as unknown as { Alive: { codeHash: string } } )
@@ -235,15 +240,17 @@ export const DeployModal: FC<{
               onCompleted();
             });
         },
-        fail(e) {
-          antMessage.error('failed');
+        fail(status) {
+          notification.fail({
+            message: 'Failed',
+            description: <TxError metadata={metadata} error={status.dispatchError} />,
+          });
         },
         update(r) {
-          antMessage.info(r.events.map(e => e.toHuman()));
         }
       }, () => {})
     );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, onCompleted, codeJSON, tip]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, onCompleted, codeJSON, tip, metadata]);
 
   return (
     <Modal

@@ -1,12 +1,11 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import { message, } from 'antd';
 import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
 import { ApiContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
 import { useHistory, useLocation } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
-import { requireModule, Style } from '../../shared';
+import { notification, requireModule, Style } from '../../shared';
 import type * as Electron from 'electron';
 import * as _ from 'lodash';
 
@@ -46,9 +45,10 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
     try {
       await update(newSetting);
     } catch (e) {
-      message.error(`Could not store setting, code: ${ErrorCode.SaveSettingFailed}`);
-      setLoading(false);
-      return;
+      notification.warning({
+        message: 'Store Failed',
+        description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
+      });
     }
  
     try {
@@ -72,15 +72,21 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
           const { ipcRenderer }: typeof Electron = requireModule('electron');
 
           ipcRenderer.send('message:pid-change', 0);
-          setLoading(false);
-          message.error(`Europa exited unexpectly, code: ${ErrorCode.RunClashed}`, 3);
+          setLoading(false);          
+          notification.fail({
+            message: 'Start Failed',
+            description: `Europa exited unexpectly, code: ${ErrorCode.RunClashed}`,
+          });
         }
       });
     } catch (e) {
       console.log(e);
 
       setLoading(false);
-      message.error(`Failed to start Europa, code: ${ErrorCode.StartFailed}`, 3);
+      notification.fail({
+        message: 'Start Failed',
+        description: `Failed to start Europa, code: ${ErrorCode.StartFailed}`,
+      });
       return;
     }
 

@@ -2,8 +2,8 @@ import React, { FC, ReactElement, useState, useCallback, useContext, useEffect }
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { AbiMessage } from '@polkadot/api-contract/types';
-import { AddressInput, Style } from '../../shared';
-import { Button, message as antMessage } from 'antd';
+import { TxError, AddressInput, notification, Style } from '../../shared';
+import { Button } from 'antd';
 import { ContractRx } from '@polkadot/api-contract';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { keyring } from '@polkadot/ui-keyring';
@@ -153,10 +153,10 @@ export function extractCallData(api: ApiRx, contractPromise: ContractRx, message
 
 export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: number }> = ({ contract, message, index }): ReactElement => {
   const [ expanded, setExpanded ] = useState(false);
-  const { api, wsProvider } = useContext(ApiContext);
+  const { api, wsProvider, metadata } = useContext(ApiContext);
   const [ result, setResult ] = useState<any>();
   const [ gasComsumed, setGasComsumed ] = useState<string>();
-  const [params, setParams] = useState<any[]>([]);
+  const [ params, setParams ] = useState<any[]>([]);
   const { accounts } = useContext(AccountsContext);
   const [ sender, setSender ] = useState<string>('');
   const [ tip, setTip ] = useState<BN>();
@@ -214,23 +214,31 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
 
     tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        antMessage.error(e.message || 'Failed');
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(
       handleTxResults({
         success() {
-          antMessage.success('executed');
+          notification.success({
+            message: 'Executed',
+            description: 'The extrinsic executed',
+          });
         },
-        fail(e) {
-          antMessage.error('failed');
+        fail(status) {
+          notification.fail({
+            message: 'Failed',
+            description: <TxError metadata={metadata} error={status.dispatchError} />,
+          });
         },
         update(r) {
-          antMessage.info(r.events.map(e => e.toHuman()));
-        }
+        },
       }, () => {})
     );
-  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api, tip]);
+  }, [params, sender, contract, message, accounts, queryEstimatedWeight, api, tip, metadata]);
 
   return (
     <Wrapper>

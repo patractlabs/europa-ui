@@ -150,3 +150,53 @@ body #root {
   background-color: white;
 }
 
+.ant-notification-notice {
+  padding: 22px 16px;
+  border-radius: 4px;
+  width: 390px;
+}
+.ant-notification-notice.ant-notification-notice-success {
+  border-left: 4px solid #5fcbaa;
+}
+.ant-notification-notice.ant-notification-notice-info {
+  border-left: 4px solid #8fbced;
+}
+.ant-notification-notice.ant-notification-notice-warning {
+  border-left: 4px solid #eed055;
+}
+.ant-notification-notice.ant-notification-notice-error {
+  border-left: 4px solid #ee737e;
+}
+
+.ant-notification-icon > img {
+  vertical-align: unset;
+}
+
+.ant-notification-notice-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 0px;
+  line-height: 16px;
+  font-size: 16px;
+}
+
+.ant-notification-notice-with-icon .ant-notification-notice-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2a292b;
+  line-height: 15px;
+  margin-left: 22px;
+  margin-bottom: 11px;
+}
+.ant-notification-notice-with-icon .ant-notification-notice-description {
+  color: #8c8b8c;
+  line-height: 18px;
+  margin-left: 22px;
+}
+.ant-notification-notice-close {
+  top: 8px;
+  right: 8px;
+}
+.ant-notification-close-icon {
+  font-size: 16px;
+}

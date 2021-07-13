@@ -2,12 +2,11 @@ import React, { useState, useMemo, FC, ReactElement, useCallback, useContext } f
 import { Button, Modal } from 'antd';
 import { AccountInfo, ApiContext, handleTxResults, usePair } from '../../core';
 import styled from 'styled-components';
-import { Style, ModalMain, AddressInput } from '../../shared';
+import { TxError, Style, ModalMain, AddressInput, notification } from '../../shared';
 import LabeledInput from '../developer/shared/LabeledInput';
 import { InputBalance } from '../../react-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import type BN from 'bn.js';
-import { message } from 'antd';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
@@ -34,7 +33,7 @@ const Transfer: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, 
   const [ amount, setAmount ] = useState<BN>();
   const [ tip, setTip ] = useState<BN>();
   const [ to, setTo ] = useState<string>();
-  const { api } = useContext(ApiContext);
+  const { api, metadata } = useContext(ApiContext);
   const pair = usePair(account.address);
 
   const isDisabled = useMemo(() => !to || !amount || amount.toNumber() === 0, [amount, to]);
@@ -47,25 +46,33 @@ const Transfer: FC<{ account: AccountInfo, onClose: () => void }> = ({ account, 
 
     api.tx.balances.transfer(to, amount).signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        message.error(e.message || 'Failed')
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(
       handleTxResults({
         success() {
-          message.success('Transfered');
+          notification.success({
+            message: 'Success',
+            description: 'Transfered',
+          });
           onClose();
         },
-        fail(e) {
-          message.error('Failed');
+        fail(status) {
+          notification.fail({
+            message: 'Failed',
+            description: <TxError metadata={metadata} error={status.dispatchError} />,
+          });
         },
         update(r) {
-          message.info(r.events.map(e => e.toHuman()));
         }
       }, () => {})
     );
 
-  }, [api, amount, pair, tip, to, onClose]);
+  }, [api, amount, pair, tip, to, onClose, metadata]);
   
   return (
     <Modal

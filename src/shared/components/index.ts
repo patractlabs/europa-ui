@@ -14,3 +14,5 @@ export * from './PageLine';
 export * from './PageTabs';
 export * from './Event';
 export * from './Events';
+export * from './Notification';
+export * from './TxError';

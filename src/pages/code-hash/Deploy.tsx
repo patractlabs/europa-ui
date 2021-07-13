@@ -2,8 +2,8 @@ import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, u
 import styled from 'styled-components';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { Constructor } from './Constructor';
-import { AddressInput, ParamInput } from '../../shared';
-import { Button, message as antMessage } from 'antd';
+import { TxError, AddressInput, notification, ParamInput } from '../../shared';
+import { Button } from 'antd';
 import { randomAsHex } from '@polkadot/util-crypto';
 import { isWasm } from '@polkadot/util';
 import { Abi, CodeRx } from '@polkadot/api-contract';
@@ -47,7 +47,7 @@ const Wrapper = styled.div<{ hasAbi: boolean }>`
 `;
 
 export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi, name, codeHash }): ReactElement => {
-  const { api, wsProvider, tokenDecimal } = useContext(ApiContext);
+  const { api, wsProvider, tokenDecimal, metadata } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
   const [ params, setParams ] = useState<RawParams>([]);
   const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
@@ -133,23 +133,32 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     setState(old => ({ ...old, salt: randomAsHex() }));
     await tx.signAndSend(pair, { tip }).pipe(
       catchError(e => {
-        antMessage.error(e.message || 'Failed')
+        notification.fail({
+          message: 'Failed',
+          description: e.message,
+        });
         return throwError('');
       })
     ).subscribe(
       handleTxResults({
         success() {
-          antMessage.success('deployed');
+          notification.success({
+            message: 'Deployed',
+            description: 'Contract deployed',
+          });
         },
-        fail(e) {
-          antMessage.error('failed');
+        fail(status) {
+          notification.fail({
+            message: 'Failed',
+            description: <TxError metadata={metadata} error={status.dispatchError} />,
+          });
         },
         update(r) {
-          antMessage.info(r.events.map(e => e.toHuman()));
+          console.log('update', r);
         }
       }, () => {})
     );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tip]);
+  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tip, metadata]);
 
   useEffect(() => setMessage(abi?.constructors[0]), [abi]);
 
