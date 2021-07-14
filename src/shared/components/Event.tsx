@@ -113,11 +113,14 @@ export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({
         });        
       }
 
+      console.log('section', event.event.section, 'method', event.event.method);
+
       return {
         [args[index] ? args[index] : `${index}`]: value.toJSON(),
       } as unknown as Obj;
     });
 
+    console.log('args', args)
     setArgs(args);
   }, [metadata, event.event]);
 

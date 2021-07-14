@@ -116,15 +116,15 @@ const decodeData = (extrinsic: Extrinsic, abi: Abi | undefined, name: string, da
   try {
     const message = fun.fromU8a(hexToU8a(`0x${data.slice(10)}`));
 
-    const result = message.args.map((arg, index) => ({
-      [message.message.args[index].name]: arg.toHuman()
-    })) as unknown as Obj[];
+    return [
+      { selector: `${message.message.identifier} (${data.slice(2, 10)})` },
+      {
+        parameters: message.args.map((arg, index) => ({
+          [message.message.args[index].name]: arg.toHuman()
+        }))
+      },
+    ] as unknown as Obj[];
 
-    result.unshift({
-      selector: `${message.message.identifier} (${data.slice(2, 10)})`
-    });
-
-    return result;
   } catch (e) {}
 
   return data;
