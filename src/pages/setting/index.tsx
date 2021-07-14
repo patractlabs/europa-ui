@@ -30,7 +30,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
 
 const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update, setting, defaultDataBasePath } = useContext(SettingContext);
-  const { clear: clearBlocks } = useContext(BlocksContext);
+  const { clear: clearBlocks, retrive } = useContext(BlocksContext);
   const { connect: connectApi } = useContext(ApiContext);
   const { clear: clearLogs } = useContext(LogsContext);
   const { change } = useContext(EuropaManageContext);
@@ -108,9 +108,10 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
       console.log('history.push(explorer);');
 
       setLoading(false);
+      retrive();
       history.push('/explorer');
     });
-  }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi]);
+  }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi, retrive]);
 
   return (
     <div className={className}>

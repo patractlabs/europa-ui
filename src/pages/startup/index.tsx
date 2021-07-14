@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
-import { ApiContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
+import { ApiContext, BlocksContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
 import { useHistory, useLocation } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
@@ -33,6 +33,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { startup } = useContext(EuropaManageContext);
   const { connect: connectApi } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
+  const { retrive } = useContext(BlocksContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
   const { pathname } = useLocation();
@@ -103,11 +104,12 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       console.log('history.push(explorer);');
 
       setLoading(false);
+      retrive();
       history.push('/explorer', { 
         from: pathname
       });
     });
-  }, [setting, update, history, connected$, connectApi, startup, pathname]);
+  }, [setting, update, history, connected$, connectApi, startup, pathname, retrive]);
 
   return (
     <div className={className}>

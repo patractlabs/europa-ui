@@ -215,18 +215,13 @@ const BlockInfo: FC<{
 };
 
 export const Explorer: FC = (): ReactElement => {
-  const { retrive: retriveBlocks, blocks: source } = useContext(BlocksContext);
+  const { blocks: source } = useContext(BlocksContext);
   const [ viewingBlock, setViewingBlock ] = useState<string>('');
   const [ showJumpModal, setShowJumpModal ] = useState<boolean>(false);
   const [ direction, setDirection ] = useState<'backward' | 'forward'>('forward');
   const [ backHeight, setBackHeight ] = useState<number>(-1);
   
-  const blocks = useMemo(() => ([...source].reverse()), [source]);
-
-  useEffect(() => {
-    retriveBlocks();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const blocks = useMemo(() => ([...source].reverse()), [source])
 
   useEffect(() => {
     const toggleNavigation = () => {
