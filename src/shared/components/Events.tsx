@@ -1,6 +1,6 @@
 import React, { CSSProperties, FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { PaginationContext } from '../../core';
+import { ApiContext, BlocksContext, PaginationContext, useContracts } from '../../core';
 import { PageLine } from './index';
 import { Event } from './Event';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
@@ -42,6 +42,9 @@ export const Events: FC<{
     eventsSource.slice(pageSize * (pageIndex - 1), pageSize * pageIndex) || [],
     [eventsSource, pageIndex, pageSize],
   );
+  const { api } = useContext(ApiContext);
+  const { blocks } = useContext(BlocksContext);
+  const { contracts } = useContracts(api, blocks);
 
   useEffect(() => setTotal(eventsSource.length), [eventsSource, setTotal]);
 
@@ -50,7 +53,7 @@ export const Events: FC<{
       <div className="content">
         {
           events.map((event, index) =>
-            <Event showIndex={showIndex} key={index} event={event} />
+            <Event contracts={contracts} showIndex={showIndex} key={index} event={event} />
           )
         }
         {

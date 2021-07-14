@@ -1,10 +1,12 @@
-import React, { FC, ReactElement, useContext, useEffect, useState } from 'react';
+import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { Style } from '../styled/const';
 import { Args, Obj } from './Args';
-import { ApiContext } from '../../core';
+import { ApiContext, DeployedContract, useAbi } from '../../core';
+import { Abi } from '@polkadot/api-contract';
+import { Codec } from '@polkadot/types/types';
 
 const Wrapper = styled.div`
   border-bottom: 1px solid ${Style.color.border.default};
@@ -61,9 +63,44 @@ export interface ExtendedEventRecord extends EventRecord {
   indexInBlock?: number;
 };
 
-export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({ event, showIndex = false }): ReactElement => {
+const decodeData = (event: EventRecord, abi: Abi | undefined, name: string, data: Codec): string | Obj[] => {
+  const isContractEmit = event.event.section.toLowerCase() === 'contracts'
+    && event.event.method.toLowerCase() === 'contractemitted';
+
+  if (!abi || name !== 'Bytes' || !isContractEmit) {
+    return data.toString();
+  }
+
+  try {
+    const event = abi.decodeEvent(data.toU8a(true));
+
+    console.log('event.args', event.args);
+
+    return [
+      { event: event.event.identifier },
+      {
+        parameters: event.args.map((arg, index) => ({
+          [event.event.args[index].name]: arg.toJSON()
+        }))
+      },
+    ] as unknown as Obj[];
+
+  } catch (e) {}
+
+  return data.toString();
+};
+
+export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }): ReactElement => {
+  const { metadata } = useContext(ApiContext);
   const [ expanded, setExpanded ] = useState(false);
   const [ args, setArgs ] = useState<Obj[]>([]);
+  const [ contractAddress, setContractAddress ] = useState<string>();
+  const codeHash = useMemo(
+    () => contracts.find(contract => contract.address === contractAddress)?.codeHash,
+    [contractAddress, contracts],
+  );
+  const { abi } = useAbi(codeHash || '');
+  
   const [ err, setErr ] = useState<{
     section: string;
     err: {
@@ -72,7 +109,6 @@ export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({
     } 
   }>();
 
-  const { metadata } = useContext(ApiContext);
 
   useEffect(() => {
     type Module = {
@@ -94,11 +130,14 @@ export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({
       modules = (metadata.toJSON().metadata as any)['v13'].modules as Module[];
     } catch (e) {}
 
-    const args = event.event.data.map((value, index) => {
-      const args = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
-        .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
-      const errIndex = args.findIndex(arg => arg === 'DispatchError');
 
+    const contractArgs = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
+      .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
+    const errIndex = contractArgs.findIndex(arg => arg === 'DispatchError');
+    const isContractEmit = event.event.section.toLowerCase() === 'contracts'
+      && event.event.method.toLowerCase() === 'contractemitted';
+
+    const args = event.event.data.map((value, index) => {
       if (errIndex === index) {
         const err = value.toJSON() as {
           module: {
@@ -113,16 +152,20 @@ export const Event: FC<{ event: ExtendedEventRecord, showIndex?: boolean }> = ({
         });        
       }
 
-      console.log('section', event.event.section, 'method', event.event.method);
+      if (isContractEmit) {
+        if (index === 0) {
+          setContractAddress(value.toString());
+        }
+      }
 
       return {
-        [args[index] ? args[index] : `${index}`]: value.toJSON(),
+        [contractArgs[index] ? contractArgs[index] : `${index}`]: decodeData(event, abi, contractArgs[index], value),
       } as unknown as Obj;
     });
 
     console.log('args', args)
     setArgs(args);
-  }, [metadata, event.event]);
+  }, [metadata, event, abi]);
 
   return (
     <Wrapper>
