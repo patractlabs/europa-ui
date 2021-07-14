@@ -86,6 +86,7 @@ const Main: FC = (): ReactElement => {
 
 function App() {
   let visited = false;
+
   return (
     <Switch>
       <Route exact path="/" render={() => {
