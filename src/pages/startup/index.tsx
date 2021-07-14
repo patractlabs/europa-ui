@@ -105,7 +105,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 
       setLoading(false);
       retrive();
-      history.push('/explorer', { 
+      history.push('/contract', { 
         from: pathname
       });
     });

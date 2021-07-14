@@ -109,7 +109,7 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
 
       setLoading(false);
       retrive();
-      history.push('/explorer');
+      history.push('/contract');
     });
   }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi, retrive]);
 
