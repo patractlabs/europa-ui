@@ -5,6 +5,7 @@ import { DEFAULT_HTTP_PORT, DEFAULT_WS_PORT, EuropaOptions, SettingContext } fro
 import { requireModule, Style } from '../../shared';
 import AddSvg from '../../assets/imgs/add-redspot.svg';
 import InfoSvg from '../../assets/imgs/info.svg';
+import MoreSvg from '../../assets/imgs/more.svg';
 import FileSvg from '../../assets/imgs/file-select.svg';
 import DeleteSvg from '../../assets/imgs/delete-redspot.svg';
 import type * as Electron from 'electron';
@@ -24,6 +25,8 @@ const EuropaSetting: FC<{
   const [ currentDbPath, setCurrentDbPath ] = useState<string>(initialSetting.database);
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(initialSetting.workspace);
   const [ showMore, setShowMore ] = useState<boolean>(type === 'Change');
+  const [ dbExpanded, setDbExpanded ] = useState(false);
+  const [ workspaceExpanded, setWorkspaceExpanded ] = useState(false);
   const [ httpPort, setHttpPort ] = useState<number | undefined>(initialSetting.httpPort);
   const [ wsPort, setWsPort ] = useState<number | undefined>(initialSetting.wsPort);
   
@@ -109,6 +112,21 @@ const EuropaSetting: FC<{
     update(newSetting);
   }, [setting, update]);
 
+  const deleteDatabase = useCallback((index: number) => {
+    const newSetting = _.cloneDeep(setting);
+
+    newSetting?.databases.splice(index, 1);
+    newSetting && update(newSetting);
+  }, [setting, update]);
+
+  const deleteWorkspace = useCallback((index: number) => {
+    const newSetting = _.cloneDeep(setting);
+    const workspaces = newSetting?.databases.find(db => db.path === currentDbPath)?.workspaces;
+
+    workspaces?.splice(index, 1);
+    newSetting && workspaces && update(newSetting);
+  }, [setting, update, currentDbPath]);
+
   const workspaceMenu = useMemo(() => {
     const workspaces = setting?.databases.find(db => db.path === currentDbPath)?.workspaces;
 
@@ -116,7 +134,17 @@ const EuropaSetting: FC<{
       <Menu>
         {
           workspaces.map((w, index) =>
-            <Menu.Item key={index} onClick={() => setCurrentWorkspace(w)}>
+            <Menu.Item
+              key={index}
+              icon={<img onClick={e => {
+                deleteWorkspace(index);
+                e.stopPropagation();
+              }} src={DeleteSvg} alt="" />}
+              onClick={() => {
+                setCurrentWorkspace(w);
+                setWorkspaceExpanded(false);
+              }}
+            >
               {w}
             </Menu.Item>
           )
@@ -124,7 +152,7 @@ const EuropaSetting: FC<{
       </Menu> :
       <></>;
   },
-    [currentDbPath, setting],
+    [currentDbPath, setting, deleteWorkspace],
   );
 
   const DatabaseMenu = useMemo(() => 
@@ -132,14 +160,24 @@ const EuropaSetting: FC<{
       <Menu>
         {
           setting.databases.map((d, index) =>
-            <Menu.Item key={index} onClick={() => setCurrentDbPath(d.path)}>
+            <Menu.Item
+              key={index}
+              icon={<img onClick={e => {
+                deleteDatabase(index);
+                e.stopPropagation();
+              }} src={DeleteSvg} alt="" />}
+              onClick={() => {
+                setCurrentDbPath(d.path);
+                setDbExpanded(false);
+              }}
+            >
               {d.path}
             </Menu.Item>
           )
         }
       </Menu> :
       <></>,
-    [setting?.databases],
+    [setting?.databases, deleteDatabase],
   );
 
   return (
@@ -154,8 +192,12 @@ const EuropaSetting: FC<{
           </div>
         </div>
         <div className="value-line">
-          <Dropdown overlay={DatabaseMenu} trigger={['click']}>
-            <input placeholder="/path/to/data" value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
+          <Dropdown overlay={DatabaseMenu} trigger={['click']} onVisibleChange={setDbExpanded}>
+            <div className="dropdown">
+              <input style={{ paddingRight: '36px' }} placeholder="/path/to/data" value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
+              <img className={dbExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+            </div>
+
           </Dropdown>
         </div>
         <div className="file-select" onClick={onAddDb}>
@@ -172,8 +214,11 @@ const EuropaSetting: FC<{
         </div>
       </div>
       <div className="value-line">
-        <Dropdown overlay={workspaceMenu} trigger={['click']}>
-          <input placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
+        <Dropdown overlay={workspaceMenu} trigger={['click']} onVisibleChange={setWorkspaceExpanded}>
+          <div className="dropdown">
+            <input style={{ paddingRight: '36px' }} placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
+            <img className={workspaceExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+          </div>
         </Dropdown>
       </div>
       
@@ -340,6 +385,19 @@ export default styled(EuropaSetting)`
       border: 1px solid ${Style.color.border.default};
       border-radius: 4px;
       padding: 14px 12px;
+    }
+    > .dropdown {
+      position: relative;
+
+      > img {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+      }
+
+      > .expanded {
+        transform: scaleY(-1);
+      }
     }
   }
   > .more-options {

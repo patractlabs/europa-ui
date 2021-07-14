@@ -38,9 +38,11 @@ const Item = styled.div<{ hasChild: boolean }>`
   }
   > .raw-value {
     justify-content: center;
-
+    
     > span {
       text-overflow: ellipsis;
+      height: 100%;
+      line-height: 22px;
       overflow: hidden;
     }
   }

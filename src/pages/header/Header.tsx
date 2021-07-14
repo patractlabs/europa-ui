@@ -233,7 +233,7 @@ export const Header: FC = (): ReactElement => {
   const [ search, setSearch ] = useState('');
   const { blocks } = useContext(BlocksContext);
   const h = useHistory();
-  
+  console.log('path', pathname, state, h.location);
   const pathRegs: {
     reg: RegExp;
     divides: Divide[];
@@ -523,8 +523,8 @@ export const Header: FC = (): ReactElement => {
         <img src={MoreSVG} alt="" onClick={onToggle} />
       </More>
       <div className="navi">
-        <img src={NaviBackSVG} alt="" onClick={() => state?.from !== '/' && h.goBack()} />
-        <img src={NaviBackSVG} alt="" onClick={() => h.goForward()} />
+        <img src={NaviBackSVG} alt="" onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()} />
+        <img src={NaviBackSVG} alt="" onClick={() => h.goForward} />
       </div>
       <BreadCrumb divides={divides} />
     </div>

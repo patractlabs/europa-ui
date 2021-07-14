@@ -13,7 +13,11 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
   const newSetting = _.cloneDeep(setting);
   const db = newSetting.databases.find(db => db.path === database)
   
-  !db?.workspaces.includes(workspace) && db?.workspaces.push(workspace);
+  if (!db) {
+    newSetting.databases.push({ path: database, workspaces: [workspace] });
+  } else if (!db.workspaces.includes(workspace)) {
+    db.workspaces.push(workspace);
+  }
   newSetting.lastChoosed = {
     database,
     workspace,

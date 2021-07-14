@@ -26,6 +26,7 @@ const Wrapper = styled.div`
 `;
 
 const Main: FC = (): ReactElement => {
+
   return (
     <Wrapper>
       <Header />
@@ -84,11 +85,18 @@ const Main: FC = (): ReactElement => {
 };
 
 function App() {
-  
+  let visited = false;
   return (
     <Switch>
-      <Route exact path="/">
-        <Startup />
+      <Route exact path="/" render={() => {
+        if (!visited) {
+          visited = true;
+
+          return <Startup />
+        }
+
+        return <Redirect to="/contracts" />        
+      }}>
       </Route>
       <Route path="/**/*/index.html">
         <Startup />

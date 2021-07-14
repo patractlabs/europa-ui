@@ -8,7 +8,7 @@ import EventsSVG from '../../assets/imgs/events.svg';
 import { Block, BlocksContext } from '../../core';
 import { Style, Transfer } from '../../shared';
 import JumpToBlock from './JumpToBlock';
-import ConfirmBack from './ConfrimBack';
+import ConfirmBack from './ConfirmBack';
 
 const Wrapper = styled.div`
   background-color: rgb(248, 248, 248);

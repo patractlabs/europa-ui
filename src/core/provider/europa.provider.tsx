@@ -38,12 +38,12 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
   const resources = process.env.NODE_ENV === 'development'
     ? path.resolve('./resources')
     : path.resolve(__dirname, '../../app.asar.unpacked/resources');
-  let binPath = path.resolve(resources, 'europa.exe');
+    let binPath = path.resolve(resources, 'europa.exe');
 
   if (platform === 'linux' || platform === 'darwin') {
     binPath = path.resolve(resources, 'europa');
   }
-  
+
   try {
     console.log('NODE_ENV', process.env.NODE_ENV);
     console.log(`platform:`, platform);
@@ -67,6 +67,8 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
   console.log('args:', args);
 
   const europa = childProcess.spawn(binPath, args);
+
+  europa.stdout.on('data', () => {})
 
   console.log('europa.pid', europa.pid, europa)
 

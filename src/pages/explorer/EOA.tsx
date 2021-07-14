@@ -86,7 +86,7 @@ export const EOA: FC = (): ReactElement => {
               label: 'Balance',
               align: 'right',
               render:
-                <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{formatBalance(balance, {}, tokenDecimal)} DOT</span>
+                <span style={{ fontSize: '18px', fontWeight: 600, color: Style.color.label.primary }}>{formatBalance(balance, {}, tokenDecimal)}</span>
             },
           ]
         }/>

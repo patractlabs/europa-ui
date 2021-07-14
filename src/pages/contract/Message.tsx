@@ -205,9 +205,11 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       value: endowment,
     }, ...params.map(p => p.value as any));
     const account = accounts.find(account => account.address === sender);
+
     if (!account) {
       return
     }
+
     const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
 
     tx.signAndSend(pair, { tip }).pipe(

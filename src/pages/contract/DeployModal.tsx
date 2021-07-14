@@ -339,7 +339,7 @@ export const DeployModal: FC<{
             abi ?
               <DefaultButton disabled={isDisabled} type="primary" onClick={deploy}>Deploy</DefaultButton> :
               <Upload fileList={[]} beforeUpload={onUpload}>
-                <DefaultButton type="primary">Upload metadata</DefaultButton>
+                <DefaultButton type="primary">Upload</DefaultButton>
               </Upload>
           }
         </div>

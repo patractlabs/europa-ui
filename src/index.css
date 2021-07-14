@@ -200,3 +200,13 @@ body #root {
 .ant-notification-close-icon {
   font-size: 16px;
 }
+
+.ant-dropdown-menu-item {
+  position: relative;
+  padding-right: 46px;
+}
+.ant-dropdown-menu-item > img {
+  position: absolute;
+  right: 14px;
+  top: 8px;
+}

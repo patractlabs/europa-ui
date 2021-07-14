@@ -48,7 +48,7 @@ export const useRedspotContracts = (redspotProjects: string[]) => {
               .map(redspotContract => from(redspotContract))
           ),
           mergeMap(redspotProjects => zip(...redspotProjects)),
-          catchError((_): Observable<RedspotContract[]> => of([]))
+          catchError((_): Observable<RedspotContract[]> => of([])),
         )
       );
 
