@@ -1,5 +1,5 @@
 import { ApiRx } from '@polkadot/api';
-import React, { Context, useCallback, useContext, useRef, useState } from 'react';
+import React, { Context, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ApiContext } from './api.provider';
 import { zip, from, Subscription } from 'rxjs';
 import { finalize, tap, mergeMap } from 'rxjs/operators';
@@ -24,7 +24,7 @@ interface BlockContextProps {
   backward: (height: number) => void;
   backwarding: boolean;
   clear: () => void;
-  retrive: () => void;
+  update: () => void;
 }
 
 export const BlocksContext: Context<BlockContextProps> = React.createContext({}as unknown as BlockContextProps);
@@ -115,12 +115,17 @@ const retriveLatestBlocks = async (api: ApiRx, startIndex = 0): Promise<Block[]>
   return retriveBlocks(api, header.number.toNumber(), startIndex);
 };
 
+let lastSignal = 0;
+
 export const BlocksProvider = React.memo(({ children }: { children: React.ReactNode }): React.ReactElement => {
   const { api } = useContext(ApiContext);
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [signal, setSignal] = useState<number>(0);
   const [ backwarding, setBackwarding ] = useState<boolean>(false);
   const blocksRef = useRef<Block[]>([]);
   const [ sub, setSub ] = useState<Subscription>();
+
+  const update = useCallback(() => setSignal(old => old + 1), [setSignal]);
 
   const clear = useCallback(() => {
     blocksRef.current = [];
@@ -143,11 +148,12 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
     );
   }, [api]);
 
-  const retrive = useCallback(() => {
-    if (!api || !api.isReady) { 
+  useEffect(() => {
+    if (!api || !api.isReady || !signal || lastSignal === signal) {
       return;
     }
 
+    lastSignal = signal;
     sub && sub.unsubscribe();
 
     const newSub = from(retriveLatestBlocks(api)).pipe(
@@ -182,14 +188,14 @@ export const BlocksProvider = React.memo(({ children }: { children: React.ReactN
     }, (e) => {console.log('err', e)});
 
     setSub(newSub);
-  }, [api, sub]);
+  }, [api, sub, signal]);
 
   return <BlocksContext.Provider value={{
       blocks,
       backward,
       backwarding,
       clear,
-      retrive,
+      update,
     }}>{children}</BlocksContext.Provider>;
   }
 );

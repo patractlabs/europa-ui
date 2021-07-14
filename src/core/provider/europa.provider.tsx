@@ -44,12 +44,12 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
     binPath = path.resolve(resources, 'europa');
   }
 
-  try {
-    console.log('NODE_ENV', process.env.NODE_ENV);
-    console.log(`platform:`, platform);
-    console.log(`bin:`, binPath);
-    console.log(`dir:`, __dirname);
-  } catch(e) {}
+  // try {
+  //   console.log('NODE_ENV', process.env.NODE_ENV);
+  //   console.log(`platform:`, platform);
+  //   console.log(`bin:`, binPath);
+  //   console.log(`dir:`, __dirname);
+  // } catch(e) {}
   
   const optionsMap = {
     httpPort: '--rpc-port=',

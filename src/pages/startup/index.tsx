@@ -33,7 +33,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { startup } = useContext(EuropaManageContext);
   const { connect: connectApi } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
-  const { retrive } = useContext(BlocksContext);
+  const { update: updateBlocks } = useContext(BlocksContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
   const { pathname } = useLocation();
@@ -104,12 +104,12 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
       console.log('history.push(explorer);');
 
       setLoading(false);
-      retrive();
-      history.push('/contract', { 
+      updateBlocks();
+      history.push('/contract', {
         from: pathname
       });
     });
-  }, [setting, update, history, connected$, connectApi, startup, pathname, retrive]);
+  }, [setting, update, history, connected$, connectApi, startup, pathname, updateBlocks]);
 
   return (
     <div className={className}>

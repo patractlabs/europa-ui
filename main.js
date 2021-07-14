@@ -25,8 +25,8 @@ function createWindow () {
 
   win.openDevTools({mode:'detach'});
   if (process.env.ElECTRON_ENV === 'development') {
-    win.loadFile('./build/index.html');
-    // win.loadURL('http://localhost:3000/');
+    // win.loadFile('./build/index.html');
+    win.loadURL('http://localhost:3000/');
   } else {
     win.loadFile('./build/index.html');
   }

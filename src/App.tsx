@@ -96,7 +96,7 @@ function App() {
           return <Startup />
         }
 
-        return <Redirect to="/contract" />        
+        return <Redirect to="/contract" />    
       }}>
       </Route>
       <Route path="/**/*/index.html">
