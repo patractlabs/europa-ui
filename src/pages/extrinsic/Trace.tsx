@@ -223,14 +223,18 @@ export const ContractTrace: FC<{
                     }</ValuePrimary>
                   </KeyValueLine>
                   <Line>
-                    <div className="args-toggle data-toggle" onClick={() => setShowRawData(old => !old)}>
-                      <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
-                        <span>
-                          Args
-                        </span>
-                        <img src={InfoSvg} alt="" />
-                      </Tooltip>
-                    </div>
+                      { 
+                        !abi ?
+                          <LabelDefault>Args</LabelDefault> :
+                          <div className="args-toggle data-toggle" onClick={() => setShowRawData(old => !old)}>
+                            <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
+                              <span>
+                                Args
+                              </span>
+                              <img src={InfoSvg} alt="" />
+                            </Tooltip>
+                          </div>
+                      }
                     <div style={{ flex: 1, position: 'relative' }}>
                       { !abi && <p className="no-abi">Please upload metadata first!</p> }
                       <Args  style={{ height: !!abi ? '500px' : '470px', position: 'absolute', left: '0px', right: '0px' }}>

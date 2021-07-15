@@ -267,7 +267,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               {
                 args &&
                   <div style={{ marginTop: '10px', marginBottom: '20px' }}>
-                    <Args args={args} DataRender={() => {
+                    <Args args={args} DataRender={!abi ? undefined : () => {
                       return (
                         <div className="data-toggle" onClick={() => setShowRawData(old => !old)}>
                           <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
