@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Table } from 'antd';
 import { useParams } from 'react-router-dom';
 import { ApiContext, Block, BlocksContext, PaginationProvider } from '../../core';
-import { Events, Extrinsics, Style, Tabs } from '../../shared';
+import { Events, Extrinsics, formatTimestamp, Style, Tabs } from '../../shared';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import States from './States';
 import type { Observable } from 'rxjs';
@@ -110,7 +110,7 @@ export const BlockDetail: FC = (): ReactElement => {
       extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set'
     );
     const timestamp = parseInt(setTimeExtrinsic?.args[0].toString() || '');
-    const time = `${timestamp}` === 'NaN' ? '-' : new Date(timestamp).toUTCString();
+    const time = `${timestamp}` === 'NaN' ? '-' : formatTimestamp(timestamp);
     const isHeight = isBlockNumber(blockHash);
     let blockHash$: Observable<string | BlockHash>;
 

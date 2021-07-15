@@ -6,7 +6,7 @@ import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
-import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args, Address } from '../../shared';
+import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args, Address, formatTimestamp } from '../../shared';
 import { ContractTrace } from './Trace';
 import { Abi } from '@polkadot/api-contract';
 import { Col, Row } from 'antd';
@@ -47,7 +47,7 @@ type ExtendedExtrinsic = Extrinsic & {
   blockHash: string;
   height: number;
   index: number;
-  timestamp: string;
+  timestamp: number;
 };
 
 export interface Trace {
@@ -160,7 +160,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
         blockHash: _block.blockHash,
         height: _block.height,
         index,
-        timestamp: setTimeExtrinsic?.args[0].toString(),
+        timestamp: setTimeExtrinsic?.args[0].toJSON() as number,
       });
 
       return true;
@@ -265,7 +265,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
                 </KeyValueLine>
                 <KeyValueLine>
                   <LabelDefault>Timestamp</LabelDefault>
-                  <ValuePrimary>{ (new Date(parseInt(extrinsic.timestamp))).toUTCString() }</ValuePrimary>
+                  <ValuePrimary>{ formatTimestamp(extrinsic.timestamp) }</ValuePrimary>
                 </KeyValueLine>
                 <KeyValueLine>
                   <LabelDefault>Nonce</LabelDefault>

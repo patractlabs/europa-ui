@@ -50,14 +50,34 @@ export const getBlockTimestamp = (block: Block): number => {
   return timestamp;
 }
 
+function formatUnit(t: number) {
+  if (t === 0) {
+    return '00';
+  }
+  if (t < 10) {
+    return `0${t}`;
+  }
+  return `${t}`;
+}
+
 export const formatBlockTimestamp = (block: Block): string => {
   const timestamp = getBlockTimestamp(block);
 
   if (`${timestamp}` === 'NaN') {
     return '-';
   }
-  
-  return (new Date(timestamp)).toUTCString();
+  console.log('t', timestamp)
+  const date = new Date(timestamp);
+  return `${formatUnit(date.getHours())}:${formatUnit(date.getMinutes())}:${formatUnit(date.getSeconds())} ${formatUnit(date.getMonth() + 1)}-${formatUnit(date.getDate())}-${formatUnit(date.getFullYear())}`;
+}
+
+export const formatTimestamp = (timestamp: number): string => {
+  if (`${timestamp}` === 'NaN') {
+    return '-';
+  }
+  console.log('t', timestamp)
+  const date = new Date(timestamp);
+  return `${formatUnit(date.getHours())}:${formatUnit(date.getMinutes())}:${formatUnit(date.getSeconds())} ${formatUnit(date.getMonth() + 1)}-${formatUnit(date.getDate())}-${formatUnit(date.getFullYear())}`;
 }
 
 export * from './require';
