@@ -104,9 +104,17 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
       data,
       salt,
     }]).then(({ trace }: { trace: Trace}) => {
+      notification.success({
+        message: 'Function Called',
+        description: 'Call with trace successfully',
+      });
       setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {
       console.log('e', e);
+      notification.fail({
+        message: 'Failed',
+        description: 'Call with trace failed',
+      });
       setTrace(undefined);
     });
   }, [wsProvider, sender, api, abi, endowment, salt, gasLimit, message, params]);
@@ -228,7 +236,7 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
             </div>
             <div className="button-group">
               <Button disabled={isDisabled} type="primary" onClick={deploy}>Deploy</Button>
-              <Button type="primary" onClick={CallWithTrace}>Call With Trace</Button>
+              <Button disabled={isDisabled} type="primary" onClick={CallWithTrace}>Call With Trace</Button>
             </div>
           </div>
       }

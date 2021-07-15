@@ -280,10 +280,10 @@ export const ContractsPage: FC = (): ReactElement => {
       
       <Switch>
         <Route path={tabs[0].link}>
-          <Codes codes={codesHash} redspotsContracts={redspotContracts} />
+          <Codes codes={[...codesHash].reverse()} redspotsContracts={redspotContracts} />
         </Route>
         <Route path={tabs[1].link}>
-          <Instances contracts={contracts} redspotsContracts={redspotContracts} />
+          <Instances contracts={[...contracts].reverse()} redspotsContracts={redspotContracts} />
         </Route>
       </Switch>
     </Wrapper>

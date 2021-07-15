@@ -183,9 +183,17 @@ export const Message: FC<{ contract: ContractRx, message: AbiMessage; index: num
       gasLimit: new BN(gasLimit).mul(BN_MILLION).toNumber(),
       inputData: data,
     }]).then(({ trace }: { trace: Trace}) => {
+      notification.success({
+        message: 'Function Called',
+        description: 'Call with trace successfully',
+      });
       setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {
       console.log('e', e);
+      notification.fail({
+        message: 'Failed',
+        description: 'Call with trace failed',
+      });
       setTrace(undefined);
     });
   }, [wsProvider, sender, api, contract, message, params, gasLimit, endowment]);

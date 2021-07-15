@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useContracts, ApiContext, BlocksContext, PaginationContext } from '../../core';
-import { PageLine } from '../../shared';
+import { formatAddress, PageLine } from '../../shared';
 
 const Wrapper = styled.div`
   background-color: white;
@@ -20,7 +20,8 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
 
   const selectedContracts = useMemo(
-    () => contracts
+    () => [...contracts]
+      .reverse()
       .filter(contract => contract.codeHash === hash)
       .slice(pageSize * (pageIndex - 1), pageSize * pageIndex),
     [contracts, hash, pageIndex, pageSize],
@@ -48,10 +49,16 @@ export const Instances: FC<{ hash: string }> = ({ hash }): ReactElement => {
             render: (_, record) => <Link to={`/contract/instances/${record.address}`}>{record.address}</Link>,
           },
           {
+            title: <span>Deployed Block</span>,
+            width: '15%',
+            key: 'block',
+            render: (_, record) => <Link to={`/block/${record.block.blockHash}`}>{record.block.height}</Link>,
+          },
+          {
             title: <span>Deployed transaction</span>,
-            width: '50%',
+            width: '35%',
             key: 'extrinsic',
-            render: (_, record) => <Link to={`/extrinsic/${record.extrinsic.hash.toString()}/details`}>{record.extrinsic.hash.toString()}</Link>,
+            render: (_, record) => <Link to={`/extrinsic/${record.extrinsic.hash.toString()}/details`}>{formatAddress(record.extrinsic.hash.toString(), 23)}</Link>,
           },
         ]}
       />
