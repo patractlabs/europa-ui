@@ -16,7 +16,7 @@ export const ExtrinsicEvents: FC = (): ReactElement => {
 
   return (
     <PaginationProvider>
-      <Events events={events} />
+      <Events showIndex={true} events={events} />
     </PaginationProvider>
   );
 };

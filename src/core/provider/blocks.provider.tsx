@@ -6,7 +6,7 @@ import { finalize, tap, mergeMap } from 'rxjs/operators';
 import type { SignedBlock } from '@polkadot/types/interfaces';
 import type { GenericExtrinsic } from '@polkadot/types';
 import type { AnyTuple } from '@polkadot/types/types';
-import type { ExtendedEventRecord } from '../../shared';
+import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 export type Extrinsic = GenericExtrinsic<AnyTuple> & {
   events: ExtendedEventRecord[];
@@ -17,6 +17,11 @@ export type Block  = SignedBlock & {
   blockHash: string;
   height: number;
   extrinsics: Extrinsic[];
+};
+
+export interface ExtendedEventRecord extends EventRecord {
+  blockHeight?: number;
+  indexInBlock?: number;
 };
 
 interface BlockContextProps {

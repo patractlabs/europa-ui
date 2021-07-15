@@ -75,7 +75,7 @@ const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
       {
         tabChoice === TabChoice.Events &&
           <PaginationProvider defaultPageSize={8}>
-            <Events events={events} />
+            <Events showIndex={true} events={events} />
           </PaginationProvider>
       }
   

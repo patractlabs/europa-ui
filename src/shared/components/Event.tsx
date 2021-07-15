@@ -1,10 +1,9 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { Style } from '../styled/const';
 import { Args, Obj } from './Args';
-import { ApiContext, DeployedContract, useAbi } from '../../core';
+import { ApiContext, DeployedContract, useAbi, ExtendedEventRecord } from '../../core';
 import { Abi } from '@polkadot/api-contract';
 import { Codec } from '@polkadot/types/types';
 
@@ -69,11 +68,6 @@ const Wrapper = styled.div`
     }
   }
 `;
-
-export interface ExtendedEventRecord extends EventRecord {
-  blockHeight?: number;
-  indexInBlock?: number;
-};
 
 const decodeData = (abi: Abi, data: Codec): { identifier: string; args: Obj[] } | undefined => {
   try {
@@ -182,7 +176,7 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
         <div className="event-name">{event.event.section.toString()}.{event.event.method.toString()}</div>
         {
           showIndex &&
-            <div className="index">{event.blockHeight} - {event.indexInBlock}</div>
+            <div className="index">{event.blockHeight} - {event.phase.asApplyExtrinsic.toNumber()}</div>
         }
         <div className="togglo-detail">
           <span>

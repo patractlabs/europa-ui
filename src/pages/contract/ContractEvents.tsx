@@ -33,7 +33,7 @@ export const ContractEvents: FC<{ contractAddress: string }> = ({ contractAddres
   return (
     <Wrapper>
       <PaginationProvider>
-        <Events events={events} />
+        <Events showIndex={true} events={events} />
       </PaginationProvider>
     </Wrapper>
   );

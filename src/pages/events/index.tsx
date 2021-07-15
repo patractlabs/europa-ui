@@ -1,8 +1,7 @@
 import React, { FC, ReactElement,useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { PaginationProvider, BlocksContext, Extrinsic,  } from '../../core';
+import { PaginationProvider, BlocksContext, Extrinsic, ExtendedEventRecord } from '../../core';
 import { Events, Style } from '../../shared';
-import type { ExtendedEventRecord } from '../../shared';
 
 const Wrapper = styled.div`
   flex: 1;
