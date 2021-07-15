@@ -41,8 +41,6 @@ const Item = styled.div<{ hasChild: boolean; borderColor: string }>`
     
     > span {
       text-overflow: ellipsis;
-      height: 100%;
-      line-height: 22px;
       overflow: hidden;
     }
   }
@@ -61,11 +59,14 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string }
     <div style={{ borderBottom: isLast ? '0px' : `1px solid ${borderColor}`, height: '100%', display: 'flex', flexDirection: 'column' }}>
       {
         arg instanceof Array ? 
-          <Item hasChild={true} borderColor={borderColor}>
+          <Item hasChild={false}  style={{ flex: 1 }}  borderColor={borderColor}>
             <div className="key">{index}</div>
-            <div className="value">{
-              <Args args={arg} isChild={true} />
-            }</div>
+            <div className="value raw-value">
+              {/* <Args args={arg} isChild={true} /> */}
+              <span>
+                {`${arg}`}
+              </span>
+            </div>
           </Item>
           :
           isComplexed(arg) ?
