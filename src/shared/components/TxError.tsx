@@ -12,9 +12,9 @@ export const TxError: FC<{ metadata: Metadata; error?: DispatchError }> = ({ met
 
   return (
     <div>
-      <h5>{ errorDesc.section }.{errorDesc.error.name}</h5>
+      <h5>{ errorDesc ? `${errorDesc.section}.${errorDesc.error.name}` : 'Unknown Reason' }</h5>
       <p>{
-        errorDesc.error.documentation.join(' ')
+        errorDesc?.error.documentation.join(' ')
       }</p>
     </div>
   );

@@ -29,7 +29,6 @@ const States: FC<{ block: Block; className?: string }> = ({ block, className }):
   const { wsProvider } = useContext(ApiContext);
   const [ onlyChild, setOnlyChild ] = useState(false);
 
-
   const filteredMutations = useMemo(() => {
     if (!onlyChild) {
       return [...mutations];

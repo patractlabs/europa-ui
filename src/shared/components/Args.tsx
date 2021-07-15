@@ -2,20 +2,20 @@ import { FC, ReactElement } from 'react';
 import styled from 'styled-components';
 import { Style } from '../styled/const';
 
-const Wrapper = styled.div<{ isChild: boolean; withoutBottom: boolean }>`
-  border: ${props => props.isChild ? '' : '1px solid ' + Style.color.button.primary};
+const Wrapper = styled.div<{ isChild: boolean; withoutBottom: boolean; borderColor: string }>`
+  border: ${props => props.isChild ? '' : '1px solid ' + props.borderColor};
   border-bottom-width: ${props => props.isChild || props.withoutBottom ? '0px' : '1px' };
   flex: 1;
   display: flex;
   flex-direction: column;
 `;
 
-const Item = styled.div<{ hasChild: boolean }>`
+const Item = styled.div<{ hasChild: boolean; borderColor: string }>`
   display: flex;
 
   > .key {
     padding: 20px;
-    border-right: 1px solid ${Style.color.button.primary};
+    border-right: 1px solid ${props => props.borderColor};
     display: flex;
     align-items: center;
     width: 20%;
@@ -56,12 +56,12 @@ const isComplexed = (value: any): boolean => {
   return typeof value === 'object' && value !== null;
 };
 
-const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast = false, index }): ReactElement => {
+const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string }> = ({ arg, isLast = false, index, borderColor }): ReactElement => {
   return (
-    <div style={{ borderBottom: isLast ? '0px' : `1px solid ${Style.color.button.primary}`, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ borderBottom: isLast ? '0px' : `1px solid ${borderColor}`, height: '100%', display: 'flex', flexDirection: 'column' }}>
       {
         arg instanceof Array ? 
-          <Item hasChild={true}>
+          <Item hasChild={true} borderColor={borderColor}>
             <div className="key">{index}</div>
             <div className="value">{
               <Args args={arg} isChild={true} />
@@ -70,7 +70,7 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast =
           :
           isComplexed(arg) ?
             Object.keys(arg).map(key =>
-              <Item key={key} hasChild={isComplexed(arg[key])} style={{ flex: 1 }}>
+              <Item key={key} hasChild={isComplexed(arg[key])} style={{ flex: 1 }} borderColor={borderColor}>
                 <div className="key"><span>{key}</span></div>
                 <div className={ isComplexed(arg[key]) ? 'value' : 'value raw-value' }>{
                   isComplexed(arg[key]) ? <Args isChild={true} args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
@@ -78,7 +78,7 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast =
               </Item>
             )
             :
-            <Item hasChild={false}>
+            <Item hasChild={false} borderColor={borderColor}>
               <div className="key"><span>{index}</span></div>
               <div className="value raw-value">{
                 <span>{`${arg}`}</span>
@@ -90,7 +90,7 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; }> = ({ arg, isLast =
   );
 };
 
-export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean }> = ({ args, isChild = false, withoutBottom = false }): ReactElement => {
+export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean, borderColor?: string }> = ({ args, isChild = false, withoutBottom = false, borderColor = Style.color.button.primary }): ReactElement => {
   const argArray: Obj[] = args instanceof Array ?
     args as Obj[] :
     Object.keys(args).map(key =>
@@ -100,11 +100,11 @@ export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: bo
     );
 
   return (
-    <Wrapper isChild={isChild} withoutBottom={withoutBottom}>
+    <Wrapper isChild={isChild} withoutBottom={withoutBottom} borderColor={borderColor}>
       {
         argArray.map((arg, index) =>
           <div style={{ flex: 1 }} key={index}>
-            <Arg arg={arg} index={index} isLast={index === (argArray.length - 1)} />
+            <Arg arg={arg} index={index} isLast={index === (argArray.length - 1)} borderColor={borderColor} />
           </div>
         )
       }

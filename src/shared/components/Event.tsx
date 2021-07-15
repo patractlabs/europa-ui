@@ -55,6 +55,18 @@ const Wrapper = styled.div`
         font-weight: 600;
       }
     }
+    > .contract-emit {
+      border: 1px solid ${Style.color.border.default};
+      padding: 16px;
+      background-color: white;
+      margin-top: 16px;
+
+      > h6 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+    }
   }
 `;
 
@@ -63,42 +75,46 @@ export interface ExtendedEventRecord extends EventRecord {
   indexInBlock?: number;
 };
 
-const decodeData = (event: EventRecord, abi: Abi | undefined, name: string, data: Codec): string | Obj[] => {
-  const isContractEmit = event.event.section.toLowerCase() === 'contracts'
-    && event.event.method.toLowerCase() === 'contractemitted';
-
-  if (!abi || name !== 'Bytes' || !isContractEmit) {
-    return data.toString();
-  }
-
+const decodeData = (abi: Abi, data: Codec): { identifier: string; args: Obj[] } | undefined => {
   try {
     const event = abi.decodeEvent(data.toU8a(true));
 
-    return [
-      { event: event.event.identifier },
-      {
-        parameters: event.args.map((arg, index) => ({
-          [event.event.args[index].name]: arg.toJSON()
-        }))
-      },
-    ] as unknown as Obj[];
+    return {
+      identifier: event.event.identifier,
+      args: event.args.map((arg, index) => ({
+        [event.event.args[index].name]: arg.toJSON()
+      })) as unknown as Obj[]
+    };
 
   } catch (e) {}
 
-  return data.toString();
+  return;
+};
+
+type Module = {
+  name: string;
+  events: {
+    name: string;
+    args: string[];
+    documantion: string;
+  }[];
+  errors: {
+    name: string,
+    documentation: string[],
+  }[];
 };
 
 export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }): ReactElement => {
   const { metadata } = useContext(ApiContext);
   const [ expanded, setExpanded ] = useState(false);
-  const [ args, setArgs ] = useState<Obj[]>([]);
   const [ contractAddress, setContractAddress ] = useState<string>();
+  const [ args, setArgs ] = useState<Obj[]>([]);
   const codeHash = useMemo(
     () => contracts.find(contract => contract.address === contractAddress)?.codeHash,
     [contractAddress, contracts],
   );
   const { abi } = useAbi(codeHash || '');
-  
+
   const [ err, setErr ] = useState<{
     section: string;
     err: {
@@ -107,62 +123,58 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
     } 
   }>();
 
-
   useEffect(() => {
-    type Module = {
-      name: string;
-      events: {
-        name: string;
-        args: string[];
-        documantion: string;
-      }[];
-      errors: {
-        name: string,
-        documentation: string[],
-      }[];
-    };
-
     let modules: Module[] = [];
 
     try {
       modules = (metadata.toJSON().metadata as any)['v13'].modules as Module[];
     } catch (e) {}
 
-
-    const contractArgs = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
+    const eventArgNames = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
       .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
-    const errIndex = contractArgs.findIndex(arg => arg === 'DispatchError');
+    const errIndex = eventArgNames.findIndex(name => name === 'DispatchError');
     const isContractEmit = event.event.section.toLowerCase() === 'contracts'
       && event.event.method.toLowerCase() === 'contractemitted';
+    
+    if (errIndex >= 0) {
+      const err = event.event.data[errIndex].toJSON() as {
+        module?: {
+          index: number;
+          error: number;
+        }
+      };
 
-    const args = event.event.data.map((value, index) => {
-      if (errIndex === index) {
-        const err = value.toJSON() as {
-          module: {
-            index: number;
-            error: number;
-          }
-        };
-
+      if (err.module) {
         setErr({
           section: modules[err.module.index].name,
           err: modules[err.module.index].errors[err.module.error],
         });        
       }
+    }
 
-      if (isContractEmit) {
-        if (index === 0) {
-          setContractAddress(value.toString());
-        }
-      }
+    if (isContractEmit) {
+      setContractAddress(event.event.data[0].toString());
+    }
 
+    const args = event.event.data.map((value, index) => {
       return {
-        [contractArgs[index] ? contractArgs[index] : `${index}`]: decodeData(event, abi, contractArgs[index], value),
+        [eventArgNames[index] ? eventArgNames[index] : `${index}`]: value.toHuman(),
       } as unknown as Obj;
     });
 
     setArgs(args);
-  }, [metadata, event, abi]);
+  }, [metadata, event]);
+
+  const contractArgs: { identifier: string; args: Obj[] } | undefined = useMemo(() => {
+    const isContractEmit = event.event.section.toLowerCase() === 'contracts'
+      && event.event.method.toLowerCase() === 'contractemitted';
+
+    if (!abi || !isContractEmit) {
+      return;
+    }
+
+    return decodeData(abi, event.event.data[1]);
+  }, [abi, event]);
 
   return (
     <Wrapper>
@@ -194,6 +206,13 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
                       err?.err.documentation.join(' ')
                     }
                   </p>
+                </div>
+            }
+            {
+              !!contractArgs &&
+                <div className="contract-emit">
+                  <h6>Event: {contractArgs.identifier}</h6>
+                  <Args args={contractArgs.args} borderColor={Style.color.border.default} />
                 </div>
             }
           </div>

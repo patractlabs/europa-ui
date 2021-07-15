@@ -21,7 +21,7 @@ export interface TxErrorDesc {
   }
 }
 
-export const getDispatchError = (metadata: Metadata, error: DispatchError): TxErrorDesc => {
+export const getDispatchError = (metadata: Metadata, error: DispatchError): TxErrorDesc | null => {
   let modules: Module[] = [];
 
   try {
@@ -29,10 +29,13 @@ export const getDispatchError = (metadata: Metadata, error: DispatchError): TxEr
   } catch (e) {
     console.log('eeeeeeeeee', e)
   }
-  
-  console.log('error.asModule.index.toNumber()', error.asModule.index.toNumber(), modules);
-  return {
-    section: modules[error.asModule.index.toNumber()].name,
-    error: modules[error.asModule.index.toNumber()].errors[error.asModule.error.toNumber()],
-  }
+
+  try {
+    return {
+      section: modules[error.asModule.index.toNumber()].name,
+      error: modules[error.asModule.index.toNumber()].errors[error.asModule.error.toNumber()],
+    }
+  } catch (e) {}
+
+  return null;
 };
