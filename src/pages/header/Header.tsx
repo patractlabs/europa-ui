@@ -12,7 +12,6 @@ import ExtrinsicsSVG from '../../assets/imgs/extrinsics.svg';
 import EventsSVG from '../../assets/imgs/events-menu.svg';
 import ContractsSVG from '../../assets/imgs/contracts.svg';
 import DeveloperSVG from '../../assets/imgs/developer.svg';
-import NaviBackSVG from '../../assets/imgs/naviback.svg';
 import SettingSVG from '../../assets/imgs/setting.svg';
 import { BreadCrumb, Divide, notification } from '../../shared';
 import { Style } from '../../shared';
@@ -21,6 +20,8 @@ import { ActiveTab as ContractActiveTab } from '../contract';
 import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
 import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
 import { isBlockNumber } from '../blocks/BlockDetail';
+import NaviBack from './NaviBack';
+import NaviForward from './NaviForward';
 
 const Wrapper = styled.div`
   display: flex;
@@ -29,145 +30,163 @@ const Wrapper = styled.div`
   height: 68px;
   background: linear-gradient(90deg, ${Style.color.button.primary} 0%, ${Style.color.primary} 100%);
 
+  > .sider-bg {
+    z-index: 100;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    transition: opacity 0.3s; 
+    background-color: rgb(0, 0, 0);
+    opacity: 0;
+  }
+
+  > .sider {
+    z-index: 101;
+    color: white;
+    background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
+    position: absolute;
+    width: 240px;
+    left: -240px;
+    top: 0px;
+    transition: left 0.3s;
+    bottom: 0px;
+    padding: 16px 0px;
+
+    > .sider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0px 24px;
+      margin-bottom: 56px;
+
+      > div {
+        display: flex;
+        align-items: center;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 24px;
+      }
+      > div img {
+        margin-right: 12px;
+        width: 36px;
+        height: 36px;
+      }
+      > img {
+        cursor: pointer;
+      }
+    }
+
+    > .tabs {
+      padding: 0px 24px;
+
+      > .tab {
+        display: flex;
+        height: 24px;
+        margin: 14px 0px;
+
+        > img {
+          vertical-align: middle;
+          margin-right: 20px;
+        }
+        > a {
+          vertical-align: middle;
+          font-size: 16px;
+          color: white;
+        }
+      }
+    }
+
+    > .tab-slice {
+      height: 1px;
+      margin: 30px 0px;
+      background-color: gray;
+    }
+  }
+
   > .header-left {
     display: flex;
     align-items: center;
 
-    > .navi {
+    > .more {
+      width: 68px;
+      height: 68px;
       margin-right: 20px;
+      background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       > img {
+        width: 20px;
         cursor: pointer;
+        height: 20px;
       }
-      > img:first-child {
+    }
+
+    > .navi {
+      margin-right: 20px;
+      display: flex;
+
+      > div {
+        height: 20px;
+        width: 20px;
+        border-radius: 4px;
+      }
+      > div:hover {
+        background-color: white;
+        svg polygon {
+          fill: ${Style.color.primary};
+        }
+        
+      }
+      > div:active {
+        background-color: ${Style.color.bg.second};
+        svg rect {
+          stroke: ${Style.color.bg.second};
+        }
+      }
+      > div:first-child {
         margin-right: 8px;
       }
-      > img:last-child {
+      > a:last-child > img {
         transform: scaleX(-1);
       }
     }
   }
 
   > .header-right {
-  }
-`;
+    > .search {
+      position: relative;
+      margin-right: 20px;
+      height: 36px;
 
-const More = styled.div`
-  width: 68px;
-  height: 68px;
-  margin-right: 20px;
-  background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  > img {
-    width: 20px;
-    cursor: pointer;
-    height: 20px;
-  }
-`;
-
-const SiderBg = styled.div`
-  z-index: 100;
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  transition: opacity 0.3s; 
-  background-color: rgb(0, 0, 0);
-  opacity: 0;
-`;
-
-const Sider = styled.div`
-  z-index: 101;
-  color: white;
-  background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
-  position: absolute;
-  width: 240px;
-  left: -240px;
-  top: 0px;
-  transition: left 0.3s;
-  bottom: 0px;
-  padding: 16px 0px;
-`;
-const SiderHeadr = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0px 24px;
-  margin-bottom: 56px;
-
-  > div {
-    display: flex;
-    align-items: center;
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 24px;
-  }
-  > div img {
-    margin-right: 12px;
-    width: 36px;
-    height: 36px;
-  }
-  > img {
-    cursor: pointer;
-  }
-`;
-const Tabs = styled.ul`
-  padding: 0px 24px;
-
-`;
-const Tab = styled.li`
-  display: flex;
-  height: 24px;
-  margin: 14px 0px;
-
-  > img {
-    vertical-align: middle;
-    margin-right: 20px;
-  }
-  > a {
-    vertical-align: middle;
-    font-size: 16px;
-    color: white;
-  }
-`;
-
-const TabSlice = styled.div`
-  height: 1px;
-  margin: 30px 0px;
-  background-color: gray;
-`;
-const Search = styled.div`
-  position: relative;
-  margin-right: 20px;
-  height: 36px;
-
-  > input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-    color: #FFFFFF;
-    opacity: 0.7;
-  }
-  > input {
-    background-color: rgba(0,0,0,0);
-    width: 300px;
-    height: 100%;
-    border-radius: 22px;
-    border: 1px solid #FFFFFF;
-    outline: none;
-    padding: 10px 50px 10px 16px;
-    font-size: 14px;
-    color: #FFFFFF;
-    line-height: 16px;
-  }
-  > img {
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    position: absolute;
-    right: 16px;
-    top: 6px;
+      > input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+        color: #FFFFFF;
+        opacity: 0.7;
+      }
+      > input {
+        background-color: rgba(0,0,0,0);
+        width: 300px;
+        height: 100%;
+        border-radius: 22px;
+        border: 1px solid #FFFFFF;
+        outline: none;
+        padding: 10px 50px 10px 16px;
+        font-size: 14px;
+        color: #FFFFFF;
+        line-height: 16px;
+      }
+      > img {
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        position: absolute;
+        right: 16px;
+        top: 6px;
+      }
+    }
   }
 `;
 
@@ -482,58 +501,62 @@ export const Header: FC = (): ReactElement => {
   };
 
   return (
-  <Wrapper>
-    <SiderBg onClick={onToggle} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
-    <Sider style={{ left: showSider ? '0px' : '-240px' }}>
-      <SiderHeadr>
-        <div>
-          <img src={LogoSVG} alt='' />
-          <span>Europa</span>
+    <Wrapper>
+      <div className="sider-bg" onClick={onToggle} style={{ opacity: showSider ? 0.6 : 0, display: showSiderBg ? 'block' : 'none' }}/>
+      <div className="sider" style={{ left: showSider ? '0px' : '-240px' }}>
+        <div className="sider-header">
+          <div>
+            <img src={LogoSVG} alt='' />
+            <span>Europa</span>
+          </div>
+          <img src={CloseSVG} alt='' onClick={onToggle} />
         </div>
-        <img src={CloseSVG} alt='' onClick={onToggle} />
-      </SiderHeadr>
-      <Tabs>
-        {
-          TabGroupOne.map(tab => (
-            <Tab key={tab.title}>
-              <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={onToggle}>
-                {tab.title}
-              </Link>
-            </Tab>
-          ))
-        }
-      </Tabs>
-      <TabSlice />
-      <Tabs>
-        {
-          TabGroupTwo.map(tab => (
-            <Tab key={tab.title}>
-              <img src={tab.img} alt="" />
-              <Link to={tab.link} onClick={onToggle}>
-                {tab.title}
-              </Link>
-            </Tab>
-          ))
-        }
-      </Tabs>
-    </Sider>
-    <div className="header-left">
-      <More>
-        <img src={MoreSVG} alt="" onClick={onToggle} />
-      </More>
-      <div className="navi">
-        <img src={NaviBackSVG} alt="" onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()} />
-        <img src={NaviBackSVG} alt="" onClick={() => h.goForward} />
+        <div className="tabs">
+          {
+            TabGroupOne.map(tab => (
+              <div className="tab" key={tab.title}>
+                <img src={tab.img} alt="" />
+                <Link to={tab.link} onClick={onToggle}>
+                  {tab.title}
+                </Link>
+              </div>
+            ))
+          }
+        </div>
+        <div className="tab-slice" />
+        <div className="tabs">
+          {
+            TabGroupTwo.map(tab => (
+              <div className="tab" key={tab.title}>
+                <img src={tab.img} alt="" />
+                <Link to={tab.link} onClick={onToggle}>
+                  {tab.title}
+                </Link>
+              </div>
+            ))
+          }
+        </div>
       </div>
-      <BreadCrumb divides={divides} />
-    </div>
-    <div className="header-right">
-      <Search>
-        <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
-        <img onClick={onSearch} src={SearchSVG} alt="" />
-      </Search>
-    </div>
-  </Wrapper>
+      <div className="header-left">
+        <div className="more">
+          <img src={MoreSVG} alt="" onClick={onToggle} />
+        </div>
+        <div className="navi">
+          <div onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()}>
+            <NaviBack />
+          </div>
+          <div onClick={() => h.goForward} >
+            <NaviForward />
+          </div>
+        </div>
+        <BreadCrumb divides={divides} />
+      </div>
+      <div className="header-right">
+        <div className="search">
+          <input placeholder="Search by Txn hash/Block" onKeyDown={e => e.key === 'Enter' && onSearch()} value={search} onChange={e => setSearch(e.target.value)} />
+          <img onClick={onSearch} src={SearchSVG} alt="" />
+        </div>
+      </div>
+    </Wrapper>
   );
 };

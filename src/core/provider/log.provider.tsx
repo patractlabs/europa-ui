@@ -54,7 +54,6 @@ const LogsProvider = React.memo(({ children }: Props): React.ReactElement<Props>
     });
 
     europa?.stdout.on('data', (data: Buffer) => {
-      console.log('data.data.toString()', data.toString().split('\n'))
       setLogs(logs => [...logs, ...data.toString().split('\n')]);
     });
   }, [europa]);
