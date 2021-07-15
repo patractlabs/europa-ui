@@ -1,9 +1,8 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { ExtendedExtrinsic, BlocksContext, PaginationProvider } from '../../core';
+import { ExtendedExtrinsic, BlocksContext, PaginationProvider, ExtendedEventRecord } from '../../core';
 import { Events } from '../../shared';
 import { isRelatedCall, isRelatedInstantiation } from './ContractExtrinsics';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -18,7 +17,7 @@ export const ContractEvents: FC<{ contractAddress: string }> = ({ contractAddres
       .filter(extrinsic =>
         isRelatedCall(extrinsic, contractAddress) || isRelatedInstantiation(extrinsic, contractAddress)
       )
-      .reduce((events: EventRecord[], extrinsic) => events.concat(extrinsic.events), [])
+      .reduce((events: ExtendedEventRecord[], extrinsic) => events.concat(extrinsic.events), [])
       .reverse(),
     [contractAddress, blocks],
   );

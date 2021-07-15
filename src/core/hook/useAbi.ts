@@ -13,6 +13,10 @@ export const useAbi = (codeHash: string, signal?: number) => {
   );
 
   useEffect(() => {
+    if (!codeHash) {
+      return;
+    }
+
     store.loadAll();
 
     const code = store.getCode(codeHash);

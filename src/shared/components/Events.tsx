@@ -1,9 +1,8 @@
 import React, { CSSProperties, FC, ReactElement, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, PaginationContext, useContracts } from '../../core';
+import { ApiContext, BlocksContext, ExtendedEventRecord, PaginationContext, useContracts } from '../../core';
 import { PageLine } from './index';
 import { Event } from './Event';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -32,7 +31,7 @@ const Wrapper = styled.div`
 `;
 
 export const Events: FC<{
-  events: EventRecord[];
+  events: ExtendedEventRecord[];
   paginationStyle?: CSSProperties;
   showIndex?: boolean;
 }> = ({ events: eventsSource, paginationStyle = {}, showIndex = false }): ReactElement => {
@@ -53,7 +52,7 @@ export const Events: FC<{
       <div className="content">
         {
           events.map((event, index) =>
-            <Event contracts={contracts} showIndex={showIndex} key={index} event={event} />
+            <Event contracts={contracts} showIndex={showIndex} key={'' + event.blockHeight + event.phase.asApplyExtrinsic.toNumber() + index} event={event} />
           )
         }
         {

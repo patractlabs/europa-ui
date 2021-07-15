@@ -97,18 +97,10 @@ type Module = {
     documentation: string[],
   }[];
 };
-
-export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }): ReactElement => {
+const EventBody: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }) => {
   const { metadata } = useContext(ApiContext);
-  const [ expanded, setExpanded ] = useState(false);
   const [ contractAddress, setContractAddress ] = useState<string>();
   const [ args, setArgs ] = useState<Obj[]>([]);
-  const codeHash = useMemo(
-    () => contracts.find(contract => contract.address === contractAddress)?.codeHash,
-    [contractAddress, contracts],
-  );
-  const { abi } = useAbi(codeHash || '');
-
   const [ err, setErr ] = useState<{
     section: string;
     err: {
@@ -116,6 +108,12 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
       documentation: string[],
     } 
   }>();
+
+  const codeHash = useMemo(
+    () => contracts.find(contract => contract.address === contractAddress)?.codeHash,
+    [contractAddress, contracts],
+  );
+  const { abi } = useAbi(codeHash || '');
 
   useEffect(() => {
     let modules: Module[] = [];
@@ -171,6 +169,39 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
   }, [abi, event]);
 
   return (
+    <div className="detail">
+      {
+        !!args.length &&
+          <Args args={args} />
+      }
+      {
+        !!err &&
+          <div className="error">
+            <h6>
+              {err?.section}.{err?.err.name}
+            </h6>
+            <p>
+              {
+                err?.err.documentation.join(' ')
+              }
+            </p>
+          </div>
+      }
+      {
+        !!contractArgs &&
+          <div className="contract-emit">
+            <h6>Event: {contractArgs.identifier}</h6>
+            <Args args={contractArgs.args} borderColor={Style.color.border.default} />
+          </div>
+      }
+    </div>
+  );
+};
+
+export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }): ReactElement => {
+  const [ expanded, setExpanded ] = useState(false);
+
+  return (
     <Wrapper>
       <div className="info-line" onClick={() => setExpanded(!expanded)}>
         <div className="event-name">{event.event.section.toString()}.{event.event.method.toString()}</div>
@@ -187,29 +218,7 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
       </div>
       {
         expanded &&
-          <div className="detail">
-            <Args args={args} />
-            {
-              !!err &&
-                <div className="error">
-                  <h6>
-                    {err?.section}.{err?.err.name}
-                  </h6>
-                  <p>
-                    {
-                      err?.err.documentation.join(' ')
-                    }
-                  </p>
-                </div>
-            }
-            {
-              !!contractArgs &&
-                <div className="contract-emit">
-                  <h6>Event: {contractArgs.identifier}</h6>
-                  <Args args={contractArgs.args} borderColor={Style.color.border.default} />
-                </div>
-            }
-          </div>
+          <EventBody contracts={contracts} event={event} />
       }
     </Wrapper>
   );

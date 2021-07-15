@@ -2,9 +2,8 @@ import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } fro
 import styled from 'styled-components';
 import { Table } from 'antd';
 import { useParams } from 'react-router-dom';
-import { ApiContext, ExtendedBlock, BlocksContext, PaginationProvider } from '../../core';
+import { ApiContext, ExtendedBlock, BlocksContext, PaginationProvider, ExtendedEventRecord } from '../../core';
 import { Events, Extrinsics, formatTimestamp, Style, Tabs } from '../../shared';
-import type { EventRecord } from '@polkadot/types/interfaces/system';
 import States from './States';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
@@ -47,7 +46,7 @@ const BlockTabs: FC<{ block: ExtendedBlock }> = ({ block }): ReactElement => {
   const extrinsics = block.extrinsics.map(extrinsic => Object.assign(extrinsic, {
     height: block.height,
   }));
-  const events = extrinsics.reduce((events: EventRecord[], extrinsic) => events.concat(extrinsic.events), []);
+  const events = extrinsics.reduce((events: ExtendedEventRecord[], extrinsic) => events.concat(extrinsic.events), []);
 
   return (
     <div style={{
