@@ -2,9 +2,20 @@ import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } fro
 import styled from 'styled-components';
 import { ApiContext, BlocksContext, Extrinsic } from '../../core';
 import { Args, Obj } from '../../shared';
+import { Toggle } from '../../react-components';
 
 const Wrapper = styled.div`
   padding: 20px;
+
+  > .toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+
+    > span {
+      margin-left: 8px;
+    }
+  }
 `;
 
 interface StateMutation {
@@ -23,10 +34,17 @@ type ExtendedExtrinsic = Extrinsic & {
   index: number;
 };
 
+const ChildMutations = [
+  'PutChild',
+  'KillChild',
+  'ClearChildPrefix',
+];
+
 export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const { blocks } = useContext(BlocksContext);
   const { wsProvider } = useContext(ApiContext);
   const [ mutations, setMutations ] = useState<Obj[]>([]);
+  const [ onlyChild, setOnlyChild ] = useState(false);
 
   const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
     let _extrinsic: ExtendedExtrinsic | undefined;
@@ -48,6 +66,15 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
 
     return _extrinsic;
   }, [hash, blocks]);
+
+  const filteredMutations = useMemo(() => {
+    if (!onlyChild) {
+      return [...mutations];
+    }
+    console.log('Object.keys(mutation)', mutations.map(mutation => Object.keys(mutation)));
+    
+    return mutations.filter(mutation => Object.keys(mutation).find(key => ChildMutations.includes(key)));
+  }, [mutations, onlyChild]);
 
   useEffect(() => {
     if (!extrinsic) {
@@ -72,9 +99,13 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
 
   return (
     <Wrapper>
+      <div className="toggle">
+        <Toggle value={onlyChild} onChange={() => setOnlyChild(show => !show)}  />
+        <span>Show Only Child State</span>
+      </div>
       {
-        mutations.map((mutation, index) =>
-          <Args key={index} args={mutation} withoutBottom={index !== mutations.length - 1} />
+        filteredMutations.map((mutation, index) =>
+          <Args key={index} args={mutation} withoutBottom={index !== filteredMutations.length - 1} />
         )
       }     
     </Wrapper>
