@@ -545,7 +545,7 @@ export const Header: FC = (): ReactElement => {
           <div onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()}>
             <NaviBack />
           </div>
-          <div onClick={() => h.goForward} >
+          <div onClick={() => h.goForward()} >
             <NaviForward />
           </div>
         </div>

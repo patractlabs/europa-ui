@@ -64,7 +64,7 @@ export const Extrinsics: FC<{
             <div className="header-fill"></div>
         }
         <Table
-          rowKey={record => record.hash.toString() + record.indexInBlock}
+          rowKey={record => record.hash.toString() + record.nonce}
           locale={{emptyText: 'No Data'}}
           pagination={false}
           dataSource={extrinsics}
