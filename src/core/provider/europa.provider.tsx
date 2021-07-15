@@ -3,7 +3,6 @@ import { requireModule } from '../../shared';
 import type * as ChildProcess from 'child_process';
 import type * as Path from 'path';
 import type * as OS from 'os';
-// import { ipcRenderer } from 'electron';
 import type * as Electron from 'electron';
 
 interface EuropaManageContextProps {

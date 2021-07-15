@@ -233,7 +233,7 @@ export const Header: FC = (): ReactElement => {
   const [ search, setSearch ] = useState('');
   const { blocks } = useContext(BlocksContext);
   const h = useHistory();
-  console.log('path', pathname, state, h.location);
+  // console.log('path', pathname, state, h.location);
   const pathRegs: {
     reg: RegExp;
     divides: Divide[];
@@ -330,7 +330,7 @@ export const Header: FC = (): ReactElement => {
       reg: new RegExp('^/account$'),
       divides: [
         {
-          name: 'Account',
+          name: 'Accounts',
         },
       ],
     },

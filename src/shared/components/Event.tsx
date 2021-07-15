@@ -74,8 +74,6 @@ const decodeData = (event: EventRecord, abi: Abi | undefined, name: string, data
   try {
     const event = abi.decodeEvent(data.toU8a(true));
 
-    console.log('event.args', event.args);
-
     return [
       { event: event.event.identifier },
       {
@@ -163,7 +161,6 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
       } as unknown as Obj;
     });
 
-    console.log('args', args)
     setArgs(args);
   }, [metadata, event, abi]);
 

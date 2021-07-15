@@ -17,6 +17,7 @@ const Wrapper = styled.div`
   > .line {
     padding-bottom: 6px;
     word-break: break-all;
+    white-space: pre-wrap;
   }
   > .line:last-child {
     padding-bottom: 0px;
@@ -37,7 +38,7 @@ export const Log: FC = (): ReactElement => {
     <Wrapper id="log-container">
       {
         logs.map((log, index) =>
-          <div key={index} className="line">{log}</div>
+          <pre key={index} className="line">{log}</pre>
         )
       }
     </Wrapper>
