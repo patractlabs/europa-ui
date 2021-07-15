@@ -54,12 +54,12 @@ const isComplexed = (value: any): boolean => {
   return typeof value === 'object' && value !== null;
 };
 
-const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string }> = ({ arg, isLast = false, index, borderColor }): ReactElement => {
+const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string; DataRender?: FC }> = ({ arg, isLast = false, index, borderColor, DataRender }): ReactElement => {
   return (
     <div style={{ borderBottom: isLast ? '0px' : `1px solid ${borderColor}`, height: '100%', display: 'flex', flexDirection: 'column' }}>
       {
         arg instanceof Array ? 
-          <Item hasChild={false}  style={{ flex: 1 }}  borderColor={borderColor}>
+          <Item hasChild={false} style={{ flex: 1 }} borderColor={borderColor}>
             <div className="key">{index}</div>
             <div className="value raw-value">
               {/* <Args args={arg} isChild={true} /> */}
@@ -72,7 +72,11 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string }
           isComplexed(arg) ?
             Object.keys(arg).map(key =>
               <Item key={key} hasChild={isComplexed(arg[key])} style={{ flex: 1 }} borderColor={borderColor}>
-                <div className="key"><span>{key}</span></div>
+                <div className="key">{
+                  key === 'data' && DataRender ?
+                    <DataRender /> :
+                    <span>{key}</span>
+                }</div>
                 <div className={ isComplexed(arg[key]) ? 'value' : 'value raw-value' }>{
                   isComplexed(arg[key]) ? <Args isChild={true} args={arg[key] as Obj} /> : <span>{`${arg[key]}`}</span>
                 }</div>
@@ -91,7 +95,7 @@ const Arg: FC<{ isLast?: boolean; arg: Obj; index: number; borderColor: string }
   );
 };
 
-export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean, borderColor?: string }> = ({ args, isChild = false, withoutBottom = false, borderColor = Style.color.button.primary }): ReactElement => {
+export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: boolean, borderColor?: string; DataRender?: FC }> = ({ args, isChild = false, withoutBottom = false, borderColor = Style.color.button.primary, DataRender }): ReactElement => {
   const argArray: Obj[] = args instanceof Array ?
     args as Obj[] :
     Object.keys(args).map(key =>
@@ -105,7 +109,7 @@ export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: bo
       {
         argArray.map((arg, index) =>
           <div style={{ flex: 1 }} key={index}>
-            <Arg arg={arg} index={index} isLast={index === (argArray.length - 1)} borderColor={borderColor} />
+            <Arg arg={arg} index={index} isLast={index === (argArray.length - 1)} borderColor={borderColor} DataRender={ !isChild && Object.keys(arg).includes('data') ? DataRender : undefined } />
           </div>
         )
       }

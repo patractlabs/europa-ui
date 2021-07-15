@@ -1,14 +1,14 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
+import { Args as ArgsDisplay, KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
+import InfoSvg from '../../assets/imgs/info.svg';
 import { ApiContext, BlocksContext, useContracts, useAbi } from '../../core';
 import { hexToU8a } from '@polkadot/util';
 import { Abi } from '@polkadot/api-contract';
 import { Link } from 'react-router-dom';
-import { Col, Row } from 'antd';
-import { Args as ArgsDisplay } from '../../shared';
+import { Col, Row, Tooltip } from 'antd';
 
 const depthColors = [
   Style.color.button.primary,
@@ -26,6 +26,61 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
   background-color: ${props => props.err ? Style.color.bg.error : ''};
   margin-left: ${props => (props.depth - 1) * 20}px;
 
+  > .border-base {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    width: 4px;
+    background-color: ${props => depthColors[props.depth - 1 % depthColors.length]};
+    opacity: 0.2;
+  }
+  > .contract {
+    border: 1px solid ${Style.color.border.default};
+    border-left: 4px solid ${props => depthColors[props.depth - 1 % depthColors.length]};
+
+    > .main-info {
+      padding: 20px;
+    }
+    > .detail {
+      border-top: 1px solid ${Style.color.border.default};
+      padding: 20px;
+
+      .data-toggle {
+        font-weight: 600;
+      }
+      .args-toggle {
+        margin-right: 8px;
+
+        span {
+          cursor: pointer;
+          color: ${Style.color.link.default};
+          margin-right: 4px;
+        }
+        img {
+          width: 14px;
+          height: 14px;
+        }
+      }
+      .no-abi {
+        margin-bottom: 8px;
+        padding-left: 12px;
+        font-weight: 600;
+      }
+      > .error {
+        color: ${Style.color.label.error};
+        display: flex;
+        margin-top: 14px;
+
+        > .error-trap {
+          margin-left: 8px;
+          flex: 1;
+          border: 1px solid ${Style.color.border.error};
+          background-color: #FFF9FA;
+          padding: 12px;
+        }
+      }
+    }
+  }
   .text-overflow {
     overflow: hidden;
     white-space: nowrap;
@@ -33,49 +88,10 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
     padding-right: 15px;
   }
 `;
-const BorderBase = styled.div<{ depth: number }>`
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  width: 4px;
-  background-color: ${props => depthColors[props.depth - 1 % depthColors.length]};
-  opacity: 0.2;
-`;
-const Contract = styled.div<{ depth: number }>`
-  border: 1px solid ${Style.color.border.default};
-  border-left: 4px solid ${props => depthColors[props.depth - 1 % depthColors.length]};
-  `;
-const MainInfo = styled.div`
-  padding: 20px;
-`;
-
 const Line = styled.div`
   display: flex;
   margin-top: 5px;
 `;
-const Detail = styled.div`
-  border-top: 1px solid ${Style.color.border.default};
-  padding: 20px;
-
-  .no-abi {
-    margin-bottom: 8px;
-    padding-left: 12px;
-    font-weight: 600;
-  }
-`;
-const Error = styled.div`
-  color: ${Style.color.label.error};
-  display: flex;
-  margin-top: 14px;
-`;
-const ErrorTrap = styled.div`
-  margin-left: 8px;
-  flex: 1;
-  border: 1px solid ${Style.color.border.error};
-  background-color: #FFF9FA;
-  padding: 12px;
-`;
-
 const Toggle = styled.div<{ expanded: boolean }>`
   padding: 0px 20px;
   cursor: pointer;
@@ -140,7 +156,8 @@ export const ContractTrace: FC<{
   const { api } = useContext(ApiContext);
   const { blocks } = useContext(BlocksContext);
   const { contracts } = useContracts(api, blocks);
-  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [ showDetail, setShowDetail ] = useState<boolean>(false);
+  const [ showRawData, setShowRawData ] = useState<boolean>(false);
   const contract = useMemo(
     () => contracts.find(contracts => contracts.address === trace.self_account),
     [contracts, trace],
@@ -149,9 +166,9 @@ export const ContractTrace: FC<{
 
   return (
     <Wrapper err={!!trace.ext_result.Err} depth={trace.depth}>
-      <BorderBase depth={trace.depth} />
-      <Contract depth={trace.depth}>
-        <MainInfo>
+      <div className="border-base" />
+      <div className="contract">
+        <div className="main-info">
           <Row style={{ marginBottom: '10px' }}>
             <Col className="text-overflow" span={12}>
               <LabelDefault>From</LabelDefault>
@@ -193,10 +210,10 @@ export const ContractTrace: FC<{
               <ValueDefault>{trace.gas_left}</ValueDefault>
             </Col>
           </Row>
-        </MainInfo>
+        </div>
         {
           showDetail &&
-            <Detail>
+            <div className="detail">
               <Row>
                 <Col span={12} style={{ paddingRight: '40px' }}>
                   <KeyValueLine>
@@ -206,12 +223,19 @@ export const ContractTrace: FC<{
                     }</ValuePrimary>
                   </KeyValueLine>
                   <Line>
-                    <LabelDefault>Args</LabelDefault>
+                    <div className="args-toggle data-toggle" onClick={() => setShowRawData(old => !old)}>
+                      <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
+                        <span>
+                          Args
+                        </span>
+                        <img src={InfoSvg} alt="" />
+                      </Tooltip>
+                    </div>
                     <div style={{ flex: 1, position: 'relative' }}>
                       { !abi && <p className="no-abi">Please upload metadata first!</p> }
                       <Args  style={{ height: !!abi ? '500px' : '470px', position: 'absolute', left: '0px', right: '0px' }}>
                         {
-                          abi ?
+                          abi && !showRawData ?
                             trace.args?.length ?
                               <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} /> :
                               <div></div>
@@ -246,9 +270,9 @@ export const ContractTrace: FC<{
               </Row>
               {
                 !!trace.ext_result.Err &&
-                  <Error>
+                  <div className="error">
                     <span>Wasm Error</span>
-                    <ErrorTrap>
+                    <div className="error-trap">
                       <div style={{ display: 'flex' }}>
                         <span style={{ width: '40px', marginRight: '10px' }}>Code</span>
                         <div>
@@ -265,10 +289,10 @@ export const ContractTrace: FC<{
                           }
                         </div>
                       </div>
-                    </ErrorTrap>
-                  </Error>
+                    </div>
+                  </div>
               }
-            </Detail>
+            </div>
         }
         <Toggle expanded={showDetail} onClick={() => setShowDetail(!showDetail)}>
           <div>
@@ -276,7 +300,7 @@ export const ContractTrace: FC<{
             <img src={MoveSVG} alt="" />
           </div>
         </Toggle>
-      </Contract>
+      </div>
       {
         trace.nests.length > 0 &&
         trace.nests.map((child, index) =>

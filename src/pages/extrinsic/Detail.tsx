@@ -4,18 +4,33 @@ import styled from 'styled-components';
 import { ApiContext, BlocksContext, ExtendedExtrinsic, useContracts, useAbi } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
+import InfoSvg from '../../assets/imgs/info.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
 import { Link } from 'react-router-dom';
 import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine, Obj, Args, Address, formatTimestamp } from '../../shared';
 import { ContractTrace } from './Trace';
 import { Abi } from '@polkadot/api-contract';
-import { Col, Row } from 'antd';
+import { Col, Row, Tooltip } from 'antd';
 
 const Wrapper = styled.div`
   padding: 20px;
 
   > div > .call-params {
     background: #eeece9;
+
+    .data-toggle {
+      font-weight: 600;
+
+      span {
+        cursor: pointer;
+        color: ${Style.color.link.default};
+        margin-right: 4px;
+      }
+      img {
+        width: 14px;
+        height: 14px;
+      }
+    }
   }
 `;
 const ExtrinsicHash = styled(TitleWithBottomBorder)`
@@ -85,8 +100,9 @@ export interface Trace {
   },
 }
 
-const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: string, data: string): string | Obj[] => {
+const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: string, data: string, showRawData = false): string | Obj[] => {
   if (
+    showRawData ||
     !abi ||
     name !== 'data' ||
     extrinsic.method.section.toLowerCase() !== 'contracts' ||
@@ -127,6 +143,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   const { blocks } = useContext(BlocksContext);
   const { api, wsProvider } = useContext(ApiContext);
   const [ trace, setTrace ] = useState<Trace>();
+  const [ showRawData, setShowRawData ] = useState<boolean>(false);
   const { metadata } = useContext(ApiContext);
   const { contracts } = useContracts(api, blocks);
   const contract = useMemo(
@@ -170,9 +187,9 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
       .find(call => call.name.split('_').join('').toLowerCase() === extrinsic.method.method.toLowerCase())?.args || [];
 
     return extrinsic.args.map((arg, index) => ({
-      [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString()),
+      [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString(), showRawData),
     } as unknown as Obj));
-  }, [metadata, extrinsic, abi]);
+  }, [metadata, extrinsic, abi, showRawData]);
 
   useEffect(() => {
     if (!extrinsic) {
@@ -250,7 +267,18 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
               {
                 args &&
                   <div style={{ marginTop: '10px', marginBottom: '20px' }}>
-                    <Args args={args} />
+                    <Args args={args} DataRender={() => {
+                      return (
+                        <div className="data-toggle" onClick={() => setShowRawData(old => !old)}>
+                          <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
+                            <span>
+                              data
+                            </span>
+                            <img src={InfoSvg} alt="" />
+                          </Tooltip>
+                        </div>
+                      );
+                    }} />
                   </div>
               }
             </div>
