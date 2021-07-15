@@ -2,8 +2,8 @@ import React, { CSSProperties, FC, ReactElement, useContext, useEffect, useMemo 
 import { Table } from 'antd';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { PaginationContext, Extrinsic } from '../../core';
-import { PageLine, formatAddress, lookForTranferedValue, Transfer } from '../../shared';
+import { PaginationContext, ExtendedExtrinsic } from '../../core';
+import { PageLine, formatAddress, Transfer } from '../../shared';
 import { Style } from '../styled';
 
 const Wrapper = styled.div<{ tdHighlight?: boolean }>`
@@ -40,10 +40,6 @@ const Wrapper = styled.div<{ tdHighlight?: boolean }>`
   }
 `;
 
-export type ExtendedExtrinsic = Extrinsic & {
-  height: number;
-};
-
 export const Extrinsics: FC<{
   extrinsics: ExtendedExtrinsic[];
   tdHighlight?: boolean;
@@ -68,34 +64,34 @@ export const Extrinsics: FC<{
             <div className="header-fill"></div>
         }
         <Table
-          rowKey={record => record.hash.toString()}
+          rowKey={record => record.hash.toString() + record.indexInBlock}
           locale={{emptyText: 'No Data'}}
           pagination={false}
           dataSource={extrinsics}
           columns={[
             {
-              title: <span style={{ marginLeft: '4px' }}>Extrinsic Hash</span>,
+              title: <span>Extrinsic</span>,
               width: '25%',
-              key: 'hash',
-              render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 23)}</Link>,
+              key: 'name',
+              render: (_, record) => <Link to={`/extrinsic/${record.hash}/details`}>{record.method.section}.{record.method.method}</Link>,
             },
             {
-              title: <span>Block Number</span>,
+              title: <span style={{ marginLeft: '4px' }}>Extrinsic Hash</span>,
+              width: '20%',
+              key: 'hash',
+              render: (_, record) => <Link style={{ marginLeft: '4px' }} to={`/extrinsic/${record.hash}/details`}>{formatAddress(record.hash.toString(), 13)}</Link>,
+            },
+            {
+              title: <span>Block & Index</span>,
               width: '15%',
               key: 'from',
-              render: (_, record) => <Link to={`/block/${record.height}`}>{record.height}</Link>,
+              render: (_, record) => <Link to={`/block/${record.height}`}>{record.height}-{record.indexInBlock + 1}</Link>,
             },
             {
               title: <div style={{display: 'flex'}}><span style={{ width: '215px' }}>From</span><span>To</span></div>,
               width: '45%',
               key: 'transfer',
               render: (_, record) => <Transfer record={record} />
-            },
-            {
-              title: <span>Value</span>,
-              width: '25%',
-              key: 'value',
-              render: (_, record) => <span>{lookForTranferedValue(record)}</span>,
             },
           ]}
         />

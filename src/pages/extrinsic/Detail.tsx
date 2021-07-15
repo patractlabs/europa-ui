@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { hexToU8a } from '@polkadot/util';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, Extrinsic, useContracts, useAbi } from '../../core';
+import { ApiContext, BlocksContext, ExtendedExtrinsic, useContracts, useAbi } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
 import FailSvg from '../../assets/imgs/extrinsic-fail.svg';
 import BlockSvg from '../../assets/imgs/block.svg';
@@ -42,13 +42,6 @@ const Result = styled.label<{ err: boolean }>`
   height: 24px;
   line-height: 24px;
 `;
-
-type ExtendedExtrinsic = Extrinsic & {
-  blockHash: string;
-  height: number;
-  index: number;
-  timestamp: number;
-};
 
 export interface Trace {
   args: string,
@@ -92,7 +85,7 @@ export interface Trace {
   },
 }
 
-const decodeData = (extrinsic: Extrinsic, abi: Abi | undefined, name: string, data: string): string | Obj[] => {
+const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: string, data: string): string | Obj[] => {
   if (
     !abi ||
     name !== 'data' ||
@@ -143,31 +136,11 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
   );
   const { abi } = useAbi(contract?.codeHash || '');
 
-  const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
-    let _extrinsic: ExtendedExtrinsic | undefined;
-    
-    blocks.find(_block => {
-      const index = _block.extrinsics.findIndex(extrinsic => extrinsic.hash.toString() === hash);
-      const setTimeExtrinsic = _block.extrinsics.find(extrinsic =>
-        extrinsic.method.section.toString() === 'timestamp' && extrinsic.method.method.toString() === 'set'
-      );
-
-      if (index < 0 || !setTimeExtrinsic) {
-        return false;
-      }
-
-      _extrinsic =  Object.assign(_block.extrinsics[index], {
-        blockHash: _block.blockHash,
-        height: _block.height,
-        index,
-        timestamp: setTimeExtrinsic?.args[0].toJSON() as number,
-      });
-
-      return true;
-    });
-
-    return _extrinsic;
-  }, [hash, blocks]);
+  const extrinsic = useMemo(() => 
+    blocks.reduce((extrinscis: ExtendedExtrinsic[], curr) => extrinscis.concat(curr.extrinsics), [])
+      .find(extrinsic => extrinsic.hash.toString() === hash),
+    [hash, blocks],
+  );
 
   const args = useMemo(() => {
     if (!extrinsic) {
@@ -207,7 +180,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
     }
 
     wsProvider.send('contractsExt_tracing', [
-      extrinsic.height, extrinsic.index
+      extrinsic.height, extrinsic.indexInBlock
     ]).then(({ trace }: { trace: Trace}) => {
       setTrace(trace.depth ? trace : undefined);
     }, (e: any) => {

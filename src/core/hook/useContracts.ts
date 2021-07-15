@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Block, Extrinsic } from './../provider/blocks.provider';
+import { ExtendedBlock, ExtendedExtrinsic } from './../provider/blocks.provider';
 import { of, zip } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ApiRx } from '@polkadot/api';
@@ -7,17 +7,17 @@ import { ApiRx } from '@polkadot/api';
 export interface DeployedContract {
   codeHash: string;
   address: string;
-  extrinsic: Extrinsic;
-  block: Block;
+  extrinsic: ExtendedExtrinsic;
+  block: ExtendedBlock;
 }
 
 export interface DeployedCode {
   hash: string;
-  extrinsic: Extrinsic;
-  block: Block;
+  extrinsic: ExtendedExtrinsic;
+  block: ExtendedBlock;
 }
 
-export const useContracts = (api: ApiRx, blocks: Block[]) => {
+export const useContracts = (api: ApiRx, blocks: ExtendedBlock[]) => {
   const [ codesHash, setCodesHash ] = useState<DeployedCode[]>([]);
   const [ contracts, setContracts ] = useState<DeployedContract[]>([]);
 

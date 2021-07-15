@@ -176,7 +176,7 @@ export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventReco
         <div className="event-name">{event.event.section.toString()}.{event.event.method.toString()}</div>
         {
           showIndex &&
-            <div className="index">{event.blockHeight} - {event.phase.asApplyExtrinsic.toNumber()}</div>
+            <div className="index">{event.blockHeight} - {event.phase.asApplyExtrinsic.toNumber() + 1}</div>
         }
         <div className="togglo-detail">
           <span>

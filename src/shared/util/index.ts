@@ -1,4 +1,6 @@
-import { Block, Extrinsic } from '../../core/provider/blocks.provider';
+import { ExtendedBlock } from '../../core/provider/blocks.provider';
+import type { GenericExtrinsic } from '@polkadot/types';
+import type { AnyTuple } from '@polkadot/types/types';
 
 export const formatAddress = (address: string, len = 15) => {
   if (!address || address.length < len) {
@@ -7,7 +9,7 @@ export const formatAddress = (address: string, len = 15) => {
   return `${address.slice(0, len - 3)}...`;
 };
 
-export const lookForDestAddress = (extrinsic: Extrinsic): string => {
+export const lookForDestAddress = (extrinsic: GenericExtrinsic<AnyTuple>): string => {
   try {
     if (extrinsic.method.section === 'balances'
       && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
@@ -19,12 +21,17 @@ export const lookForDestAddress = (extrinsic: Extrinsic): string => {
     ) {
       return (extrinsic.method.args[1].toHuman() as any).Id;
     }
+    if (extrinsic.method.section === 'contracts'
+      && (extrinsic.method.method === 'call')
+    ) {
+      return (extrinsic.method.args[0].toHuman() as any).Id;
+    }
   } catch (e) { }
 
   return '';
 };
 
-export const lookForTranferedValue = (extrinsic: Extrinsic): string => {
+export const lookForTranferedValue = (extrinsic: GenericExtrinsic<AnyTuple>): string => {
   try {
     if (extrinsic.method.section === 'balances'
       && (extrinsic.method.method === 'transfer' || extrinsic.method.method === 'transferKeepAlive')
@@ -36,13 +43,18 @@ export const lookForTranferedValue = (extrinsic: Extrinsic): string => {
     ) {
       return extrinsic.method.args.map(a => a.toHuman())[2] as any;
     }
+    if (extrinsic.method.section === 'contracts'
+      && (extrinsic.method.method === 'call')
+    ) {
+      return (extrinsic.method.args[1].toHuman() as any);
+    }
   } catch (e) { }
 
   return '-';
 };
 
-export const getBlockTimestamp = (block: Block): number => {
-  const setTimeExtrinsic = block.extrinsics.find(extrinsic =>
+export const getBlockTimestamp = (extrinsics: GenericExtrinsic<AnyTuple>[]): number => {
+  const setTimeExtrinsic = extrinsics.find(extrinsic =>
     extrinsic.method.section === 'timestamp' && extrinsic.method.method === 'set'
   );
   const timestamp = parseInt(setTimeExtrinsic?.method.args[0].toString() || '');
@@ -60,8 +72,8 @@ function formatUnit(t: number) {
   return `${t}`;
 }
 
-export const formatBlockTimestamp = (block: Block): string => {
-  const timestamp = getBlockTimestamp(block);
+export const formatBlockTimestamp = (block: ExtendedBlock): string => {
+  const timestamp = getBlockTimestamp(block.extrinsics);
 
   if (`${timestamp}` === 'NaN') {
     return '-';

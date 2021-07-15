@@ -15,7 +15,7 @@ import DeveloperSVG from '../../assets/imgs/developer.svg';
 import SettingSVG from '../../assets/imgs/setting.svg';
 import { BreadCrumb, Divide, notification } from '../../shared';
 import { Style } from '../../shared';
-import { BlocksContext, Extrinsic } from '../../core';
+import { BlocksContext, ExtendedExtrinsic } from '../../core';
 import { ActiveTab as ContractActiveTab } from '../contract';
 import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
 import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
@@ -465,9 +465,9 @@ export const Header: FC = (): ReactElement => {
     }
 
     const extrinsic = blocks
-      .reduce((all: Extrinsic[], block) => all.concat(block.extrinsics), [])
+      .reduce((all: ExtendedExtrinsic[], block) => all.concat(block.extrinsics), [])
       .find(extrinsic => extrinsic.hash.toString() === search)
-    
+
     if (extrinsic) {
       setSearch('');
       return h.push(`/extrinsic/${extrinsic.hash.toString()}/details`);

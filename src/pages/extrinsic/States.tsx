@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext, BlocksContext, Extrinsic } from '../../core';
+import { ApiContext, BlocksContext, ExtendedExtrinsic } from '../../core';
 import { Args, Obj } from '../../shared';
 import { Toggle } from '../../react-components';
 
@@ -29,10 +29,6 @@ interface StateMutation {
     append: string;
   };
 }
-type ExtendedExtrinsic = Extrinsic & {
-  height: number;
-  index: number;
-};
 
 const ChildMutations = [
   'PutChild',
@@ -46,32 +42,16 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
   const [ mutations, setMutations ] = useState<Obj[]>([]);
   const [ onlyChild, setOnlyChild ] = useState(false);
 
-  const extrinsic: ExtendedExtrinsic | undefined = useMemo(() => {
-    let _extrinsic: ExtendedExtrinsic | undefined;
-    
-    blocks.find(_block => {
-      const index = _block.extrinsics.findIndex(extrinsic => extrinsic.hash.toString() === hash);
-
-      if (index < 0) {
-        return false;
-      }
-
-      _extrinsic =  Object.assign(_block.extrinsics[index], {
-        height: _block.height,
-        index,
-      });
-
-      return true;
-    });
-
-    return _extrinsic;
-  }, [hash, blocks]);
+  const extrinsic = useMemo(() => 
+    blocks.reduce((extrinscis: ExtendedExtrinsic[], curr) => extrinscis.concat(curr.extrinsics), [])
+      .find(extrinsic => extrinsic.hash.toString() === hash),
+    [hash, blocks],
+  );
 
   const filteredMutations = useMemo(() => {
     if (!onlyChild) {
       return [...mutations];
     }
-    console.log('Object.keys(mutation)', mutations.map(mutation => Object.keys(mutation)));
     
     return mutations.filter(mutation => Object.keys(mutation).find(key => ChildMutations.includes(key)));
   }, [mutations, onlyChild]);
@@ -82,15 +62,13 @@ export const States: FC<{ hash: string }> = ({ hash }): ReactElement => {
     }
 
     wsProvider.send('europa_extrinsicStateChanges', [
-      extrinsic.height, extrinsic.index      
+      extrinsic.height, extrinsic.indexInBlock      
     ]).then((mutations: StateMutation[]) => {
-
       setMutations(
         mutations.map(mutation => ({
           [mutation.type]: mutation.data
         }))
       );
-
     }, (e: any) => {
       console.log('e', e);
       setMutations([]);

@@ -2,7 +2,7 @@ import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } fro
 import styled from 'styled-components';
 import { Table } from 'antd';
 import { useParams } from 'react-router-dom';
-import { ApiContext, Block, BlocksContext, PaginationProvider } from '../../core';
+import { ApiContext, ExtendedBlock, BlocksContext, PaginationProvider } from '../../core';
 import { Events, Extrinsics, formatTimestamp, Style, Tabs } from '../../shared';
 import type { EventRecord } from '@polkadot/types/interfaces/system';
 import States from './States';
@@ -42,7 +42,7 @@ enum TabChoice {
   States = 'States',
 }
 
-const BlockTabs: FC<{ block: Block }> = ({ block }): ReactElement => {
+const BlockTabs: FC<{ block: ExtendedBlock }> = ({ block }): ReactElement => {
   const [ tabChoice, setTabChoice ] = useState<TabChoice>(TabChoice.Extrinsics);
   const extrinsics = block.extrinsics.map(extrinsic => Object.assign(extrinsic, {
     height: block.height,

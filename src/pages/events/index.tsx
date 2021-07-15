@@ -1,6 +1,6 @@
 import React, { FC, ReactElement,useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { PaginationProvider, BlocksContext, Extrinsic, ExtendedEventRecord } from '../../core';
+import { PaginationProvider, BlocksContext, ExtendedExtrinsic, ExtendedEventRecord } from '../../core';
 import { Events, Style } from '../../shared';
 
 const Wrapper = styled.div`
@@ -30,7 +30,7 @@ export const EventsPage: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
 
   const events = useMemo(() =>
-    blocks.reduce((extrinsics: Extrinsic[], block) => extrinsics.concat(block.extrinsics), [])
+    blocks.reduce((extrinsics: ExtendedExtrinsic[], block) => extrinsics.concat(block.extrinsics), [])
       .reduce((events: ExtendedEventRecord[], extrinsic) => events.concat(extrinsic.events), [])
       .reverse(),
     [blocks],

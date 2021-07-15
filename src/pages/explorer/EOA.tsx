@@ -2,8 +2,8 @@ import React, { ReactElement, FC, useContext, useMemo, useEffect } from 'react';
 import { Table } from 'antd';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { PaginationContext, BlocksContext, Extrinsic, ApiContext, useBalance } from '../../core';
-import { Transfer, formatAddress, lookForDestAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
+import { PaginationContext, BlocksContext, ExtendedExtrinsic, ApiContext, useBalance } from '../../core';
+import { Transfer, formatAddress, lookForTranferedValue, PageLine, Style, contentBase, InfoHeader } from '../../shared';
 import { formatBalance } from '@polkadot/util';
 
 const Wrapper = styled.div`
@@ -30,14 +30,6 @@ const Title = styled.h2`
   }
 `;
 
-type ExtenedExtrinsic = Extrinsic & {
-  blockHash: string;
-  height: number;
-  from: string;
-  to: string;
-  fee: string;
-};
-
 export const EOA: FC = (): ReactElement => {
   const { address } = useParams<{ address: string }>();
   const { blocks } = useContext(BlocksContext);
@@ -45,23 +37,14 @@ export const EOA: FC = (): ReactElement => {
   const { pageIndex, pageSize, setTotal } = useContext(PaginationContext);
   const { balance } = useBalance(api, address);
 
-  const extrinsics: ExtenedExtrinsic[] = useMemo(() =>
+  const extrinsics: ExtendedExtrinsic[] = useMemo(() =>
     [...blocks]
       .reverse()
       .reduce(
-        (extrinsics: ExtenedExtrinsic[], block) =>
-          extrinsics.concat(
-            block.extrinsics.map(extrinsic => Object.assign(extrinsic, {
-              blockHash: block.blockHash,
-              height: block.height,
-              from: extrinsic.signer.toString(),
-              to: lookForDestAddress(extrinsic),
-              fee: '',
-            }))
-          ),
-          [],
-        )
-      .filter(extrinsic => extrinsic.from === address || extrinsic.to === address)
+        (extrinsics: ExtendedExtrinsic[], block) => extrinsics.concat(block.extrinsics),
+        [],
+      )
+      .filter(extrinsic => extrinsic.signer.toString() === address || extrinsic.to === address)
     ,
     [blocks, address],
   );
@@ -108,7 +91,7 @@ export const EOA: FC = (): ReactElement => {
             {
               title: <HeaderLabel>Block Number</HeaderLabel>,
               width: '20%',
-              key: 'from',
+              key: 'blocknumber',
               render: (_, record) => <Link to={`/block/${record.blockHash}`}>{record.height}</Link>,
             },
             {

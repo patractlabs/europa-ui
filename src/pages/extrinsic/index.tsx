@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
-import { PaginationProvider, BlocksContext } from '../../core';
-import { ExtendedExtrinsic, Extrinsics } from '../../shared';
+import { PaginationProvider, BlocksContext, ExtendedExtrinsic } from '../../core';
+import { Extrinsics } from '../../shared';
 import { Route, Switch } from 'react-router-dom';
 import { ExtrinsicDetailPage } from './DetailPage';
 
@@ -8,12 +8,7 @@ const ExtrinsicsR: FC = (): ReactElement => {
   const { blocks } = useContext(BlocksContext);
 
   const extrinsics: ExtendedExtrinsic[] = useMemo(
-    () => [...blocks].reverse().reduce((all: ExtendedExtrinsic[], block) => {
-      const extrinsics = block.extrinsics.map(extrinsic => Object.assign(extrinsic, {
-        height: block.height,
-      }));
-      return all.concat(extrinsics);
-    }, []),
+    () => [...blocks].reverse().reduce((all: ExtendedExtrinsic[], block) => all.concat(block.extrinsics), []),
     [blocks],
   );
 

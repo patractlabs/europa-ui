@@ -1,8 +1,8 @@
 import React, { FC, CSSProperties, ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { Extrinsic } from '../../core';
-import { formatAddress, lookForDestAddress } from '../util';
+import { ExtendedExtrinsic } from '../../core';
+import { formatAddress } from '../util';
 import TransferArrowSVG from '../../assets/imgs/transfer-arrow.svg';
 import Identicon from '@polkadot/react-identicon';
 import { Style } from '../styled';
@@ -47,7 +47,7 @@ export const Address: FC<{ address: string; signer?: string }> = ({ address, sig
   );
 };
 
-export const Transfer: FC<{ signer?: string; style?: CSSProperties, record: Extrinsic }> = ({ signer, style, record }): ReactElement => {
+export const Transfer: FC<{ signer?: string; style?: CSSProperties, record: ExtendedExtrinsic }> = ({ signer, style, record }): ReactElement => {
   return (
     <Wrapper style={style}>
       <div className="from">
@@ -60,8 +60,8 @@ export const Transfer: FC<{ signer?: string; style?: CSSProperties, record: Extr
       <img src={TransferArrowSVG} alt="" />
       <div className="to">
         {
-          lookForDestAddress(record) ?
-            <Address address={lookForDestAddress(record)} signer={signer} />
+          record.to ?
+            <Address address={record.to} signer={signer} />
             :
             <span>-</span>
         }

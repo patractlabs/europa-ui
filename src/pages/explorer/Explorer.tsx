@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import EnterSVG from '../../assets/imgs/return.svg';
 import MoveSVG from '../../assets/imgs/more.svg';
 import EventsSVG from '../../assets/imgs/events.svg';
-import { Block, BlocksContext } from '../../core';
+import { ExtendedBlock, BlocksContext } from '../../core';
 import { Style, Transfer } from '../../shared';
 import JumpToBlock from './JumpToBlock';
 import ConfirmBack from './ConfirmBack';
@@ -171,7 +171,7 @@ const Events = styled.div`
 `;
 
 const BlockInfo: FC<{
-  currentBlock: Block;
+  currentBlock: ExtendedBlock;
   viewing: boolean;
   backward: () => void;
   forward: () => void;

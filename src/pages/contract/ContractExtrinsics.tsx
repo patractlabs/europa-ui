@@ -1,7 +1,7 @@
 import React, { FC, ReactElement, useContext, useMemo } from 'react';
 import styled from 'styled-components';
-import { BlocksContext, Extrinsic, PaginationProvider } from '../../core';
-import { ExtendedExtrinsic, Extrinsics } from '../../shared';
+import { BlocksContext, ExtendedExtrinsic, PaginationProvider } from '../../core';
+import { Extrinsics } from '../../shared';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -11,7 +11,7 @@ const Wrapper = styled.div`
 `;
 
 // const isTransfer = (extrinsic: Extrinsic, contractAddress: string): boolean => {};
-export const isRelatedCall = (extrinsic: Extrinsic, contractAddress: string): boolean => {
+export const isRelatedCall = (extrinsic: ExtendedExtrinsic, contractAddress: string): boolean => {
   if (extrinsic.method.section.toLowerCase() !== 'contracts' || extrinsic.method.method.toLowerCase() !== 'call') {
     return false;
   }
@@ -19,7 +19,7 @@ export const isRelatedCall = (extrinsic: Extrinsic, contractAddress: string): bo
   return (extrinsic.args[0].toHuman() as { Id: string }).Id === contractAddress;
 };
 
-export const isRelatedInstantiation = (extrinsic: Extrinsic, contractAddress: string): boolean => {
+export const isRelatedInstantiation = (extrinsic: ExtendedExtrinsic, contractAddress: string): boolean => {
   if (extrinsic.method.section.toLowerCase() !== 'contracts' ||
     (extrinsic.method.method.toLowerCase() !== 'instantiate' &&
       extrinsic.method.method.toLowerCase() !== 'instantiatewithcode')
@@ -40,14 +40,7 @@ export const ContractExtrinsics: FC<{ contractAddress: string }> = ({ contractAd
   const extrinsics: ExtendedExtrinsic[] = useMemo(
     () => [...blocks]
       .reverse()
-      .reduce((all: ExtendedExtrinsic[], block) => {
-        const extrinsics = block.extrinsics.map(extrinsic =>
-          Object.assign(extrinsic, {
-            height: block.height,
-          })
-        );
-        return all.concat(extrinsics);
-      }, [])
+      .reduce((all: ExtendedExtrinsic[], block) => all.concat(block.extrinsics), [])
       .filter(extrinsic =>
         isRelatedCall(extrinsic, contractAddress) || isRelatedInstantiation(extrinsic, contractAddress)
       ),

@@ -1,5 +1,5 @@
 import { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
-import { Block, ApiContext } from '../../core';
+import { ExtendedBlock, ApiContext } from '../../core';
 import { Args, Obj } from '../../shared';
 import { from, zip } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -24,7 +24,7 @@ const ChildMutations = [
   'ClearChildPrefix',
 ];
 
-const States: FC<{ block: Block; className?: string }> = ({ block, className }): ReactElement => {
+const States: FC<{ block: ExtendedBlock; className?: string }> = ({ block, className }): ReactElement => {
   const [ mutations, setMutations ] = useState<Obj[]>([]);
   const { wsProvider } = useContext(ApiContext);
   const [ onlyChild, setOnlyChild ] = useState(false);
