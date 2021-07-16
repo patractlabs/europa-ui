@@ -15,7 +15,7 @@ import DeveloperSVG from '../../assets/imgs/developer.svg';
 import SettingSVG from '../../assets/imgs/setting.svg';
 import { BreadCrumb, Divide, notification } from '../../shared';
 import { Style } from '../../shared';
-import { BlocksContext, ExtendedExtrinsic } from '../../core';
+import { ApiContext, BlocksContext, ExtendedExtrinsic, useContracts, useAbi } from '../../core';
 import { ActiveTab as ContractActiveTab } from '../contract';
 import { ActiveTab as ExtrinsicActiveTab } from '../extrinsic/DetailPage';
 import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
@@ -250,9 +250,19 @@ export const Header: FC = (): ReactElement => {
   const [ divides, setDivides ] = useState<Divide[]>([]);
   const { pathname, state } = useLocation<{from: string}>();
   const [ search, setSearch ] = useState('');
+  const [ contractAddress, setContractAddress ] = useState<string>();
+  const [ codeHash, setCodeHash ] = useState<string>();
   const { blocks } = useContext(BlocksContext);
+  const { api } = useContext(ApiContext);
+  const { contracts } = useContracts(api, blocks);
   const h = useHistory();
-  // console.log('path', pathname, state, h.location);
+
+  const contract = useMemo(
+    () => contracts.find(contracts => contracts.address === contractAddress),
+    [contracts, contractAddress],
+  );
+  const { name: contractName } = useAbi(contract?.codeHash || codeHash || '');
+
   const pathRegs: {
     reg: RegExp;
     divides: Divide[];
@@ -283,7 +293,9 @@ export const Header: FC = (): ReactElement => {
             const result = reg.exec(pathname);
             const codeHash =  result ? `${result[1]}` : '';
 
-            return  `#${codeHash.slice(0, 7)}`;
+            setCodeHash(codeHash);
+
+            return  `${contractName}`;
           },
         },
       ],
@@ -317,7 +329,9 @@ export const Header: FC = (): ReactElement => {
             const result = reg.exec(pathname);
             const address =  result ? `${result[1]}` : '';
 
-            return  `#${address.slice(0, 7)}`;
+            setContractAddress(address);
+
+            return  `${contractName}`;
           },
         },
       ],
@@ -454,7 +468,7 @@ export const Header: FC = (): ReactElement => {
         },
       ],
     },
-  ], [blocks]);
+  ], [blocks, contractName]);
 
   const onSearch = useCallback(() => {
     const block = blocks.find(block => block.blockHash === search);

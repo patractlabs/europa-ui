@@ -78,7 +78,7 @@ export const formatBlockTimestamp = (block: ExtendedBlock): string => {
   if (`${timestamp}` === 'NaN') {
     return '-';
   }
-  console.log('t', timestamp)
+
   const date = new Date(timestamp);
   return `${formatUnit(date.getHours())}:${formatUnit(date.getMinutes())}:${formatUnit(date.getSeconds())} ${formatUnit(date.getMonth() + 1)}-${formatUnit(date.getDate())}-${formatUnit(date.getFullYear())}`;
 }

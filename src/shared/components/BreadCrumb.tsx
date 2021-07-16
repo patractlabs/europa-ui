@@ -40,6 +40,7 @@ export const BreadCrumb: FC<{
   if (!divides.length) {
     return <Wrapper />;
   }
+
   return (
     <Wrapper>
       {

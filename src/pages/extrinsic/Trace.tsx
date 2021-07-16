@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Args as ArgsDisplay, KeyValueLine, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
+import { Args, LabelDefault, Style, ValueDefault, ValuePrimary } from '../../shared';
 import { Trace } from './Detail';
 import MoveSVG from '../../assets/imgs/more.svg';
 import InfoSvg from '../../assets/imgs/info.svg';
@@ -45,6 +45,28 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
       border-top: 1px solid ${Style.color.border.default};
       padding: 20px;
 
+      > .line {
+        display: flex;
+        margin-bottom: 10px;
+
+        &:last-child {
+          margin-bottom: 0px;
+        }
+
+        > .key {
+          width: 100px;
+        }
+
+        > .value {
+          flex: 1;
+          width: 0;
+
+          > .raw-args {
+            word-break: break-all;
+            overflow-wrap: anywhere;
+          }
+        }
+      }
       .data-toggle {
         font-weight: 600;
       }
@@ -62,10 +84,9 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
         }
       }
       .no-abi {
-        margin-bottom: 8px;
-        padding-left: 12px;
         font-weight: 600;
       }
+
       > .error {
         color: ${Style.color.label.error};
         display: flex;
@@ -88,10 +109,7 @@ const Wrapper = styled.div<{ err: boolean, depth: number }>`
     padding-right: 15px;
   }
 `;
-const Line = styled.div`
-  display: flex;
-  margin-top: 5px;
-`;
+
 const Toggle = styled.div<{ expanded: boolean }>`
   padding: 0px 20px;
   cursor: pointer;
@@ -113,17 +131,6 @@ const Toggle = styled.div<{ expanded: boolean }>`
       transform: ${props => props.expanded ? 'scaleY(-1)' : 'scaleY(1)'}
     }
   }
-`;
-const Args = styled.div`
-  border: 1px solid ${Style.color.button.primary};
-  border-radius: 5px;
-  height: 500px;
-  background: ${Style.color.bg.second};
-  word-break: break-all;
-  word-wrap: break-word;
-  overflow-y: auto;
-  padding: 12px;
-  flex: 1;
 `;
 
 const getIdentifer = (abi: Abi, selector: string): string => {
@@ -214,64 +221,68 @@ export const ContractTrace: FC<{
         {
           showDetail &&
             <div className="detail">
-              <Row>
-                <Col span={12} style={{ paddingRight: '40px' }}>
-                  <KeyValueLine>
-                    <LabelDefault>Function</LabelDefault>
-                    <ValuePrimary>{
-                      abi ? getIdentifer(abi, trace.selector) : trace.selector
-                    }</ValuePrimary>
-                  </KeyValueLine>
-                  <Line>
-                      { 
-                        !abi ?
-                          <LabelDefault>Args</LabelDefault> :
-                          <div className="args-toggle data-toggle" onClick={() => setShowRawData(old => !old)}>
-                            <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
-                              <span>
-                                Args
-                              </span>
-                              <img src={InfoSvg} alt="" />
-                            </Tooltip>
-                          </div>
-                      }
-                    <div style={{ flex: 1, position: 'relative' }}>
-                      { !abi && <p className="no-abi">Please upload metadata first!</p> }
-                      <Args  style={{ height: !!abi ? '500px' : '470px', position: 'absolute', left: '0px', right: '0px' }}>
-                        {
-                          abi && !showRawData ?
-                            trace.args?.length ?
-                              <ArgsDisplay args={getArgs(abi, trace.selector, trace.args) as any} /> :
-                              <div></div>
-                              :
-                            <div>
-                              {trace.args}
-                            </div>
-                        }
-                      </Args>
-                    </div>
-                  </Line>
-                </Col>
-                <Col span={12}>
-                  <KeyValueLine>
-                    <LabelDefault>Trap Reason</LabelDefault>
-                    <ValueDefault>{JSON.stringify(trace.trap_reason)}</ValueDefault>
-                  </KeyValueLine>
-                  <Line>
-                    <LabelDefault>Env trace</LabelDefault>
-                    {/* <Args>
-                      <pre>{JSON.stringify(trace.env_trace, null, 2)}</pre>
-                    </Args> */}
-                    <Args>
-                      {
-                        trace.env_trace.map((env, index) =>
-                          <ArgsDisplay key={index} args={env} withoutBottom={index !== trace.env_trace.length - 1} />
-                        )
-                      }
-                    </Args>
-                  </Line>
-                </Col>
-              </Row>
+              <div className="line">
+                <div className="key">
+                  <LabelDefault>Function</LabelDefault>
+                </div>
+                <div className="value">
+                  <ValuePrimary>{
+                    abi ? getIdentifer(abi, trace.selector) : trace.selector
+                  }</ValuePrimary>
+                </div>
+              </div>
+              <div className="line">
+                <div className="key">
+                  <LabelDefault>Trap Reason</LabelDefault>
+                </div>
+                <div className="value">
+                  <pre>{JSON.stringify(trace.trap_reason, null, 2)}</pre>
+                </div>
+              </div>
+              <div className="line">
+                <div className="key">
+                  { 
+                    !abi ?
+                      <LabelDefault>Args</LabelDefault> :
+                      <div className="args-toggle data-toggle" onClick={() => setShowRawData(old => !old)}>
+                        <Tooltip placement="top" title={`Switch to ${!showRawData ? 'raw' : 'decoded'} data`}>
+                          <span>
+                            Args
+                          </span>
+                          <img src={InfoSvg} alt="" />
+                        </Tooltip>
+                      </div>
+                  }
+                </div>
+                <div className="value">
+                  { !abi && <p className="no-abi">Please upload metadata first!</p> }
+                  {
+                    abi && !showRawData ?
+                      trace.args?.length ?
+                        <Args args={getArgs(abi, trace.selector, trace.args) as any} /> :
+                        <div>null</div>
+                        :
+                      <div  className="raw-args">
+                        {trace.args}
+                      </div>
+                  }
+                </div>
+              </div>
+              <div className="line">
+                <div className="key">
+                  <LabelDefault>Env trace</LabelDefault>
+                </div>
+                <div className="value">
+                  <div>
+                    {
+                      trace.env_trace.map((env, index) =>
+                        <Args key={index} args={env} withoutBottom={index !== trace.env_trace.length - 1} />
+                      )
+                    }
+                  </div>
+                </div>
+              </div>
+
               {
                 !!trace.ext_result.Err &&
                   <div className="error">
