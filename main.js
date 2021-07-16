@@ -6,6 +6,7 @@ let pid = 0;
 
 function createWindow () {
   const win = new BrowserWindow({
+    icon: './resources/32x32.ico',
     maximizable: true,
     movable: true,
     frame: true,

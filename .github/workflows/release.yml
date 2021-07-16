@@ -111,7 +111,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/europa
-          asset_name: Europa-${{ steps.get_version_win.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
+          asset_name: europa-ui-${{ steps.get_version_win.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
           tag: ${{ steps.get_version_win.outputs.VERSION }}
           body: "release"
           prerelease: true
@@ -122,7 +122,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/europa
-          asset_name: Europa-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
+          asset_name: europa-ui-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
           tag: ${{ steps.get_version.outputs.VERSION }}
           body: "release"
           prerelease: true
