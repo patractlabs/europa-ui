@@ -105,11 +105,9 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
 
       setLoading(false);
       updateBlocks();
-      history.push('/contract', {
-        from: pathname
-      });
+      history.push('/contract');
     });
-  }, [setting, update, history, connected$, connectApi, startup, pathname, updateBlocks]);
+  }, [setting, update, history, connected$, connectApi, startup, updateBlocks]);
 
   return (
     <div className={className}>

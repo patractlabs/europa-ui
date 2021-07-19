@@ -7,6 +7,7 @@ import MoreSVG from '../../assets/imgs/more-option.svg';
 import SearchSVG from '../../assets/imgs/search.svg';
 import ExplorerSVG from '../../assets/imgs/explorer.svg';
 import AccountsSVG from '../../assets/imgs/accounts.svg';
+import ForwardPNG from '../../assets/imgs/forward.png';
 import BlocksSVG from '../../assets/imgs/blocks.svg';
 import ExtrinsicsSVG from '../../assets/imgs/extrinsics.svg';
 import EventsSVG from '../../assets/imgs/events-menu.svg';
@@ -22,6 +23,7 @@ import { ActiveTab as DeveloperActiveTab } from '../developer/Developer';
 import { isBlockNumber } from '../blocks/BlockDetail';
 import NaviBack from './NaviBack';
 import NaviForward from './NaviForward';
+import type { History } from 'history';
 
 const Wrapper = styled.div`
   display: flex;
@@ -141,6 +143,7 @@ const Wrapper = styled.div`
         }
 
         > div {
+          display: flex;
           cursor: pointer;
           height: 20px;
           width: 20px;
@@ -257,14 +260,18 @@ export const Header: FC = (): ReactElement => {
   const [ showSider, toggoleSider ] = useState<boolean>(false);
   const [ showSiderBg, toggoleSiderBg ] = useState<boolean>(false);
   const [ divides, setDivides ] = useState<Divide[]>([]);
-  const { pathname, state } = useLocation<{from: string}>();
+  const { pathname } = useLocation<{from: string}>();
   const [ search, setSearch ] = useState('');
   const [ contractAddress, setContractAddress ] = useState<string>();
   const [ codeHash, setCodeHash ] = useState<string>();
   const { blocks } = useContext(BlocksContext);
   const { api } = useContext(ApiContext);
   const { contracts } = useContracts(api, blocks);
-  const h = useHistory();
+  const h: History & { index: number } = useHistory() as any;
+
+  const [ forwardEnabled, backwardEnabled ] = useMemo(() => {
+    return ([h.length > h.index + 1, h.index > 1]);
+  }, [h.index, h.length])
 
   const contract = useMemo(
     () => contracts.find(contracts => contracts.address === contractAddress),
@@ -480,6 +487,10 @@ export const Header: FC = (): ReactElement => {
   ], [blocks, contractName]);
 
   const onSearch = useCallback(() => {
+    if (!search) {
+      return;
+    }
+
     const block = blocks.find(block => block.blockHash === search);
 
     if (block) {
@@ -565,14 +576,22 @@ export const Header: FC = (): ReactElement => {
           <img src={MoreSVG} alt="" onClick={onToggle} />
         </div>
         <div className="navi">
-          <div onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()}>
+          <div onClick={() => backwardEnabled && h.goBack()}>
             <div>
-              <NaviBack />
+              {
+                backwardEnabled ? 
+                  <NaviBack /> :
+                  <img style={{ transform: 'scaleX(-1)' }} src={ForwardPNG} alt="" />
+              }
             </div>
           </div>
-          <div onClick={() => h.goForward()}>
+          <div onClick={() => forwardEnabled && h.goForward()}>
             <div>
-              <NaviForward />
+              {
+                forwardEnabled ?
+                  <NaviForward /> :
+                  <img src={ForwardPNG} alt="" />
+              }
             </div>
           </div>
         </div>

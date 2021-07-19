@@ -85,21 +85,10 @@ const Main: FC = (): ReactElement => {
 };
 
 function App() {
-  let visited = false;
 
   return (
     <Switch>
-      <Route exact path="/" render={() => {
-        if (!visited) {
-          visited = true;
-
-          return <Startup />
-        }
-
-        return <Redirect to="/contract" />    
-      }}>
-      </Route>
-      <Route path="/**/*/index.html">
+      <Route exact path="/">
         <Startup />
       </Route>
       <Route path='/'>
