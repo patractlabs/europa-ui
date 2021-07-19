@@ -356,7 +356,7 @@ export const Header: FC = (): ReactElement => {
       reg: new RegExp(`^/block/${hashReg}$`),
       divides: [
         {
-          name: 'Block',
+          name: 'Blocks',
           link: '/block',
         },
         {
@@ -395,7 +395,7 @@ export const Header: FC = (): ReactElement => {
       reg: new RegExp('^/extrinsic$'),
       divides: [
         {
-          name: 'Extrinsic',
+          name: 'Extrinsics',
         },
       ],
     },
