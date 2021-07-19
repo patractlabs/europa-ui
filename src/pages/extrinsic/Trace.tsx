@@ -139,19 +139,23 @@ const getIdentifer = (abi: Abi, selector: string): string => {
 };
 
 const getArgs = (abi: Abi, selector: string, args: string) => {
-  const message = abi.messages.find(c => c.selector.toString() === selector) ||
-    abi.constructors.find(c => c.selector.toString() === selector);
+  try {
+    const message = abi.messages.find(c => c.selector.toString() === selector) ||
+      abi.constructors.find(c => c.selector.toString() === selector);
+    
+    if (!message) {
+      return [];
+    }
   
-  if (!message) {
+    const values = message.fromU8a(hexToU8a(args)).args;
+  
+    return message.args.reduce((old: {[key: string]: any}, {name}, index) => {
+      old[name] = values[index]?.toJSON();
+      return old;
+    }, {})
+  } catch (e) {
     return [];
   }
-
-  const values = message.fromU8a(hexToU8a(args)).args;
-
-  return message.args.reduce((old: {[key: string]: any}, {name}, index) => {
-    old[name] = values[index]?.toJSON();
-    return old;
-  }, {})
 };
 
 export const ContractTrace: FC<{
@@ -258,9 +262,9 @@ export const ContractTrace: FC<{
                   { !abi && <p className="no-abi">Please upload metadata first!</p> }
                   {
                     abi && !showRawData ?
-                      trace.args?.length ?
+                      trace.args ?
                         <Args args={getArgs(abi, trace.selector, trace.args) as any} /> :
-                        <div>null</div>
+                        <div></div>
                         :
                       <div  className="raw-args">
                         {trace.args}

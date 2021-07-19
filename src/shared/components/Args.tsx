@@ -104,6 +104,10 @@ export const Args: FC<{ args: Obj[] | Obj, isChild?: boolean, withoutBottom?: bo
       })
     );
 
+  if (!argArray.length) {
+    return <></>;
+  }
+
   return (
     <Wrapper isChild={isChild} withoutBottom={withoutBottom} borderColor={borderColor}>
       {

@@ -1,5 +1,5 @@
 import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
-import { hexToU8a } from '@polkadot/util';
+import { isHex, isAscii, isU8a, hexToU8a, u8aToHex, u8aToString } from '@polkadot/util';
 import styled from 'styled-components';
 import { ApiContext, BlocksContext, ExtendedExtrinsic, useContracts, useAbi } from '../../core';
 import SuccessSvg from '../../assets/imgs/extrinsic-success.svg';
@@ -11,6 +11,7 @@ import { Style, LabelDefault, TitleWithBottomBorder, ValuePrimary, KeyValueLine,
 import { ContractTrace } from './Trace';
 import { Abi } from '@polkadot/api-contract';
 import { Col, Row, Tooltip } from 'antd';
+import { Codec } from '@polkadot/types/types';
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -100,7 +101,13 @@ export interface Trace {
   },
 }
 
-const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: string, data: string, showRawData = false): string | Obj[] => {
+const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: string, data: Codec, showRawData = false): string | Obj[] => {
+  const value = isU8a(data) && isAscii(data)
+    ? u8aToString(data)
+    : isHex(data)
+      ? data
+      : u8aToHex(data as unknown as Uint8Array, -1);
+
   if (
     showRawData ||
     !abi ||
@@ -112,21 +119,25 @@ const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: st
       extrinsic.method.method.toLowerCase() !== 'instantiatewithcode'
     )
   ) {
-    return data;
+    if (name === 'data') {
+      return value.toString();
+    }
+
+    return data.toString();
   }
 
-  const fun = abi.constructors.find(message => message.selector.toString() === data.slice(0, 10)) ||
-    abi.messages.find(message => message.selector.toString() === data.slice(0, 10));
-  
+  const fun = abi.constructors.find(message => message.selector.toString() === value.slice(0, 10)) ||
+    abi.messages.find(message => message.selector.toString() === value.slice(0, 10));
+
   if (!fun) {
-    return data;
+    return value.toString();
   }
 
   try {
-    const message = fun.fromU8a(hexToU8a(`0x${data.slice(10)}`));
+    const message = fun.fromU8a(hexToU8a(`0x${value.slice(10)}`));
 
     return [
-      { selector: `${message.message.identifier} (${data.slice(2, 10)})` },
+      { selector: `${message.message.identifier} (${value.slice(2, 10)})` },
       {
         parameters: message.args.map((arg, index) => ({
           [message.message.args[index].name]: arg.toHuman()
@@ -134,9 +145,9 @@ const decodeData = (extrinsic: ExtendedExtrinsic, abi: Abi | undefined, name: st
       },
     ] as unknown as Obj[];
 
-  } catch (e) {}
+  } catch (e) { console.log('de e', e)}
 
-  return data;
+  return value.toString();
 };
 
 export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement => {
@@ -187,7 +198,7 @@ export const ExtrinsicDetail: FC<{ hash: string }> = ({ hash }): ReactElement =>
       .find(call => call.name.split('_').join('').toLowerCase() === extrinsic.method.method.toLowerCase())?.args || [];
 
     return extrinsic.args.map((arg, index) => ({
-      [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg.toString(), showRawData),
+      [args[index]?.name || `${index}`]: decodeData(extrinsic, abi, args[index].name, arg, showRawData),
     } as unknown as Obj));
   }, [metadata, extrinsic, abi, showRawData]);
 

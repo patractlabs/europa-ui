@@ -295,7 +295,7 @@ export const Header: FC = (): ReactElement => {
 
             setCodeHash(codeHash);
 
-            return  `${contractName}`;
+            return  `${contractName || codeHash.slice(0, 7)}`;
           },
         },
       ],
@@ -331,7 +331,7 @@ export const Header: FC = (): ReactElement => {
 
             setContractAddress(address);
 
-            return  `${contractName}`;
+            return  `${contractName || address.slice(0, 7)}`;
           },
         },
       ],
