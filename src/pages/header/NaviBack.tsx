@@ -1,7 +1,7 @@
 const NaviBack = () => {
   return (
     <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
-      <title>编组 2</title>
+      <title></title>
       <g id="页面-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
           <g id="Explorer" transform="translate(-812.000000, -24.000000)">
               <g id="编组-2" transform="translate(812.000000, 24.000000)">

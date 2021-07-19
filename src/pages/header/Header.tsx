@@ -112,7 +112,6 @@ const Wrapper = styled.div`
     > .more {
       width: 68px;
       height: 68px;
-      margin-right: 20px;
       background: linear-gradient(180deg, ${Style.color.label.primary} 0%, #555356 100%);
       display: flex;
       align-items: center;
@@ -130,28 +129,38 @@ const Wrapper = styled.div`
       display: flex;
 
       > div {
-        height: 20px;
-        width: 20px;
-        border-radius: 4px;
-      }
-      > div:hover {
-        background-color: white;
-        svg polygon {
-          fill: ${Style.color.primary};
+        cursor: pointer;
+        width: 68px;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: ${Style.color.bg.fourth};
+        :hover {
+          background-color: ${Style.color.bg.third};
         }
-        
-      }
-      > div:active {
-        background-color: ${Style.color.bg.second};
-        svg rect {
-          stroke: ${Style.color.bg.second};
+
+        > div {
+          cursor: pointer;
+          height: 20px;
+          width: 20px;
+          border-radius: 5px;
         }
+        /* > div:hover {
+          background-color: white;
+          svg polygon {
+            fill: ${Style.color.primary};
+          }
+        }
+        > div:active {
+          background-color: ${Style.color.bg.second};
+          svg rect {
+            stroke: ${Style.color.bg.second};
+          }
+        } */
       }
       > div:first-child {
-        margin-right: 8px;
-      }
-      > a:last-child > img {
-        transform: scaleX(-1);
+        margin-right: 1px;
       }
     }
   }
@@ -557,10 +566,14 @@ export const Header: FC = (): ReactElement => {
         </div>
         <div className="navi">
           <div onClick={() => state?.from === '/' || state?.from.endsWith('/index.html') || h.goBack()}>
-            <NaviBack />
+            <div>
+              <NaviBack />
+            </div>
           </div>
-          <div onClick={() => h.goForward()} >
-            <NaviForward />
+          <div onClick={() => h.goForward()}>
+            <div>
+              <NaviForward />
+            </div>
           </div>
         </div>
         <BreadCrumb divides={divides} />
