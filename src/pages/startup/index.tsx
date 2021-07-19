@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { take, filter } from 'rxjs/operators';
 import { ApiContext, BlocksContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
 import Logo from '../../assets/imgs/logo.png';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import EuropaSetting from '../setting/EuropaSetting';
 import { notification, requireModule, Style } from '../../shared';
 import type * as Electron from 'electron';
@@ -36,7 +36,6 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { update: updateBlocks } = useContext(BlocksContext);
   const [ loading, setLoading ] = useState<boolean>(false);
   const history = useHistory();
-  const { pathname } = useLocation();
 
   const onStart = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
     if (!setting) {
