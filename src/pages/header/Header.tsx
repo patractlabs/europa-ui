@@ -387,7 +387,7 @@ export const Header: FC = (): ReactElement => {
       reg: new RegExp('^/block$'),
       divides: [
         {
-          name: 'Block',
+          name: 'Blocks',
         },
       ],
     },
