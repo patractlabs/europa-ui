@@ -1,30 +1,42 @@
 # Europa-UI
-This project is related to [Europa](https://github.com/patractlabs/europa). It aims to build a desktop application which make use of [patractlab](https://github.com/patractlabs) tools like *Europa* and *[redspot](https://github.com/patractlabs/redspot)* to simplify developing and testing smart contracts . It's built on [Electron](https://www.electronjs.org/), and the Europa node is embedded. Therefore, it's out of box, no environments setting are required.
+[中文版](https://github.com/patractlabs/europa-ui/blob/main/docs/README_zh.md)
+
+This project is related to [Europa](https://github.com/patractlabs/europa). It aims to build a cross-platform desktop application which make use of [patractlab](https://github.com/patractlabs) tools like *Europa* and *[redspot](https://github.com/patractlabs/redspot)* to simplify developing and testing smart contracts. It's built on [Electron](https://www.electronjs.org/), and the Europa node is embedded. Therefore, it's out of box, no environments setting are required.
 
 # Features
 1. **Contracts**  
-Listing and decoding contracts including local redpost project's artifacts, deploying contracts, call contract functions with more features than [apps](https://polkadot.js.org/apps/).
+    + Listing including local redpost project's artifacts
+    + Decoding contracts
+    + Deploying contracts, calling contract functions with more features than [apps](https://polkadot.js.org/apps/).
 
 2. **Explorer**  
-Listing all blocks including related extrinsics in one page.
+    + Listing all blocks including related extrinsics in one page.
 
 3. **Accounts**  
-Managing accounts.
+    + Managing accounts.
 
 4. **Blocks**  
-Listing blocks and showing block detail.
+    + Listing blocks
+    + Showing block detail
 
 5. **Extrinsics**  
-Listing extrinsics, showing extrinsic detail. we spent a lot of effort to make contract-call extrinsic's details sufficient thorough.
+    + Listing extrinsics
+    + Showing extrinsic detail. we spent a lot of effort to make contract-call extrinsic's details sufficient thorough
+    + Showing related state change
 
 6. **Events**  
-Listing events and showing event details.
+    + Listing events
+    + Showing event details.
 
 7. **Developer**  
-Support chain state, extrinsic, Rpc calls and the   Europa node's log.
+    + chain state
+    + extrinsic
+    + Rpc calls
+    + The embedded Europa node's log
 
 8. **Others**  
-Changing database directory，workspace，HTTP port, Websocket Port and adding redspot projects association.
+    + Change startup arguments
+    + Change local Redspot project's artifacts association
 
 # Support Platforms
 The binary file can be run after clicking it (Linux needs to be given execution permission). Currently, we support these platforms below:
@@ -54,10 +66,10 @@ pack:win:dir
 // build Windows nsis install application
 pack:win
 
-// build unpackaged Macos version
+// build unpackaged macOS version
 pack:mac:dir
 
-// build packaged Macos application. [dmg]
+// build packaged macOS application. [dmg]
 pack:mac
 
 // build unpackaged Linux version
