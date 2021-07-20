@@ -21,7 +21,7 @@ Listing extrinsics, showing extrinsic detail. we spent a lot of effort to make c
 Listing events and showing event details.
 
 7. **Developer**  
-Support chain state, extrinsic, Rpc calls and Europa log.
+Support chain state, extrinsic, Rpc calls and the   Europa node's log.
 
 8. **Others**  
 Changing database directory，workspace，HTTP port, Websocket Port and adding redspot projects association.
