@@ -7,13 +7,14 @@ This project is related to [Europa](https://github.com/patractlabs/europa). It a
 1. **Contracts**  
     + Listing including local redpost project's artifacts
     + Decoding contracts
-    + Deploying contracts, calling contract functions with more features than [apps](https://polkadot.js.org/apps/).
+    + Deploying contracts, calling contract functions with more features than [apps](https://polkadot.js.org/apps/)
 
 2. **Explorer**  
-    + Listing all blocks including related extrinsics in one page.
+    + Listing all blocks including related extrinsics in one page
+    + Jump to any height, including backward and forward
 
 3. **Accounts**  
-    + Managing accounts.
+    + Managing accounts
 
 4. **Blocks**  
     + Listing blocks
@@ -26,7 +27,7 @@ This project is related to [Europa](https://github.com/patractlabs/europa). It a
 
 6. **Events**  
     + Listing events
-    + Showing event details.
+    + Showing event details
 
 7. **Developer**  
     + chain state
