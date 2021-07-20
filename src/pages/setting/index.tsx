@@ -24,6 +24,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
     httpPort,
     wsPort,
   };
+  newSetting.external = undefined;
 
   return newSetting;
 }
@@ -113,22 +114,59 @@ const SettingPage: FC<{ className: string }> = ({ className }): ReactElement => 
     });
   }, [setting, update, history, change, clearLogs, clearBlocks, connected$, connectApi, updateBlocks]);
 
+  const onConnect = useCallback(async (address: string) => {
+    // for TS
+    if (!setting) {
+      return;
+    }
+
+    setLoading(true);
+
+    const newSetting = _.cloneDeep(setting);
+
+    newSetting.external = { enabled: true, address };
+    try {
+      await update(newSetting);
+    } catch (e) {
+      notification.warning({
+        message: 'Store Failed',
+        description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
+      });
+    }
+
+    connectApi(address);
+
+    connected$.pipe(
+      filter(c => !!c),
+      take(1),
+    ).subscribe(() => {
+      console.log('history.push(explorer);');
+
+      setLoading(false);
+      updateBlocks();
+      history.push('/contract');
+    });
+  }, [connectApi, connected$, history, updateBlocks, setting, update]);
+
   return (
     <div className={className}>
       <div className="content">
         <div className="setting">
           {
             setting &&
-              <EuropaSetting initialSetting={{
-                database: setting.lastChoosed?.database || defaultDataBasePath,
-                workspace: setting.lastChoosed?.workspace || 'default',
-                httpPort: setting.lastChoosed?.httpPort,
-                wsPort: setting.lastChoosed?.wsPort,
-              }}
-              type="Change"
-              onSubmit={onChange}
-              loading={loading}
-            />
+              <EuropaSetting
+                initialSetting={{
+                  database: setting.lastChoosed?.database || defaultDataBasePath,
+                  workspace: setting.lastChoosed?.workspace || 'default',
+                  httpPort: setting.lastChoosed?.httpPort,
+                  wsPort: setting.lastChoosed?.wsPort,
+                  external: setting.external || { address: '', enabled: false },
+                }}
+                type="Change"
+                onSubmit={onChange}
+                onConnect={onConnect}
+                loading={loading}
+              />
           }
         </div>
       </div>

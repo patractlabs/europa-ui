@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ApiContext, BlocksContext, ExtendedEventRecord, PaginationContext, useContracts } from '../../core';
 import { PageLine } from './index';
 import { Event } from './Event';
+import { Style } from '../styled';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -21,7 +22,7 @@ const Wrapper = styled.div`
       align-items: center;
       justify-content: center;
       color: rgba(0, 0, 0, 0.25);
-      border-bottom: 1px solid #DEDEDE;
+      border-bottom: 1px solid ${Style.color.border.default};
     }
   }
   flex: 1;

@@ -5,7 +5,7 @@ This project is related to [Europa](https://github.com/patractlabs/europa). It a
 
 # Features
 1. **Contracts**  
-    + Listing including local redpost project's artifacts
+    + Listing contracts, including local redpost project's artifacts
     + Decoding contracts
     + Deploying contracts, calling contract functions with more features than [apps](https://polkadot.js.org/apps/)
 

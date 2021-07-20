@@ -36,7 +36,7 @@
     + Europa节点日志
 
 8. **Others**  
-    + 更改该Europa启动参数
+    + 更改Europa节点启动参数
     + 关联Redspot项目路径
 
 # Support Platforms

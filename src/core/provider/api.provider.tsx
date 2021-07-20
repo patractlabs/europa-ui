@@ -98,7 +98,7 @@ const ApiContext: Context<{
   systemName: string;
   wsProvider: WsProvider;
   metadata: Metadata;
-  connect: (wsPort: number) => void;
+  connect: (wsPort: number | string) => void;
 }> = React.createContext({} as any);
 
 const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
@@ -135,19 +135,19 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     setEndpoint(undefined);
   }, [endpoint]);
 
-  const connect = useCallback((wsPort: number) => {
+  const connect = useCallback((wsPortOrAddress: number | string) => {
     if (endpoint) {
       disconnect();
     }
 
-    const domain = `ws://127.0.0.1:${wsPort}`;
+    const domain = typeof wsPortOrAddress === 'number' ? `ws://127.0.0.1:${wsPortOrAddress}` : wsPortOrAddress;
     const wsProvider = new WsProvider(domain);
     const apiRx = new ApiRx({
       provider: wsProvider,
       rpc: RPC_TYPES,
       types: TYPES,
     });
-    
+
     api = apiRx;
     const _endpoint: Endpoint = {
       api: apiRx,
@@ -168,7 +168,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
           _api.rpc.state.getMetadata(),
         ).toPromise();
         const decimals = tokenDecimals.toHuman() as string[];
-  
+
         // first setup the UI helpers
         formatBalance.setDefaults({
           decimals: decimals.map(d => parseInt(d)),
@@ -182,7 +182,7 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
           type: 'sr25519',
           isDevelopment: true,
         });
-  
+
         setProperties({
           systemName: _systemName.toString(),
           genesisHash: _api.genesisHash.toString(),

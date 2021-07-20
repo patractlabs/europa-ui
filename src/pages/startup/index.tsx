@@ -24,6 +24,7 @@ function createNewSetting(setting: Setting, database: string, workspace: string,
     httpPort,
     wsPort,
   };
+  newSetting.external = undefined;
 
   return newSetting;
 }
@@ -38,11 +39,12 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const history = useHistory();
 
   const onStart = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
+    // for TS
     if (!setting) {
       return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     const newSetting = createNewSetting(setting, database, workspace, httpPort, wsPort);
 
@@ -76,7 +78,7 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
           const { ipcRenderer }: typeof Electron = requireModule('electron');
 
           ipcRenderer.send('message:pid-change', 0);
-          setLoading(false);          
+          setLoading(false);
           notification.fail({
             message: 'Start Failed',
             description: `Europa exited unexpectly, code: ${ErrorCode.RunClashed}`,
@@ -108,6 +110,40 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
     });
   }, [setting, update, history, connected$, connectApi, startup, updateBlocks]);
 
+  const onConnect = useCallback(async (address: string) => {
+    // for TS
+    if (!setting) {
+      return;
+    }
+
+    setLoading(true);
+
+    const newSetting = _.cloneDeep(setting);
+
+    newSetting.external = { enabled: true, address };
+    try {
+      await update(newSetting);
+    } catch (e) {
+      notification.warning({
+        message: 'Store Failed',
+        description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
+      });
+    }
+
+    connectApi(address);
+
+    connected$.pipe(
+      filter(c => !!c),
+      take(1),
+    ).subscribe(() => {
+      console.log('history.push(explorer);');
+
+      setLoading(false);
+      updateBlocks();
+      history.push('/contract');
+    });
+  }, [connectApi, connected$, history, updateBlocks, setting, update]);
+
   return (
     <div className={className}>
       <div className="content">
@@ -118,16 +154,19 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
         <div className="setting">
           {
             setting &&
-              <EuropaSetting initialSetting={{
-                database: setting.lastChoosed?.database || defaultDataBasePath,
-                workspace: setting.lastChoosed?.workspace || 'default',
-                httpPort: setting.lastChoosed?.httpPort,
-                wsPort: setting.lastChoosed?.wsPort,
-              }}
-              type="Start"
-              onSubmit={onStart}
-              loading={loading}
-            />
+              <EuropaSetting
+                initialSetting={{
+                  database: setting.lastChoosed?.database || defaultDataBasePath,
+                  workspace: setting.lastChoosed?.workspace || 'default',
+                  httpPort: setting.lastChoosed?.httpPort,
+                  wsPort: setting.lastChoosed?.wsPort,
+                  external: setting.external || { address: '', enabled: false },
+                }}
+                type="Start"
+                onSubmit={onStart}
+                onConnect={onConnect}
+                loading={loading}
+              />
           }
         </div>
       </div>

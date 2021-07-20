@@ -54,7 +54,7 @@ const Wrapper = styled.div`
   }
   > .call {
     
-    border-top: 1px solid #DEDEDE;
+    border-top: 1px solid ${Style.color.border.default};
     padding: 16px 20px;
 
     .result {

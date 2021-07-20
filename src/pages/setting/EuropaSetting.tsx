@@ -6,21 +6,29 @@ import { requireModule, Style } from '../../shared';
 import AddSvg from '../../assets/imgs/add-redspot.svg';
 import InfoSvg from '../../assets/imgs/info.svg';
 import MoreSvg from '../../assets/imgs/more.svg';
+import MoreDisabledSvg from '../../assets/imgs/more-disabled.svg';
 import FileSvg from '../../assets/imgs/file-select.svg';
+import FileDisabledSvg from '../../assets/imgs/file-select-disabled.svg';
 import DeleteSvg from '../../assets/imgs/delete-redspot.svg';
 import type * as Electron from 'electron';
 import * as _ from 'lodash';
+import { Toggle } from '../../react-components';
 
 const EuropaSetting: FC<{
   type: 'Change' | 'Start';
   className?: string;
   onSubmit: (dbPath: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => void;
+  onConnect: (endpoint: string) => void;
   loading: boolean;
   initialSetting: {
     database: string;
     workspace: string;
+    external: {
+      address: string;
+      enabled: boolean;
+    }
   } & EuropaOptions;
-}> = ({ className, onSubmit, type, loading, initialSetting }): ReactElement => {
+}> = ({ className, onSubmit, onConnect, type, loading, initialSetting }): ReactElement => {
   const { setting, update } = useContext(SettingContext);
   const [ currentDbPath, setCurrentDbPath ] = useState<string>(initialSetting.database);
   const [ currentWorkspace, setCurrentWorkspace ] = useState<string>(initialSetting.workspace);
@@ -29,8 +37,10 @@ const EuropaSetting: FC<{
   const [ workspaceExpanded, setWorkspaceExpanded ] = useState(false);
   const [ httpPort, setHttpPort ] = useState<number | undefined>(initialSetting.httpPort);
   const [ wsPort, setWsPort ] = useState<number | undefined>(initialSetting.wsPort);
-  
-  const changed = useMemo(
+  const [ externalEndpoint, setExternalEndpoint ] = useState<string>(initialSetting.external.address);
+  const [ useExternal, setUseExternal ] = useState<boolean>(!!initialSetting.external.enabled);
+
+  const ArgsChanged = useMemo(
     () => {
       if (!setting) {
         return false;
@@ -46,7 +56,27 @@ const EuropaSetting: FC<{
     },
     [setting, currentDbPath, currentWorkspace, httpPort, wsPort],
   );
+
+  const endpointChanged = useMemo(
+    () => {
+      if (!setting) {
+        return false;
+      }
+
+      return !setting.external || setting.external.address !== externalEndpoint;
+    },
+    [setting, externalEndpoint],
+  );
   
+  const submitDisabled = useMemo(() => {
+    if (useExternal) {
+      console.log('xxxxx', externalEndpoint, type === 'Change', !endpointChanged);
+      return !externalEndpoint || (type === 'Change' && !endpointChanged);
+    }
+
+    return !currentDbPath || !currentWorkspace || (type === 'Change' && !ArgsChanged)
+  }, [useExternal, externalEndpoint, type, endpointChanged, currentDbPath, currentWorkspace, ArgsChanged]);
+
   useEffect(() => {
   }, [setting]);
 
@@ -186,38 +216,49 @@ const EuropaSetting: FC<{
         <div className="info-line">
           <div className="span">
             <span>Database Path</span>
-            <Tooltip placement="top" title="You can switch in multi paths to work">
+            <Tooltip placement="top" title="database store directory">
               <img src={InfoSvg} alt="" />
             </Tooltip>
           </div>
         </div>
-        <div className="value-line">
-          <Dropdown overlay={DatabaseMenu} trigger={['click']} onVisibleChange={setDbExpanded}>
+        <div className={useExternal ? 'value-line value-line-disabled' : 'value-line'}>
+          <Dropdown disabled={useExternal} overlay={DatabaseMenu} trigger={['click']} onVisibleChange={setDbExpanded}>
             <div className="dropdown">
-              <input style={{ paddingRight: '36px' }} placeholder="/path/to/data" value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
-              <img className={dbExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+              <input disabled={useExternal} style={{ paddingRight: '36px' }} placeholder="/path/to/data" value={currentDbPath} onChange={e => setCurrentDbPath(e.target.value)} />
+              {
+                useExternal ?
+                  <img className={dbExpanded ? 'expanded' : ''} src={MoreDisabledSvg} alt="" /> :
+                  <img className={dbExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+              }
             </div>
-
           </Dropdown>
         </div>
-        <div className="file-select" onClick={onAddDb}>
-          <img src={FileSvg} alt="" />
+        <div className="file-select" onClick={()=> useExternal || onAddDb()}>
+          {
+            useExternal ? 
+              <img src={FileDisabledSvg} alt="" /> :
+              <img src={FileSvg} alt="" />
+          }
         </div>
       </div>
 
       <div className="info-line">
         <div className="span">
           <span>Workspace</span>
-          <Tooltip placement="top" title="Subdirectory in database you choosed">
+          <Tooltip placement="top" title="subdirectory of database">
             <img src={InfoSvg} alt="" />
           </Tooltip>
         </div>
       </div>
-      <div className="value-line">
-        <Dropdown overlay={workspaceMenu} trigger={['click']} onVisibleChange={setWorkspaceExpanded}>
+      <div className={useExternal ? 'value-line value-line-disabled' : 'value-line'}>
+        <Dropdown disabled={useExternal} overlay={workspaceMenu} trigger={['click']} onVisibleChange={setWorkspaceExpanded}>
           <div className="dropdown">
-            <input style={{ paddingRight: '36px' }} placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
-            <img className={workspaceExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+            <input disabled={useExternal} style={{ paddingRight: '36px' }} placeholder="default" value={currentWorkspace} onChange={e => setCurrentWorkspace(e.target.value)} />
+            {
+              useExternal ?
+                <img className={workspaceExpanded ? 'expanded' : ''} src={MoreDisabledSvg} alt="" /> :
+                <img className={workspaceExpanded ? 'expanded' : ''} src={MoreSvg} alt="" />
+            }
           </div>
         </Dropdown>
       </div>
@@ -230,8 +271,9 @@ const EuropaSetting: FC<{
                 <span>HTTP Port</span>
               </div>
             </div>
-            <div className="value-line">
+            <div className={useExternal ? 'value-line value-line-disabled' : 'value-line'}>
               <input
+                disabled={useExternal}
                 placeholder={`${DEFAULT_HTTP_PORT}`}
                 value={httpPort}
                 onChange={e =>
@@ -249,8 +291,9 @@ const EuropaSetting: FC<{
                 <span>WS Port</span>
               </div>
             </div>
-            <div className="value-line">
+            <div className={useExternal ? 'value-line value-line-disabled' : 'value-line'}>
               <input
+                disabled={useExternal}
                 placeholder={`${DEFAULT_WS_PORT}`}
                 value={wsPort}
                 onChange={e =>
@@ -262,7 +305,31 @@ const EuropaSetting: FC<{
                 }
               />
             </div>
+          </div>
+      }
 
+      <div className="external">
+        <div className="info-line">
+          <div className="span">
+            <span>External Endpoint</span>
+          </div>
+        </div>
+        <div className={!useExternal ? 'value-line value-line-disabled' : 'value-line'}>
+          <input
+            disabled={!useExternal}
+            placeholder="ws://"
+            value={externalEndpoint}
+            onChange={e => setExternalEndpoint(e.target.value)}
+          />
+        </div>
+        <div className="toggle">
+          <Toggle value={useExternal}  onChange={() => setUseExternal(show => !show)}/>
+        </div>
+      </div>
+
+      {
+        showMore &&
+          <div className="more-options">
             <div className="info-line">
               <div className="span">
                 <span>Redspot Projects</span>
@@ -272,19 +339,22 @@ const EuropaSetting: FC<{
                   <img src={AddSvg} alt="" />Add
                 </div>
                 <div onClick={onDeleteRedspot}>
-                  <img src={DeleteSvg} alt="" /> Delete
+                  <img src={DeleteSvg} alt="" />Delete
                 </div>
               </div>
             </div>
-             {
-              setting?.redspots.map((redspot, index) =>
-                <div className="redspot-line" key={index}>
-                  <input disabled={true} value={redspot} />
-                </div>
-              )
-            }
+            <div className="value-line">
+              {
+                setting?.redspots.map((redspot, index) =>
+                  <div className="redspot-line" key={index}>
+                    <input disabled={true} value={redspot} />
+                  </div>
+                )
+              }
+            </div>
           </div>
       }
+
       <div className="submit" style={{ justifyContent: type === 'Start' ? 'space-between' : 'flex-end' }}>
         {
           type === 'Start' &&
@@ -295,10 +365,10 @@ const EuropaSetting: FC<{
         <Button
           type="primary"
           style={{ width: '124px', height: '40px' }}
-          disabled={!currentDbPath || !currentWorkspace || (type === 'Change' && !changed)}
+          disabled={submitDisabled}
           loading={loading}
           onClick={() => 
-            currentDbPath && currentWorkspace && onSubmit(currentDbPath, currentWorkspace, httpPort, wsPort)
+            useExternal ? onConnect(externalEndpoint) : onSubmit(currentDbPath, currentWorkspace, httpPort, wsPort)
           }
         >{type}</Button>
       </div>
@@ -331,6 +401,15 @@ export default styled(EuropaSetting)`
         width: 20px;
         height: 16px;
       }
+    }
+  }
+  .external {
+    position: relative;
+
+    > .toggle {
+      position: absolute;
+      right: -52px;
+      top: 42px;
     }
   }
  
@@ -398,6 +477,12 @@ export default styled(EuropaSetting)`
       > .expanded {
         transform: scaleY(-1);
       }
+    }
+  }
+  .value-line-disabled {
+    input {
+      color: #BAB8C0;
+      background-color: ${Style.color.bg.disabled};
     }
   }
   > .more-options {

@@ -269,9 +269,10 @@ export const Header: FC = (): ReactElement => {
   const { contracts } = useContracts(api, blocks);
   const h: History & { index: number } = useHistory() as any;
 
-  const [ forwardEnabled, backwardEnabled ] = useMemo(() => {
-    return ([h.length > h.index + 1, h.index > 1]);
-  }, [h.index, h.length])
+  const [ forwardEnabled, backwardEnabled ] = useMemo(
+    () => ([h.length > h.index + 1, h.index > 1]),
+    [h.index, h.length],
+  );
 
   const contract = useMemo(
     () => contracts.find(contracts => contracts.address === contractAddress),

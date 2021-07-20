@@ -13,6 +13,7 @@ export const Style = {
     primary: '#B19E83',
     bg: {
       default: '#F8F8F8',
+      disabled: '#f8f8f8',
       error: '#FEF5F6',
       second: '#eeece9',
       third: '#c2b29b',

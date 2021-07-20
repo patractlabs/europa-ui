@@ -33,11 +33,14 @@ export interface Setting {
     database: string;
     workspace: string;
   } & EuropaOptions;
+  external?: {
+    address: string;
+    enabled: boolean;
+  };
 }
 
 interface SettingContextProps {
   setting?: Setting;
-  reload: () => Promise<void>;
   update: (newSetting: Setting) => Promise<void>;
   defaultDataBasePath: string;
   configPath: string;
@@ -81,9 +84,7 @@ async function write(setting: Setting): Promise<void> {
 export const SettingProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
     const [ setting, setSetting ] = useState<Setting>();
-    const [ [defaultDataBasePath, configPath] ] = useState<[string, string]>([DATA_PATH, CONFIG_PATH]);
 
-    const reload = useCallback(async () => {}, []);
     const update = useCallback(async (newSetting: Setting) => {
       await write(newSetting);
       setSetting(newSetting);
@@ -99,10 +100,9 @@ export const SettingProvider = React.memo(
 
     return <SettingContext.Provider value={{
       setting,
-      reload,
       update,
-      defaultDataBasePath,
-      configPath,
+      defaultDataBasePath: DATA_PATH,
+      configPath: CONFIG_PATH,
     }}>{children}</SettingContext.Provider>;
   }
 );
