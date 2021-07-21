@@ -12,30 +12,30 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifactName: "^europa.*ubuntu$"
-            targetName: "europa"
-            platform: "x86_64-linux"
-            appType: "AppImage" 
+            artifactName: '^europa.*ubuntu$'
+            targetName: 'europa'
+            platform: 'x86_64-linux'
+            appType: 'AppImage'
 
           - os: windows-latest
             artifactName: "^europa.*win\\.exe$"
-            targetName: "europa.exe"
-            platform: "x86_64-win"
-            appType: "exe" 
+            targetName: 'europa.exe'
+            platform: 'x86_64-win'
+            appType: 'exe'
 
           - os: macos-latest
-            artifactName: "^europa.*darwin$"
-            targetName: "europa"
-            platform: "x86_64-darwin"
-            appType: "dmg" 
+            artifactName: '^europa.*darwin$'
+            targetName: 'europa'
+            platform: 'x86_64-darwin'
+            appType: 'dmg'
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      
+
       - run: yarn
 
       - name: Prepare for app notarization (macOS)
@@ -51,7 +51,7 @@ jobs:
         with:
           owner: patractlabs
           repo: europa
-          tag: v0.3.2
+          tag: v0.3.3
           file: ${{ matrix.artifactName }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -113,7 +113,7 @@ jobs:
           file: dist/europa
           asset_name: europa-ui-${{ steps.get_version_win.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
           tag: ${{ steps.get_version_win.outputs.VERSION }}
-          body: "release"
+          body: 'release'
           prerelease: true
 
       - name: Upload applications to release
@@ -124,5 +124,5 @@ jobs:
           file: dist/europa
           asset_name: europa-ui-${{ steps.get_version.outputs.VERSION }}-${{ matrix.platform }}.${{ matrix.appType }}
           tag: ${{ steps.get_version.outputs.VERSION }}
-          body: "release"
+          body: 'release'
           prerelease: true

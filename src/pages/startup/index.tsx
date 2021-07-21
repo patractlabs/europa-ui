@@ -1,18 +1,39 @@
-import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
-import styled from 'styled-components';
-import { take, filter } from 'rxjs/operators';
-import { ApiContext, BlocksContext, BusContext, DEFAULT_WS_PORT, ErrorCode, EuropaManageContext, Setting, SettingContext } from '../../core';
-import Logo from '../../assets/imgs/logo.png';
-import { useHistory } from 'react-router-dom';
-import EuropaSetting from '../setting/EuropaSetting';
-import { notification, requireModule, Style } from '../../shared';
-import type * as Electron from 'electron';
-import * as _ from 'lodash';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
+import styled from "styled-components";
+import { take, filter } from "rxjs/operators";
+import {
+  ApiContext,
+  BlocksContext,
+  BusContext,
+  DEFAULT_WS_PORT,
+  ErrorCode,
+  EuropaManageContext,
+  Setting,
+  SettingContext,
+} from "../../core";
+import Logo from "../../assets/imgs/logo.png";
+import { useHistory } from "react-router-dom";
+import EuropaSetting from "../setting/EuropaSetting";
+import { notification, requireModule, Style } from "../../shared";
+import type * as Electron from "electron";
+import * as _ from "lodash";
 
-function createNewSetting(setting: Setting, database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) {
+function createNewSetting(
+  setting: Setting,
+  database: string,
+  workspace: string,
+  httpPort: number | undefined,
+  wsPort: number | undefined
+) {
   const newSetting = _.cloneDeep(setting);
-  const db = newSetting.databases.find(db => db.path === database)
-  
+  const db = newSetting.databases.find((db) => db.path === database);
+
   if (!db) {
     newSetting.databases.push({ path: database, workspaces: [workspace] });
   } else if (!db.workspaces.includes(workspace)) {
@@ -35,114 +56,141 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
   const { connect: connectApi } = useContext(ApiContext);
   const { connected$ } = useContext(BusContext);
   const { update: updateBlocks } = useContext(BlocksContext);
-  const [ loading, setLoading ] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const history = useHistory();
 
-  const onStart = useCallback(async (database: string, workspace: string, httpPort: number | undefined, wsPort: number | undefined) => {
-    // for TS
-    if (!setting) {
-      return;
-    }
-
-    setLoading(true);
-
-    const newSetting = createNewSetting(setting, database, workspace, httpPort, wsPort);
-
-    try {
-      await update(newSetting);
-    } catch (e) {
-      notification.warning({
-        message: 'Store Failed',
-        description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
-      });
-    }
- 
-    try {
-      const europa = startup(database, workspace, { httpPort, wsPort });
-
-      console.log('startup', europa)
-
-      if (!europa.pid) {
-        throw new Error('no pid');
+  const onStart = useCallback(
+    async (
+      database: string,
+      workspace: string,
+      httpPort: number | undefined,
+      wsPort: number | undefined
+    ) => {
+      // for TS
+      if (!setting) {
+        return;
       }
 
-      // Wrong setting may cause Europa exit
-      europa.once('exit', (e) => {console.log('europa exit', e)})
-      europa.once('disconnect', (e: any) => {console.log('europa disconnect', e)})
-      europa.once('error', (e) => {console.log('europa error', e)})
-      europa.once('close', (code, signal) => {
-        console.log('code', code, signal, typeof code);
+      setLoading(true);
 
-        // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
-        if (!!code) {
-          const { ipcRenderer }: typeof Electron = requireModule('electron');
+      const newSetting = createNewSetting(
+        setting,
+        database,
+        workspace,
+        httpPort,
+        wsPort
+      );
 
-          ipcRenderer.send('message:pid-change', 0);
-          setLoading(false);
-          notification.fail({
-            message: 'Start Failed',
-            description: `Europa exited unexpectly, code: ${ErrorCode.RunClashed}`,
-          });
+      try {
+        await update(newSetting);
+      } catch (e) {
+        notification.warning({
+          message: "Store Failed",
+          description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
+        });
+      }
+
+      try {
+        const europa = startup(database, workspace, { httpPort, wsPort });
+
+        console.log("startup", europa);
+
+        if (!europa.pid) {
+          throw new Error("no pid");
         }
-      });
-    } catch (e) {
-      console.log(e);
 
-      setLoading(false);
-      notification.fail({
-        message: 'Start Failed',
-        description: `Failed to start Europa, code: ${ErrorCode.StartFailed}`,
-      });
-      return;
-    }
+        // Wrong setting may cause Europa exit
+        europa.once("exit", (e) => {
+          console.log("europa exit", e);
+        });
+        europa.once("disconnect", (e: any) => {
+          console.log("europa disconnect", e);
+        });
+        europa.once("error", (e) => {
+          console.log("europa error", e);
+        });
+        europa.once("close", (code, signal) => {
+          console.log("code", code, signal, typeof code);
 
-    connectApi(wsPort || DEFAULT_WS_PORT);
+          // 端口占用、数据文件权限、数据已存在且不兼容等 [europa程序启动了，但是异常退出]
+          if (!!code) {
+            const { ipcRenderer }: typeof Electron = requireModule("electron");
 
-    connected$.pipe(
-      filter(c => !!c),
-      take(1),
-    ).subscribe(() => {
-      console.log('history.push(explorer);');
+            ipcRenderer.send("message:pid-change", 0);
+            setLoading(false);
+            notification.fail({
+              message: "Start Failed",
+              description: `Europa exited unexpectly, code: ${ErrorCode.RunClashed}`,
+            });
+          }
+        });
+      } catch (e) {
+        console.log(e);
 
-      setLoading(false);
-      updateBlocks();
-      history.push('/contract');
-    });
-  }, [setting, update, history, connected$, connectApi, startup, updateBlocks]);
+        setLoading(false);
+        notification.fail({
+          message: "Start Failed",
+          description: `Failed to start Europa, code: ${ErrorCode.StartFailed}`,
+        });
+        return;
+      }
 
-  const onConnect = useCallback(async (address: string) => {
-    // for TS
-    if (!setting) {
-      return;
-    }
+      connectApi(wsPort || DEFAULT_WS_PORT);
 
-    setLoading(true);
+      connected$
+        .pipe(
+          filter((c) => !!c),
+          take(1)
+        )
+        .subscribe(() => {
+          console.log("history.push(explorer);");
 
-    const newSetting = _.cloneDeep(setting);
+          setLoading(false);
+          updateBlocks();
+          history.push("/contract");
+        });
+    },
+    [setting, update, history, connected$, connectApi, startup, updateBlocks]
+  );
 
-    newSetting.external = { enabled: true, address };
-    try {
-      await update(newSetting);
-    } catch (e) {
-      notification.warning({
-        message: 'Store Failed',
-        description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
-      });
-    }
+  const onConnect = useCallback(
+    async (address: string) => {
+      // for TS
+      if (!setting) {
+        return;
+      }
 
-    connectApi(address);
+      setLoading(true);
 
-    connected$.pipe(
-      filter(c => !!c),
-      take(1),
-    ).subscribe(() => {
-      console.log('history.push(explorer);');
+      const newSetting = _.cloneDeep(setting);
 
-      setLoading(false);
-      updateBlocks();
-      history.push('/contract');
-    });
-  }, [connectApi, connected$, history, updateBlocks, setting, update]);
+      newSetting.external = { enabled: true, address };
+      try {
+        await update(newSetting);
+      } catch (e) {
+        notification.warning({
+          message: "Store Failed",
+          description: `Could not store setting, code: ${ErrorCode.SaveSettingFailed}`,
+        });
+      }
+
+      connectApi(address);
+
+      connected$
+        .pipe(
+          filter((c) => !!c),
+          take(1)
+        )
+        .subscribe(() => {
+          console.log("history.push(explorer);");
+
+          setLoading(false);
+          updateBlocks();
+          history.push("/contract");
+        });
+    },
+    [connectApi, connected$, history, updateBlocks, setting, update]
+  );
 
   return (
     <div className={className}>
@@ -151,23 +199,25 @@ const StartUp: FC<{ className: string }> = ({ className }): ReactElement => {
           <img src={Logo} alt="" />
           <h1>Europa is Ready!</h1>
         </div>
-        <div className="setting">
-          {
-            setting &&
+        <div className="setting-wrapper">
+          <div className="setting">
+            {setting && (
               <EuropaSetting
                 initialSetting={{
-                  database: setting.lastChoosed?.database || defaultDataBasePath,
-                  workspace: setting.lastChoosed?.workspace || 'default',
+                  database:
+                    setting.lastChoosed?.database || defaultDataBasePath,
+                  workspace: setting.lastChoosed?.workspace || "default",
                   httpPort: setting.lastChoosed?.httpPort,
                   wsPort: setting.lastChoosed?.wsPort,
-                  external: setting.external || { address: '', enabled: false },
+                  external: setting.external || { address: "", enabled: false },
                 }}
                 type="Start"
                 onSubmit={onStart}
                 onConnect={onConnect}
                 loading={loading}
               />
-          }
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -186,8 +236,6 @@ export default React.memo(styled(StartUp)`
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-    justify-content: center;
 
     > .title {
       height: 60px;
@@ -198,8 +246,6 @@ export default React.memo(styled(StartUp)`
       margin-bottom: 40px;
       position: relative;
       justify-content: center;
-      position: absolute;
-      top: 40px;
 
       > img {
         position: absolute;
@@ -209,12 +255,19 @@ export default React.memo(styled(StartUp)`
         height: 60px;
       }
       > h1 {
-
       }
     }
-    > .setting {
-      width: 50%;
-      max-width: 540px;
+
+    > .setting-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      > .setting {
+        width: 50%;
+        max-width: 540px;
+      }
     }
   }
 `);
