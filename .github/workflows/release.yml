@@ -51,7 +51,7 @@ jobs:
         with:
           owner: patractlabs
           repo: europa
-          tag: v0.3.3
+          tag: v0.3.4
           file: ${{ matrix.artifactName }}
           token: ${{ secrets.GITHUB_TOKEN }}
 

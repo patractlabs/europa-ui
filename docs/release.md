@@ -1,6 +1,8 @@
 ## publish
-1. update .github/workflows/release.yml
-``` yml
+
+1. update **europa_version** in _.github/workflows/release.yml_
+
+```yml
 - name: Download release artifact
   with:
     owner: patractlabs
@@ -9,7 +11,8 @@
 ```
 
 2. update package.json
-``` JSON
+
+```JSON
 version="${version}"
 ```
 
