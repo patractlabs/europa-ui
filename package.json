@@ -1,6 +1,6 @@
 {
   "name": "europa-ui",
-  "version": "0.3.31",
+  "version": "0.3.32",
   "main": "main.js",
   "private": true,
   "description": "An UI used for deploying and testing contracts on the Europa node embedded",
