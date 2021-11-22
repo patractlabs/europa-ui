@@ -1,9 +1,23 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Button, Modal, Upload } from 'antd';
 import { Abi } from '@polkadot/api-contract';
 import type { RcFile } from 'antd/lib/upload';
-import { hexToU8a, isHex, isWasm, u8aToString } from '@polkadot/util';
-import { handleTxResults, ApiContext, AccountsContext, CodeJson, store } from '../../core';
+import { hexToU8a, isHex, isWasm, u8aToString, u8aToHex } from '@polkadot/util';
+import {
+  handleTxResults,
+  ApiContext,
+  AccountsContext,
+  CodeJson,
+  store,
+} from '../../core';
 import { CodeRx } from '@polkadot/api-contract';
 import { keyring } from '@polkadot/ui-keyring';
 import BN from 'bn.js';
@@ -12,7 +26,14 @@ import { map, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Constructor } from '../code-hash/Constructor';
 import styled from 'styled-components';
-import { TxError, AddressInput, ModalMain, notification, ParamInput, Style } from '../../shared';
+import {
+  TxError,
+  AddressInput,
+  ModalMain,
+  notification,
+  ParamInput,
+  Style,
+} from '../../shared';
 import { AbiMessage } from '@polkadot/api-contract/types';
 import type { CodeSubmittableResult } from '@polkadot/api-contract/rx/types';
 import LabeledInput from '../developer/shared/LabeledInput';
@@ -67,7 +88,7 @@ const BYTE_STR_0 = '0'.charCodeAt(0);
 const BYTE_STR_X = 'x'.charCodeAt(0);
 const STR_NL = '\n';
 
-function convertResult (result: ArrayBuffer): Uint8Array {
+function convertResult(result: ArrayBuffer): Uint8Array {
   const data = new Uint8Array(result);
 
   // this converts the input (if detected as hex), via the hex conversion route
@@ -92,13 +113,18 @@ const EMPTY: AbiState = {
   errorText: null,
   isAbiError: false,
   isAbiSupplied: false,
-  isAbiValid: false
+  isAbiValid: false,
 };
 
 export function getEstimatedGas(api: ApiRx) {
-  return (api.consts.system.blockWeights
-    ? api.consts.system.blockWeights.maxBlock
-    : api.consts.system.maximumBlockWeight as Weight).div(BN_MILLION).div(BN_TEN).toNumber()
+  return (
+    api.consts.system.blockWeights
+      ? api.consts.system.blockWeights.maxBlock
+      : (api.consts.system.maximumBlockWeight as Weight)
+  )
+    .div(BN_MILLION)
+    .div(BN_TEN)
+    .toNumber();
 }
 
 export const DeployModal: FC<{
@@ -108,14 +134,17 @@ export const DeployModal: FC<{
   contractName?: string;
 }> = ({ abi: abiInput, onCancel, onCompleted, contractName }): ReactElement => {
   const { api, tokenDecimal, genesisHash, metadata } = useContext(ApiContext);
-  const [ { abi }, setAbi ] = useState<AbiState>(EMPTY);
-  const [ params, setParams ] = useState<RawParams>([]);
+  const [{ abi }, setAbi] = useState<AbiState>(EMPTY);
+  const [[wasm, isWasmValid], setWasm] = useState<[Uint8Array | null, boolean]>(
+    [null, false]
+  );
+  const [params, setParams] = useState<RawParams>([]);
   const { accounts } = useContext(AccountsContext);
-  const [ message, setMessage ] = useState<AbiMessage>();
-  const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
-  const [ endowment, setEndowment ] = useState<BN>();
-  const [ tip, setTip ] = useState<BN>();
-  const [ { sender, gasLimit, salt }, setState ] = useState<{
+  const [message, setMessage] = useState<AbiMessage>();
+  const [codeJSON, setCodeJSON] = useState<CodeJson>();
+  const [endowment, setEndowment] = useState<BN>();
+  const [tip, setTip] = useState<BN>();
+  const [{ sender, gasLimit, salt }, setState] = useState<{
     sender: string | undefined;
     gasLimit: number;
     salt: string;
@@ -126,8 +155,17 @@ export const DeployModal: FC<{
   });
 
   const isDisabled = useMemo(() => {
-    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || endowment.toNumber() === 0 || !gasLimit || !sender || !params.every(param => param.isValid);
-  }, [abi, message, endowment, gasLimit, sender,params]);
+    return (
+      !abi ||
+      (!isWasm(abi.project.source.wasm) && (!wasm || !isWasmValid)) ||
+      !message ||
+      !endowment ||
+      endowment.toNumber() === 0 ||
+      !gasLimit ||
+      !sender ||
+      !params.every(param => param.isValid)
+    );
+  }, [abi, message, endowment, gasLimit, sender, params, wasm, isWasmValid]);
 
   useEffect(() => {
     setAbi({
@@ -149,108 +187,190 @@ export const DeployModal: FC<{
     setMessage(abiInput?.constructors[0]);
   }, [abiInput]);
 
-  const onUpload = useCallback(async (file: RcFile) => {
-    const data = await file.arrayBuffer();
-    const json = u8aToString(convertResult(data));
-    const abi = new Abi(json, api.registry.getChainProperties());
+  const _onAddWasm = useCallback(async (file: RcFile) => {
+    const wasm = new Uint8Array(await file.arrayBuffer());
+    setWasm([wasm, isWasm(wasm)]);
+  }, []);
 
-    try {
-      setAbi({
-        abiSource: json,
-        abi,
-        errorText: null,
-        isAbiError: false,
-        isAbiSupplied: true,
-        isAbiValid: true
-      });
-      setCodeJSON({
-        abi: json,
-        codeHash: '',
-        name: abi.project?.contract?.name?.toString() || file.name.split('.')[0],
-        genesisHash,
-        tags: [],
-        whenCreated: 0,
-      });
-      setMessage(abi.constructors[0]);
-    } catch (error) {
-      console.error(error);
+  const onUpload = useCallback(
+    async (file: RcFile) => {
+      const data = await file.arrayBuffer();
+      const json = u8aToString(convertResult(data));
 
-      setAbi({ ...EMPTY, errorText: (error as Error).message });
-      setCodeJSON({
-        abi: null,
-        codeHash: '',
-        name: '',
-        genesisHash,
-        tags: [],
-        whenCreated: 0,
-      });
-      setMessage(undefined);
-      setParams([]);
-    }
+      try {
+        const abi = new Abi(json, api.registry.getChainProperties());
+        setAbi({
+          abiSource: json,
+          abi,
+          errorText: null,
+          isAbiError: false,
+          isAbiSupplied: true,
+          isAbiValid: true,
+        });
+        setCodeJSON({
+          abi: json,
+          codeHash: '',
+          name:
+            abi.project?.contract?.name?.toString() || file.name.split('.')[0],
+          genesisHash,
+          tags: [],
+          whenCreated: 0,
+        });
+        setMessage(abi.constructors[0]);
+      } catch (error) {
+        notification.fail({
+          message: 'Failed',
+          duration: 7,
+          description: (error as Error).message || (error as Error).name,
+        });
 
-    return false;
-  }, [api, setCodeJSON, genesisHash]);
+        setAbi({ ...EMPTY, errorText: (error as Error).message });
+        setCodeJSON({
+          abi: null,
+          codeHash: '',
+          name: '',
+          genesisHash,
+          tags: [],
+          whenCreated: 0,
+        });
+        setMessage(undefined);
+        setParams([]);
+      }
+
+      return false;
+    },
+    [api, setCodeJSON, genesisHash]
+  );
 
   const deploy = useCallback(async () => {
-    if (!message) {
+    if (!message || !abi) {
       return;
     }
 
-    const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const tx = code.tx[message.method]({
-      gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
-      value: endowment,
-      salt,
-    }, ...params.map(v => v.value as any));
+    const code = new CodeRx(api, abi, wasm || abi.project.source.wasm);
+    const tx = code.tx[message.method](
+      {
+        gasLimit: new BN(gasLimit).mul(BN_MILLION),
+        value: endowment,
+        salt,
+      },
+      ...params.map(v => v.value as any)
+    );
     const account = accounts.find(account => account.address === sender);
     if (!account) {
-      return
+      return;
     }
-    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
+    const pair = account.mnemonic
+      ? keyring.createFromUri(account.mnemonic)
+      : keyring.getPair(account.address);
 
     setState(old => ({ ...old, salt: randomAsHex() }));
 
-    await tx.signAndSend(pair, { tip }).pipe(
-      catchError(e => {
-        notification.fail({
-          message: 'Failed',
-          description: e.message,
-        });
-        return throwError('');
-      })
-    ).subscribe(
-      handleTxResults({
-        async success(result: CodeSubmittableResult) {
-          const contract =  result.contract?.address.toString();
-
-          notification.success({
-            message: 'Deployed',
-            description: 'Contract deployed',
-          });
-          api.query.contracts.contractInfoOf(contract)
-            .pipe(
-              map(info => info.toHuman() as unknown as { Alive: { codeHash: string } } )
-            )
-            .subscribe(info => {
-              const { Alive: { codeHash } }  = info;
-              
-              if (codeJSON) {
-                store.saveCode(codeHash, codeJSON!);
-              }
-              onCompleted();
-            });
-        },
-        fail(status) {
+    await tx
+      .signAndSend(pair, { tip })
+      .pipe(
+        catchError(e => {
           notification.fail({
             message: 'Failed',
-            description: <TxError metadata={metadata} error={status.dispatchError} />,
+            description: e.message,
           });
-        },
-        update(r) {
-        }
-      }, () => {})
-    );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, onCompleted, codeJSON, tip, metadata]);
+          return throwError('');
+        })
+      )
+      .subscribe(
+        handleTxResults(
+          {
+            async success(result: CodeSubmittableResult) {
+              const contract = result.contract?.address.toString();
+
+              notification.success({
+                message: 'Deployed',
+                description: 'Contract deployed',
+              });
+              api.query.contracts
+                .contractInfoOf(contract)
+                .pipe(
+                  map(
+                    info =>
+                      info.toHuman() as unknown as {
+                        Alive: { codeHash: string };
+                      }
+                  )
+                )
+                .subscribe(info => {
+                  const {
+                    Alive: { codeHash },
+                  } = info;
+
+                  if (
+                    !store.getCode(codeHash) &&
+                    codeJSON &&
+                    codeJSON.abi &&
+                    wasm
+                  ) {
+                    const abi: {
+                      source: {
+                        _alias: {
+                          wasmHash: 'hash';
+                        };
+                        wasmHash: '[u8; 32]';
+                        language: 'Text';
+                        compiler: 'Text';
+                        wasm: string;
+                      };
+                      contract: {
+                        _alias: {
+                          docs: 'documentation';
+                        };
+                        name: 'Text';
+                        version: 'Text';
+                        authors: 'Vec<Text>';
+                        description: 'Option<Text>';
+                        docs: 'Option<Text>';
+                        repository: 'Option<Text>';
+                        homepage: 'Option<Text>';
+                        license: 'Option<Text>';
+                      };
+                    } = JSON.parse(codeJSON.abi!);
+
+                    abi.source.wasm = u8aToHex(wasm);
+                    store.saveCode(codeHash, {
+                      ...codeJSON!,
+                      abi: JSON.stringify(abi),
+                    });
+                  }
+                  onCompleted();
+                });
+            },
+            fail(status) {
+              notification.fail({
+                message: 'Failed',
+                description: (
+                  <TxError metadata={metadata} error={status.dispatchError} />
+                ),
+              });
+            },
+            update(r) {},
+          },
+          () => {}
+        )
+      );
+  }, [
+    abi,
+    api,
+    params,
+    endowment,
+    sender,
+    accounts,
+    gasLimit,
+    message,
+    salt,
+    onCompleted,
+    codeJSON,
+    tip,
+    metadata,
+    wasm,
+  ]);
 
   return (
     <Modal
@@ -261,87 +381,98 @@ export const DeployModal: FC<{
       footer={null}
     >
       <Content>
-        <div className="header">
-          <h2>{
-            !!abi ?
-              'Deploy Contract':
-              'Upload & Deploy Contract'
-          }</h2>
+        <div className='header'>
+          <h2>{!!abi ? 'Deploy Contract' : 'Upload & Deploy Contract'}</h2>
         </div>
-        <div className="content">
-          {
-            !!abi &&
-              <div className="params-input">
-                <LabeledValue>
-                  <div className="span">Contract name</div>
-                  <div>{codeJSON?.name || contractName}</div>
-                </LabeledValue>
-                <div className="form">
-                  <Constructor
-                    defaultValue={abi.constructors[0]}
-                    abiMessages={abi.constructors}
-                    onMessageChange={setMessage}
-                    onParamsChange={setParams}
+        <div className='content'>
+          {!!abi && (
+            <div className='params-input'>
+              <LabeledValue>
+                <div className='span'>Contract name</div>
+                <div>{codeJSON?.name || contractName}</div>
+              </LabeledValue>
+              <div className='form'>
+                <Constructor
+                  defaultValue={abi.constructors[0]}
+                  abiMessages={abi.constructors}
+                  onMessageChange={setMessage}
+                  onParamsChange={setParams}
+                />
+
+                <LabeledInput
+                  style={{ borderBottom: '0px', marginTop: '16px' }}
+                >
+                  <div className='span'>endowment</div>
+                  <InputBalance
+                    siWidth={15}
+                    defaultValue={new BN(10).mul(
+                      BN_TEN.pow(new BN(tokenDecimal))
+                    )}
+                    label='endowment'
+                    onChange={setEndowment}
+                    value={endowment}
                   />
-                  
-                  <LabeledInput style={{ borderBottom: '0px', marginTop: '16px' }}>
-                    <div className="span">endowment</div>
-                    <InputBalance
-                      siWidth={15}
-                      defaultValue={(new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal)))}
-                      label="endowment"
-                      onChange={setEndowment}
-                      value={endowment}
-                    />
-                  </LabeledInput>
-                  <ParamInput
-                    style={{ borderBottomWidth: '0px' }}
-                    defaultValue={gasLimit}
-                    onChange={
-                      value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
+                </LabeledInput>
+                <ParamInput
+                  style={{ borderBottomWidth: '0px' }}
+                  defaultValue={gasLimit}
+                  onChange={value =>
+                    setState(pre => ({ ...pre, gasLimit: parseInt(value) }))
+                  }
+                  label='max gas allowed'
+                />
+                <ParamInput
+                  defaultValue={salt}
+                  value={salt}
+                  onChange={value => setState(pre => ({ ...pre, salt: value }))}
+                  label='unique deployment salt'
+                />
+
+                <LabeledInput style={{ marginTop: '16px' }}>
+                  <div className='span'>Tip</div>
+                  <InputBalance
+                    siWidth={15}
+                    label='Tip'
+                    onChange={setTip}
+                    value={tip}
+                  />
+                </LabeledInput>
+
+                <LabeledInput style={{ marginTop: '16px' }}>
+                  <div className='span'>Caller</div>
+                  <AddressInput
+                    defaultValue={accounts[0]?.address}
+                    bordered={false}
+                    suffixIcon={<img src={MoreSvg} alt='' />}
+                    onChange={address =>
+                      setState(pre => ({ ...pre, sender: address }))
                     }
-                    label="max gas allowed"
                   />
-                  <ParamInput
-                    defaultValue={salt}
-                    value={salt}
-                    onChange={
-                      value => setState(pre => ({...pre, salt: value}))
-                    }
-                    label="unique deployment salt"
-                  />
-                  
-                  <LabeledInput style={{  marginTop: '16px' }}>
-                    <div className="span">Tip</div>
-                    <InputBalance
-                      siWidth={15}
-                      label="Tip"
-                      onChange={setTip}
-                      value={tip}
-                    />
-                  </LabeledInput>
-                  
-                  <LabeledInput style={{ marginTop: '16px' }}>
-                    <div className="span">Caller</div>
-                    <AddressInput
-                      defaultValue={accounts[0]?.address}
-                      bordered={false}
-                      suffixIcon={<img src={MoreSvg} alt="" />}
-                      onChange={address => setState(pre => ({...pre, sender: address}))}
-                    />
-                  </LabeledInput>
-                </div>
+                </LabeledInput>
               </div>
-          }
+            </div>
+          )}
         </div>
-        <div className="footer">
-          {
-            abi ?
-              <DefaultButton disabled={isDisabled} type="primary" onClick={deploy}>Deploy</DefaultButton> :
-              <Upload fileList={[]} beforeUpload={onUpload}>
-                <DefaultButton type="primary">Upload</DefaultButton>
+        <div className='footer'>
+          {abi ? (
+            abi.project.source.wasm.length || wasm ? (
+              <DefaultButton
+                disabled={isDisabled}
+                type='primary'
+                onClick={deploy}
+              >
+                Deploy
+              </DefaultButton>
+            ) : (
+              <Upload fileList={[]} beforeUpload={_onAddWasm}>
+                <DefaultButton type='primary'>Upload WASM File</DefaultButton>
               </Upload>
-          }
+            )
+          ) : (
+            <Upload fileList={[]} beforeUpload={onUpload}>
+              <DefaultButton type='primary'>Upload</DefaultButton>
+            </Upload>
+          )}
         </div>
       </Content>
     </Modal>

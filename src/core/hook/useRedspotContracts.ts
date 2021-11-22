@@ -14,7 +14,7 @@ export interface RedspotContract {
 }
 
 export const useRedspotContracts = (redspotProjects: string[]) => {
-  const [ respotContracts, setContracts ] = useState<RedspotContract[]>([]);
+  const [respotContracts, setContracts] = useState<RedspotContract[]>([]);
 
   useEffect(() => {
     if (!requireModule.isElectron) {
@@ -26,13 +26,15 @@ export const useRedspotContracts = (redspotProjects: string[]) => {
 
     const readObservables = redspotProjects
       .map(projectPath => path.resolve(projectPath, '../artifacts'))
-      .map((dirPath) => from(fs.promises.readdir(dirPath))
-        .pipe(
+      .map(dirPath =>
+        from(fs.promises.readdir(dirPath)).pipe(
           map((files: string[]): Observable<RedspotContract>[] =>
             files
               .filter(name => name.endsWith('.contract'))
-              .map(async (file)  => {
-                const json = (await fs.promises.readFile(path.resolve(dirPath, file))).toString();
+              .map(async file => {
+                const json = (
+                  await fs.promises.readFile(path.resolve(dirPath, file))
+                ).toString();
                 const abi = new Abi(json);
                 const name = abi.project?.contract?.name?.toString();
                 const hash = abi.project?.source?.wasmHash?.toString();
@@ -48,19 +50,15 @@ export const useRedspotContracts = (redspotProjects: string[]) => {
               .map(redspotContract => from(redspotContract))
           ),
           mergeMap(redspotProjects => zip(...redspotProjects)),
-          catchError((_): Observable<RedspotContract[]> => of([])),
+          catchError((_): Observable<RedspotContract[]> => of([]))
         )
       );
 
-    const sub = zip(...readObservables).pipe(
-      map(results =>
-        results.reduce(
-          (all, curr) => all.concat(curr), []
-        )
-      ),
-    ).subscribe(contracts => {
-      setContracts(contracts);
-    });
+    const sub = zip(...readObservables)
+      .pipe(map(results => results.reduce((all, curr) => all.concat(curr), [])))
+      .subscribe(contracts => {
+        setContracts(contracts);
+      });
 
     return () => sub.unsubscribe();
   }, [redspotProjects]);

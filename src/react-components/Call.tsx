@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ExtrinsicSignature } from '@polkadot/types/interfaces';
-import type { Codec, IExtrinsic, IMethod, TypeDef } from '@polkadot/types/types';
+import type {
+  Codec,
+  IExtrinsic,
+  IMethod,
+  TypeDef,
+} from '@polkadot/types/types';
 
 import BN from 'bn.js';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +15,7 @@ import styled from 'styled-components';
 
 import Params from '../react-params/';
 import FormatBalance from './FormatBalance';
-import { Enum, GenericCall, getTypeDef } from '@polkadot/types';
+import { Enum, getTypeDef } from '@polkadot/types';
 
 import Static from './Static';
 import { useTranslation } from './translate';
@@ -47,28 +52,34 @@ interface Extracted {
   values: Value[];
 }
 
-function isExtrinsic (value: IExtrinsic | IMethod): value is IExtrinsic {
+function isExtrinsic(value: IExtrinsic | IMethod): value is IExtrinsic {
   return !!(value as IExtrinsic).signature;
 }
 
 // This is no doubt NOT the way to do things - however there is no other option
-function getRawSignature (value: IExtrinsic): ExtrinsicSignature | undefined {
+function getRawSignature(value: IExtrinsic): ExtrinsicSignature | undefined {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   return (value as any)._raw?.signature?.multiSignature as ExtrinsicSignature;
 }
 
-function extractState (value: IExtrinsic | IMethod, withHash?: boolean, withSignature?: boolean): Extracted {
-  const params = GenericCall.filterOrigin(value.meta).map(({ name, type }): Param => ({
-    name: name.toString(),
-    type: getTypeDef(type.toString())
-  }));
-  const values = value.args.map((value): Value => ({
-    isValid: true,
-    value
-  }));
-  const hash = withHash
-    ? value.hash.toHex()
-    : null;
+function extractState(
+  value: IExtrinsic | IMethod,
+  withHash?: boolean,
+  withSignature?: boolean
+): Extracted {
+  const params = value.meta.args.map(
+    ({ name, type }): Param => ({
+      name: name.toString(),
+      type: getTypeDef(type.toString()),
+    })
+  );
+  const values = value.args.map(
+    (value): Value => ({
+      isValid: true,
+      value,
+    })
+  );
+  const hash = withHash ? value.hash.toHex() : null;
   let signature: string | null = null;
   let signatureType: string | null = null;
 
@@ -76,17 +87,34 @@ function extractState (value: IExtrinsic | IMethod, withHash?: boolean, withSign
     const raw = getRawSignature(value);
 
     signature = value.signature.toHex();
-    signatureType = raw instanceof Enum
-      ? raw.type
-      : null;
+    signatureType = raw instanceof Enum ? raw.type : null;
   }
 
   return { hash, params, signature, signatureType, values };
 }
 
-function Call ({ children, className = '', labelHash, labelSignature, mortality, onError, tip, value, withBorder, withHash, withSignature }: Props): React.ReactElement<Props> {
+function Call({
+  children,
+  className = '',
+  labelHash,
+  labelSignature,
+  mortality,
+  onError,
+  tip,
+  value,
+  withBorder,
+  withHash,
+  withSignature,
+}: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
-  const [{ hash, params, signature, signatureType, values }, setExtracted] = useState<Extracted>({ hash: null, params: [], signature: null, signatureType: null, values: [] });
+  const [{ hash, params, signature, signatureType, values }, setExtracted] =
+    useState<Extracted>({
+      hash: null,
+      params: [],
+      signature: null,
+      signatureType: null,
+      values: [],
+    });
 
   useEffect((): void => {
     setExtracted(extractState(value, withHash, withSignature));
@@ -107,7 +135,12 @@ function Call ({ children, className = '', labelHash, labelSignature, mortality,
         {signature && (
           <Static
             className='hash'
-            label={labelSignature || t<string>('signature {{type}}', { replace: { type: signatureType ? `(${signatureType})` : '' } })}
+            label={
+              labelSignature ||
+              t<string>('signature {{type}}', {
+                replace: { type: signatureType ? `(${signatureType})` : '' },
+              })
+            }
             value={signature}
             withCopy
           />

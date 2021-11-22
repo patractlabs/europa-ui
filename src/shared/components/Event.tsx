@@ -1,9 +1,21 @@
-import React, { FC, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import MoreSvg from '../../assets/imgs/more.svg';
 import { Style } from '../styled/const';
 import { Args, Obj } from './Args';
-import { ApiContext, DeployedContract, useAbi, ExtendedEventRecord } from '../../core';
+import {
+  ApiContext,
+  DeployedContract,
+  useAbi,
+  ExtendedEventRecord,
+} from '../../core';
 import { Abi } from '@polkadot/api-contract';
 import { Codec } from '@polkadot/types/types';
 
@@ -32,7 +44,7 @@ const Wrapper = styled.div`
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      
+
       > span {
         color: ${Style.color.primary};
         margin-right: 4px;
@@ -69,17 +81,19 @@ const Wrapper = styled.div`
   }
 `;
 
-const decodeData = (abi: Abi, data: Codec): { identifier: string; args: Obj[] } | undefined => {
+const decodeData = (
+  abi: Abi,
+  data: Codec
+): { identifier: string; args: Obj[] } | undefined => {
   try {
     const event = abi.decodeEvent(data.toU8a(true));
 
     return {
       identifier: event.event.identifier,
       args: event.args.map((arg, index) => ({
-        [event.event.args[index].name]: arg.toJSON()
-      })) as unknown as Obj[]
+        [event.event.args[index].name]: arg.toJSON(),
+      })) as unknown as Obj[],
     };
-
   } catch (e) {}
 
   return;
@@ -90,28 +104,34 @@ type Module = {
   events: {
     name: string;
     args: string[];
-    documantion: string;
+    docs: string;
   }[];
   errors: {
-    name: string,
-    documentation: string[],
+    name: string;
+    docs: string[];
   }[];
 };
-const EventBody: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }) => {
+const EventBody: FC<{
+  contracts: DeployedContract[];
+  event: ExtendedEventRecord;
+  showIndex?: boolean;
+}> = ({ contracts, event, showIndex = false }) => {
   const { metadata } = useContext(ApiContext);
-  const [ contractAddress, setContractAddress ] = useState<string>();
-  const [ args, setArgs ] = useState<Obj[]>([]);
-  const [ err, setErr ] = useState<{
+  const [contractAddress, setContractAddress] = useState<string>();
+  const [args, setArgs] = useState<Obj[]>([]);
+  const [err, setErr] = useState<{
     section: string;
     err: {
-      name: string,
-      documentation: string[],
-    } 
+      name: string;
+      docs: string[];
+    };
   }>();
 
   const codeHash = useMemo(
-    () => contracts.find(contract => contract.address === contractAddress)?.codeHash,
-    [contractAddress, contracts],
+    () =>
+      contracts.find(contract => contract.address === contractAddress)
+        ?.codeHash,
+    [contractAddress, contracts]
   );
   const { abi } = useAbi(codeHash || '');
 
@@ -122,25 +142,34 @@ const EventBody: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord,
       modules = (metadata.toJSON().metadata as any)['v13'].modules as Module[];
     } catch (e) {}
 
-    const eventArgNames = modules.find(module => module.name.toLowerCase() === event.event.section.toLowerCase())?.events
-      .find(_event => _event.name.toLowerCase() === event.event.method.toLowerCase())?.args || [];
+    const eventArgNames =
+      modules
+        .find(
+          module =>
+            module.name.toLowerCase() === event.event.section.toLowerCase()
+        )
+        ?.events.find(
+          _event =>
+            _event.name.toLowerCase() === event.event.method.toLowerCase()
+        )?.args || [];
     const errIndex = eventArgNames.findIndex(name => name === 'DispatchError');
-    const isContractEmit = event.event.section.toLowerCase() === 'contracts'
-      && event.event.method.toLowerCase() === 'contractemitted';
-    
+    const isContractEmit =
+      event.event.section.toLowerCase() === 'contracts' &&
+      event.event.method.toLowerCase() === 'contractemitted';
+
     if (errIndex >= 0) {
       const err = event.event.data[errIndex].toJSON() as {
         module?: {
           index: number;
           error: number;
-        }
+        };
       };
 
       if (err.module) {
         setErr({
           section: modules[err.module.index].name,
           err: modules[err.module.index].errors[err.module.error],
-        });        
+        });
       }
     }
 
@@ -150,76 +179,79 @@ const EventBody: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord,
 
     const args = event.event.data.map((value, index) => {
       return {
-        [eventArgNames[index] ? eventArgNames[index] : `${index}`]: value.toHuman(),
+        [eventArgNames[index] ? eventArgNames[index] : `${index}`]:
+          value.toHuman(),
       } as unknown as Obj;
     });
 
     setArgs(args);
   }, [metadata, event]);
 
-  const contractArgs: { identifier: string; args: Obj[] } | undefined = useMemo(() => {
-    const isContractEmit = event.event.section.toLowerCase() === 'contracts'
-      && event.event.method.toLowerCase() === 'contractemitted';
+  const contractArgs: { identifier: string; args: Obj[] } | undefined =
+    useMemo(() => {
+      const isContractEmit =
+        event.event.section.toLowerCase() === 'contracts' &&
+        event.event.method.toLowerCase() === 'contractemitted';
 
-    if (!abi || !isContractEmit) {
-      return;
-    }
+      if (!abi || !isContractEmit) {
+        return;
+      }
 
-    return decodeData(abi, event.event.data[1]);
-  }, [abi, event]);
+      return decodeData(abi, event.event.data[1]);
+    }, [abi, event]);
 
   return (
-    <div className="detail">
-      {
-        !!args.length &&
-          <Args args={args} />
-      }
-      {
-        !!err &&
-          <div className="error">
-            <h6>
-              {err?.section}.{err?.err.name}
-            </h6>
-            <p>
-              {
-                err?.err.documentation.join(' ')
-              }
-            </p>
-          </div>
-      }
-      {
-        !!contractArgs &&
-          <div className="contract-emit">
-            <h6>Event: {contractArgs.identifier}</h6>
-            <Args args={contractArgs.args} borderColor={Style.color.border.default} />
-          </div>
-      }
+    <div className='detail'>
+      {!!args.length && <Args args={args} />}
+      {!!err && (
+        <div className='error'>
+          <h6>
+            {err?.section}.{err?.err.name}
+          </h6>
+          <p>{err?.err.docs.join(' ')}</p>
+        </div>
+      )}
+      {!!contractArgs && (
+        <div className='contract-emit'>
+          <h6>Event: {contractArgs.identifier}</h6>
+          <Args
+            args={contractArgs.args}
+            borderColor={Style.color.border.default}
+          />
+        </div>
+      )}
     </div>
   );
 };
 
-export const Event: FC<{ contracts: DeployedContract[]; event: ExtendedEventRecord, showIndex?: boolean }> = ({ contracts, event, showIndex = false }): ReactElement => {
-  const [ expanded, setExpanded ] = useState(false);
+export const Event: FC<{
+  contracts: DeployedContract[];
+  event: ExtendedEventRecord;
+  showIndex?: boolean;
+}> = ({ contracts, event, showIndex = false }): ReactElement => {
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <Wrapper>
-      <div className="info-line" onClick={() => setExpanded(!expanded)}>
-        <div className="event-name">{event.event.section.toString()}.{event.event.method.toString()}</div>
-        {
-          showIndex &&
-            <div className="index">{event.blockHeight} - {event.phase.asApplyExtrinsic.toNumber() + 1}</div>
-        }
-        <div className="togglo-detail">
-          <span>
-            Details
-          </span>
-          <img src={MoreSvg} alt="" style={{ transform: expanded ? 'scaleY(-1)' : '' }} />
+      <div className='info-line' onClick={() => setExpanded(!expanded)}>
+        <div className='event-name'>
+          {event.event.section.toString()}.{event.event.method.toString()}
+        </div>
+        {showIndex && (
+          <div className='index'>
+            {event.blockHeight} - {event.phase.asApplyExtrinsic.toNumber() + 1}
+          </div>
+        )}
+        <div className='togglo-detail'>
+          <span>Details</span>
+          <img
+            src={MoreSvg}
+            alt=''
+            style={{ transform: expanded ? 'scaleY(-1)' : '' }}
+          />
         </div>
       </div>
-      {
-        expanded &&
-          <EventBody contracts={contracts} event={event} />
-      }
+      {expanded && <EventBody contracts={contracts} event={event} />}
     </Wrapper>
   );
 };

@@ -1,4 +1,12 @@
-import React, { FC, ReactElement, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { AccountsContext, ApiContext, handleTxResults } from '../../core';
 import { Constructor } from './Constructor';
@@ -20,7 +28,7 @@ import { BN_MILLION, BN_TEN } from '@polkadot/util';
 import { RawParams } from '../../react-params/types';
 import { getEstimatedGas } from '../contract/DeployModal';
 import { InputBalance } from '../../react-components';
-import {extractState } from '../contract/Message';
+import { extractState } from '../contract/Message';
 import { Trace } from '../extrinsic/Detail';
 import { Call } from '@polkadot/types/interfaces';
 import { ContractTrace } from '../extrinsic/Trace';
@@ -29,7 +37,7 @@ const Wrapper = styled.div<{ hasAbi: boolean }>`
   background-color: white;
   padding: 20px;
   flex: 1;
-  height: ${props => !props.hasAbi ? 0 : '' };
+  height: ${props => (!props.hasAbi ? 0 : '')};
 
   > .deploy {
     margin: 0px auto;
@@ -46,15 +54,23 @@ const Wrapper = styled.div<{ hasAbi: boolean }>`
   }
 `;
 
-export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi, name, codeHash }): ReactElement => {
+export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({
+  abi,
+  name,
+  codeHash,
+}): ReactElement => {
   const { api, wsProvider, tokenDecimal, metadata } = useContext(ApiContext);
   const { accounts } = useContext(AccountsContext);
-  const [ params, setParams ] = useState<RawParams>([]);
-  const [ message, setMessage ] = useState<AbiMessage | undefined>(abi?.constructors[0]);
-  const [ endowment, setEndowment ] = useState<BN>((new BN(10)).mul((BN_TEN).pow(new BN(tokenDecimal))));
-  const [ tip, setTip ] = useState<BN>();
-  const [ trace, setTrace ] = useState<Trace>();
-  const [ { sender, gasLimit, salt }, setState ] = useState<{
+  const [params, setParams] = useState<RawParams>([]);
+  const [message, setMessage] = useState<AbiMessage | undefined>(
+    abi?.constructors[0]
+  );
+  const [endowment, setEndowment] = useState<BN>(
+    new BN(10).mul(BN_TEN.pow(new BN(tokenDecimal)))
+  );
+  const [tip, setTip] = useState<BN>();
+  const [trace, setTrace] = useState<Trace>();
+  const [{ sender, gasLimit, salt }, setState] = useState<{
     sender: string;
     gasLimit: number;
     salt: string;
@@ -65,8 +81,17 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
   });
 
   const isDisabled = useMemo(() => {
-    return !abi || !isWasm(abi.project.source.wasm) || !message || !endowment || endowment.toNumber() === 0 || !gasLimit || !sender || !params.every(param => param.isValid);
-  }, [abi, message, endowment, gasLimit, sender,params]);
+    return (
+      !abi ||
+      !isWasm(abi.project.source.wasm) ||
+      !message ||
+      !endowment ||
+      endowment.toNumber() === 0 ||
+      !gasLimit ||
+      !sender ||
+      !params.every(param => param.isValid)
+    );
+  }, [abi, message, endowment, gasLimit, sender, params]);
 
   const CallWithTrace = useCallback(async () => {
     if (!message || !endowment) {
@@ -74,12 +99,15 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     }
 
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const gas = (new BN(gasLimit)).mul(BN_MILLION);
-    const tx = code.tx[message.method]({
-      gasLimit: gas,
-      value: endowment,
-      salt,
-    }, ...params.map(param => param.value as any));
+    const gas = new BN(gasLimit).mul(BN_MILLION);
+    const tx = code.tx[message.method](
+      {
+        gasLimit: gas,
+        value: endowment,
+        salt,
+      },
+      ...params.map(param => param.value as any)
+    );
     const hex = tx.toHex();
     let extrinsicCall: Call;
 
@@ -96,156 +124,205 @@ export const Deploy: FC<{ abi?: Abi; name?: string; codeHash: string }> = ({ abi
     const data = values[dataIndex].value.toHex();
     const rawCode = values[codeIndex].value.toHex();
 
-    wsProvider.send('contractsExt_instantiate', [{
-      origin: sender,
-      endowment: endowment.toNumber(),
-      gasLimit: gas.toNumber(),
-      code: { upload: rawCode },
-      data,
-      salt,
-    }]).then(({ trace }: { trace: Trace}) => {
-      notification.success({
-        message: 'Function Called',
-        description: 'Call with trace successfully',
-      });
-      setTrace(trace.depth ? trace : undefined);
-    }, (e: any) => {
-      console.log('e', e);
-      notification.fail({
-        message: 'Failed',
-        description: 'Call with trace failed',
-      });
-      setTrace(undefined);
-    });
-  }, [wsProvider, sender, api, abi, endowment, salt, gasLimit, message, params]);
+    wsProvider
+      .send('contractsExt_instantiate', [
+        {
+          origin: sender,
+          endowment: endowment.toNumber(),
+          gasLimit: gas.toNumber(),
+          code: { upload: rawCode },
+          data,
+          salt,
+        },
+      ])
+      .then(
+        ({ trace }: { trace: Trace }) => {
+          notification.success({
+            message: 'Function Called',
+            description: 'Call with trace successfully',
+          });
+          setTrace(trace.depth ? trace : undefined);
+        },
+        (e: any) => {
+          console.log('e', e);
+          notification.fail({
+            message: 'Failed',
+            description: 'Call with trace failed',
+          });
+          setTrace(undefined);
+        }
+      );
+  }, [
+    wsProvider,
+    sender,
+    api,
+    abi,
+    endowment,
+    salt,
+    gasLimit,
+    message,
+    params,
+  ]);
 
   const deploy = useCallback(async () => {
     if (!abi || !isWasm(abi.project.source.wasm) || !message) {
       return;
     }
-    
+
     const account = accounts.find(account => account.address === sender);
 
     if (!account) {
-      return
+      return;
     }
 
-    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
+    const pair = account.mnemonic
+      ? keyring.createFromUri(account.mnemonic)
+      : keyring.getPair(account.address);
     const code = new CodeRx(api, abi, abi?.project.source.wasm);
-    const tx = code.tx[message.method]({
-      gasLimit: (new BN(gasLimit)).mul(BN_MILLION),
-      value: endowment,
-      salt,
-    }, ...params.map(param => param.value as any));
+    const tx = code.tx[message.method](
+      {
+        gasLimit: new BN(gasLimit).mul(BN_MILLION),
+        value: endowment,
+        salt,
+      },
+      ...params.map(param => param.value as any)
+    );
 
     setState(old => ({ ...old, salt: randomAsHex() }));
-    await tx.signAndSend(pair, { tip }).pipe(
-      catchError(e => {
-        notification.fail({
-          message: 'Failed',
-          description: e.message,
-        });
-        return throwError('');
-      })
-    ).subscribe(
-      handleTxResults({
-        success() {
-          notification.success({
-            message: 'Deployed',
-            description: 'Contract deployed',
-          });
-        },
-        fail(status) {
+    await tx
+      .signAndSend(pair, { tip })
+      .pipe(
+        catchError(e => {
           notification.fail({
             message: 'Failed',
-            description: <TxError metadata={metadata} error={status.dispatchError} />,
+            description: e.message,
           });
-        },
-        update(r) {
-          console.log('update', r);
-        }
-      }, () => {})
-    );
-  }, [abi, api, params, endowment, sender, accounts, gasLimit, message, salt, tip, metadata]);
+          return throwError('');
+        })
+      )
+      .subscribe(
+        handleTxResults(
+          {
+            success() {
+              notification.success({
+                message: 'Deployed',
+                description: 'Contract deployed',
+              });
+            },
+            fail(status) {
+              notification.fail({
+                message: 'Failed',
+                description: (
+                  <TxError metadata={metadata} error={status.dispatchError} />
+                ),
+              });
+            },
+            update(r) {
+              console.log('update', r);
+            },
+          },
+          () => {}
+        )
+      );
+  }, [
+    abi,
+    api,
+    params,
+    endowment,
+    sender,
+    accounts,
+    gasLimit,
+    message,
+    salt,
+    tip,
+    metadata,
+  ]);
 
   useEffect(() => setMessage(abi?.constructors[0]), [abi]);
 
   return (
     <Wrapper hasAbi={!!abi}>
-      {
-        !abi ?
-          <RawData codeHash={codeHash} /> :
-          <div className="deploy">
-            <LabeledValue>
-              <div className="span">Contract name</div>
-              <div>{name}</div>
-            </LabeledValue>
-            <div className="form">
-              <Constructor
-                defaultValue={abi.constructors[0]}
-                abiMessages={abi.constructors}
-                onMessageChange={setMessage}
-                onParamsChange={setParams}
-              />
+      {!abi ? (
+        <RawData codeHash={codeHash} />
+      ) : (
+        <div className='deploy'>
+          <LabeledValue>
+            <div className='span'>Contract name</div>
+            <div>{name}</div>
+          </LabeledValue>
+          <div className='form'>
+            <Constructor
+              defaultValue={abi.constructors[0]}
+              abiMessages={abi.constructors}
+              onMessageChange={setMessage}
+              onParamsChange={setParams}
+            />
 
-              <LabeledInput style={{ marginTop: '16px', borderBottom: '0px' }}>
-                <div className="span">endowment</div>
-                <InputBalance
-                  siWidth={15}
-                  label="endowment"
-                  onChange={setEndowment}
-                  value={endowment}
-                />
-              </LabeledInput>
-              <ParamInput
-                defaultValue={gasLimit}
-                style={{ borderBottomWidth: '0px' }}
-                onChange={
-                  value => setState(pre => ({...pre, gasLimit: parseInt(value)}))
-                }
-                label="max gas allowed"
+            <LabeledInput style={{ marginTop: '16px', borderBottom: '0px' }}>
+              <div className='span'>endowment</div>
+              <InputBalance
+                siWidth={15}
+                label='endowment'
+                onChange={setEndowment}
+                value={endowment}
               />
-              <ParamInput
-                defaultValue={salt}
-                value={salt}
-                onChange={
-                  value => setState(pre => ({...pre, salt: value}))
-                }
-                label="unique deployment salt"
-              />
-                  
-              <LabeledInput style={{  marginTop: '16px' }}>
-                <div className="span">Tip</div>
-                <InputBalance
-                  siWidth={15}
-                  label="Tip"
-                  onChange={setTip}
-                  value={tip}
-                />
-              </LabeledInput>
+            </LabeledInput>
+            <ParamInput
+              defaultValue={gasLimit}
+              style={{ borderBottomWidth: '0px' }}
+              onChange={value =>
+                setState(pre => ({ ...pre, gasLimit: parseInt(value) }))
+              }
+              label='max gas allowed'
+            />
+            <ParamInput
+              defaultValue={salt}
+              value={salt}
+              onChange={value => setState(pre => ({ ...pre, salt: value }))}
+              label='unique deployment salt'
+            />
 
-              <LabeledInput style={{ marginTop: '16px' }}>
-                <div className="span">Caller</div>
-                <AddressInput
-                  defaultValue={accounts[0]?.address}
-                  bordered={false}
-                  suffixIcon={<img src={MoreSvg} alt="" />}
-                  onChange={address => setState(pre => ({...pre, sender: address}))} 
-                />
-              </LabeledInput>
-            </div>
-            <div className="button-group">
-              <Button disabled={isDisabled} type="primary" onClick={deploy}>Deploy</Button>
-              <Button disabled={isDisabled} type="primary" onClick={CallWithTrace}>Call With Trace</Button>
-            </div>
+            <LabeledInput style={{ marginTop: '16px' }}>
+              <div className='span'>Tip</div>
+              <InputBalance
+                siWidth={15}
+                label='Tip'
+                onChange={setTip}
+                value={tip}
+              />
+            </LabeledInput>
+
+            <LabeledInput style={{ marginTop: '16px' }}>
+              <div className='span'>Caller</div>
+              <AddressInput
+                defaultValue={accounts[0]?.address}
+                bordered={false}
+                suffixIcon={<img src={MoreSvg} alt='' />}
+                onChange={address =>
+                  setState(pre => ({ ...pre, sender: address }))
+                }
+              />
+            </LabeledInput>
           </div>
-      }
-      {
-        trace &&
-          <div style={{ marginTop: '20px' }}>
-            <ContractTrace codeHash={codeHash} index={0} trace={trace} />
+          <div className='button-group'>
+            <Button disabled={isDisabled} type='primary' onClick={deploy}>
+              Deploy
+            </Button>
+            <Button
+              disabled={isDisabled}
+              type='primary'
+              onClick={CallWithTrace}
+            >
+              Call With Trace
+            </Button>
           </div>
-      }
+        </div>
+      )}
+      {trace && (
+        <div style={{ marginTop: '20px' }}>
+          <ContractTrace codeHash={codeHash} index={0} trace={trace} />
+        </div>
+      )}
     </Wrapper>
   );
 };

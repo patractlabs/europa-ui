@@ -1,8 +1,8 @@
 import React, { Context, useCallback, useContext, useState } from 'react';
 import { ApiRx, WsProvider } from '@polkadot/api';
-import type { Metadata } from '@polkadot/metadata';
+import { Metadata } from '@polkadot/types';
 import { keyring } from '@polkadot/ui-keyring';
-import { zip } from 'rxjs';
+import { zip, firstValueFrom } from 'rxjs';
 import { BusContext } from './bus.provider';
 import { formatBalance } from '@polkadot/util';
 import { TokenUnit } from '../../react-components/InputNumber';
@@ -29,7 +29,7 @@ const RPC_TYPES = {
         {
           name: 'height',
           type: 'u32',
-        }
+        },
       ],
       type: 'Bytes',
     },
@@ -39,7 +39,7 @@ const RPC_TYPES = {
         {
           name: 'height',
           type: 'u32',
-        }
+        },
       ],
       type: 'Bytes',
     },
@@ -50,37 +50,37 @@ const RPC_TYPES = {
       params: [
         {
           name: 'callRequest',
-          type: 'ContractCallRequest'
+          type: 'ContractCallRequest',
         },
         {
           name: 'at',
           type: 'BlockHash',
           isHistoric: true,
-          isOptional: true
-        }
+          isOptional: true,
+        },
       ],
       type: 'Bytes',
-    }
-  }
+    },
+  },
 };
 
 const TYPES = {
-  "LookupSource": "MultiAddress",
-  "Address": "MultiAddress",
-  "AliveContractInfo": {
-    "trieId": "TrieId",
-    "storageSize": "u32",
-    "pairCount": "u32",
-    "codeHash": "CodeHash",
-    "rentAllowance": "Balance",
-    "rentPayed": "Balance",
-    "deductBlock": "BlockNumber",
-    "lastWrite": "Option<BlockNumber>",
-    "_reserved": "Option<Null>"
-  }
+  LookupSource: 'MultiAddress',
+  Address: 'MultiAddress',
+  AliveContractInfo: {
+    trieId: 'TrieId',
+    storageSize: 'u32',
+    pairCount: 'u32',
+    codeHash: 'CodeHash',
+    rentAllowance: 'Balance',
+    rentPayed: 'Balance',
+    deductBlock: 'BlockNumber',
+    lastWrite: 'Option<BlockNumber>',
+    _reserved: 'Option<Null>',
+  },
 };
 
-function isKeyringLoaded () {
+function isKeyringLoaded() {
   try {
     return !!keyring.keyring;
   } catch {
@@ -101,16 +101,15 @@ const ApiContext: Context<{
   connect: (wsPort: number | string) => void;
 }> = React.createContext({} as any);
 
-const ApiProvider = React.memo(function Api({ children }: Props): React.ReactElement<Props> {
+const ApiProvider = React.memo(function Api({
+  children,
+}: Props): React.ReactElement<Props> {
   const { connected$ } = useContext(BusContext);
-  const [ endpoint, setEndpoint ] = useState<Endpoint>();
-  const [ {
-    tokenDecimal,
-    tokenSymbol,
-    systemName,
-    genesisHash,
-    metadata,
-  }, setProperties ] = useState<{
+  const [endpoint, setEndpoint] = useState<Endpoint>();
+  const [
+    { tokenDecimal, tokenSymbol, systemName, genesisHash, metadata },
+    setProperties,
+  ] = useState<{
     tokenDecimal: number;
     tokenSymbol: string;
     systemName: string;
@@ -135,97 +134,109 @@ const ApiProvider = React.memo(function Api({ children }: Props): React.ReactEle
     setEndpoint(undefined);
   }, [endpoint]);
 
-  const connect = useCallback((wsPortOrAddress: number | string) => {
-    if (endpoint) {
-      disconnect();
-    }
-
-    const domain = typeof wsPortOrAddress === 'number' ? `ws://127.0.0.1:${wsPortOrAddress}` : wsPortOrAddress;
-    const wsProvider = new WsProvider(domain);
-    const apiRx = new ApiRx({
-      provider: wsProvider,
-      rpc: RPC_TYPES,
-      types: TYPES,
-    });
-
-    api = apiRx;
-    const _endpoint: Endpoint = {
-      api: apiRx,
-      wsProvider,
-      readyHandler: async (_api: ApiRx) => {
-        console.log(`endpoint ${domain} ready`);
-
-        const [ {
-          ss58Format,
-          tokenDecimals,
-          tokenSymbol,
-        },
-          _systemName,
-          metadata,
-        ] = await zip(
-          _api.rpc.system.properties(),
-          _api.rpc.system.name(),
-          _api.rpc.state.getMetadata(),
-        ).toPromise();
-        const decimals = tokenDecimals.toHuman() as string[];
-
-        // first setup the UI helpers
-        formatBalance.setDefaults({
-          decimals: decimals.map(d => parseInt(d)),
-          unit: 'DOT',
-        });
-        TokenUnit.setAbbr('DOT');
-
-        isKeyringLoaded() || keyring.loadAll({
-          genesisHash: _api.genesisHash,
-          ss58Format: parseInt(_api.consts.system?.ss58Prefix.toString() || ss58Format.toString()),
-          type: 'sr25519',
-          isDevelopment: true,
-        });
-
-        setProperties({
-          systemName: _systemName.toString(),
-          genesisHash: _api.genesisHash.toString(),
-          tokenDecimal: parseInt(decimals[0]),
-          tokenSymbol: tokenSymbol.toString(),
-          metadata,
-        });
-        connected$.next(true);
-      },
-      connectedHandler() {
-        console.log(`endpoint ${domain} connected`);
-      },
-      errorHandler(error) {
-        console.log(`endpoint ${domain} error`, error);
-      },
-      disconnectedHandler() {
-        console.log(`endpoint ${domain} disconnected`);
-
-        connected$.next(false);
+  const connect = useCallback(
+    (wsPortOrAddress: number | string) => {
+      if (endpoint) {
+        disconnect();
       }
-    };
 
-    apiRx.on('ready', _endpoint.readyHandler);
-    apiRx.on('error', _endpoint.errorHandler);
-    apiRx.on('connected', _endpoint.connectedHandler);
-    apiRx.on('disconnected', _endpoint.disconnectedHandler);
+      const domain =
+        typeof wsPortOrAddress === 'number'
+          ? `ws://127.0.0.1:${wsPortOrAddress}`
+          : wsPortOrAddress;
+      const wsProvider = new WsProvider(domain);
+      const apiRx = new ApiRx({
+        provider: wsProvider,
+        rpc: RPC_TYPES,
+        types: TYPES,
+      });
 
-    setEndpoint(_endpoint);
-  }, [endpoint, disconnect, connected$]);
+      api = apiRx;
+      const _endpoint: Endpoint = {
+        api: apiRx,
+        wsProvider,
+        readyHandler: async (_api: ApiRx) => {
+          console.log(`endpoint ${domain} ready`);
 
-  return <ApiContext.Provider value={ {
-    api,
-    wsProvider: endpoint?.wsProvider as any,
-    genesisHash,
-    tokenDecimal,
-    tokenSymbol,
-    systemName,
-    metadata,
-    connect,
-  } }>{children}</ApiContext.Provider>;
+          const [
+            { ss58Format, tokenDecimals, tokenSymbol },
+            _systemName,
+            metadata,
+          ] = await firstValueFrom(
+            zip(
+              _api.rpc.system.properties(),
+              _api.rpc.system.name(),
+              _api.rpc.state.getMetadata()
+            )
+          );
+          const decimals = tokenDecimals.toHuman() as string[];
+
+          // first setup the UI helpers
+          formatBalance.setDefaults({
+            decimals: decimals.map(d => parseInt(d)),
+            unit: 'DOT',
+          });
+          TokenUnit.setAbbr('DOT');
+
+          isKeyringLoaded() ||
+            keyring.loadAll({
+              genesisHash: _api.genesisHash,
+              ss58Format: parseInt(
+                _api.consts.system?.ss58Prefix.toString() ||
+                  ss58Format.toString()
+              ),
+              type: 'sr25519',
+              isDevelopment: true,
+            });
+
+          setProperties({
+            systemName: _systemName.toString(),
+            genesisHash: _api.genesisHash.toString(),
+            tokenDecimal: parseInt(decimals[0]),
+            tokenSymbol: tokenSymbol.toString(),
+            metadata,
+          });
+          connected$.next(true);
+        },
+        connectedHandler() {
+          console.log(`endpoint ${domain} connected`);
+        },
+        errorHandler(error) {
+          console.log(`endpoint ${domain} error`, error);
+        },
+        disconnectedHandler() {
+          console.log(`endpoint ${domain} disconnected`);
+
+          connected$.next(false);
+        },
+      };
+
+      apiRx.on('ready', _endpoint.readyHandler);
+      apiRx.on('error', _endpoint.errorHandler);
+      apiRx.on('connected', _endpoint.connectedHandler);
+      apiRx.on('disconnected', _endpoint.disconnectedHandler);
+
+      setEndpoint(_endpoint);
+    },
+    [endpoint, disconnect, connected$]
+  );
+
+  return (
+    <ApiContext.Provider
+      value={{
+        api,
+        wsProvider: endpoint?.wsProvider as any,
+        genesisHash,
+        tokenDecimal,
+        tokenSymbol,
+        systemName,
+        metadata,
+        connect,
+      }}
+    >
+      {children}
+    </ApiContext.Provider>
+  );
 });
 
-export {
-  ApiContext,
-  ApiProvider,
-};
+export { ApiContext, ApiProvider };

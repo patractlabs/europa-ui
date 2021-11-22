@@ -10,12 +10,12 @@ interface EuropaManageContextProps {
   startup: (
     db: string,
     workspace: string,
-    options?: EuropaOptions,
+    options?: EuropaOptions
   ) => ChildProcess.ChildProcessWithoutNullStreams;
   change: (
     db: string,
     workspace: string,
-    options?: EuropaOptions,
+    options?: EuropaOptions
   ) => ChildProcess.ChildProcessWithoutNullStreams;
 }
 
@@ -24,9 +24,14 @@ export interface EuropaOptions {
   wsPort?: number;
 }
 
-export const EuropaManageContext: Context<EuropaManageContextProps> = React.createContext({}as unknown as EuropaManageContextProps);
+export const EuropaManageContext: Context<EuropaManageContextProps> =
+  React.createContext({} as unknown as EuropaManageContextProps);
 
-const startEuropa = (db: string, workspace: string, options?: EuropaOptions): ChildProcess.ChildProcessWithoutNullStreams => {
+const startEuropa = (
+  db: string,
+  workspace: string,
+  options?: EuropaOptions
+): ChildProcess.ChildProcessWithoutNullStreams => {
   if (!requireModule.isElectron) {
     return undefined as unknown as ChildProcess.ChildProcessWithoutNullStreams;
   }
@@ -35,10 +40,11 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
   const path: typeof Path = requireModule('path');
   const os: typeof OS = requireModule('os');
   const platform = os.platform().toLowerCase();
-  const resources = process.env.NODE_ENV === 'development'
-    ? path.resolve('./resources')
-    : path.resolve(__dirname, '../../app.asar.unpacked/resources');
-    let binPath = path.resolve(resources, 'europa.exe');
+  const resources =
+    process.env.NODE_ENV === 'development'
+      ? path.resolve('./resources')
+      : path.resolve(__dirname, '../../app.asar.unpacked/resources');
+  let binPath = path.resolve(resources, 'europa.exe');
 
   if (platform === 'linux' || platform === 'darwin') {
     binPath = path.resolve(resources, 'europa');
@@ -49,56 +55,73 @@ const startEuropa = (db: string, workspace: string, options?: EuropaOptions): Ch
     console.log(`platform:`, platform);
     console.log(`bin:`, binPath);
     console.log(`dir:`, __dirname);
-  } catch(e) {}
+  } catch (e) {}
 
   const optionsMap = {
     httpPort: '--rpc-port=',
     wsPort: '--ws-port=',
-  }
-  const args = [`-d=${db}`, `-w=${workspace}`]
-    .concat(!options ?
-      [] :
-      Object
-      .keys(options)
-      .filter(key => options[key as 'httpPort' | 'wsPort'])
-      .map(key => `${optionsMap[key as 'httpPort' | 'wsPort']}${options[key as 'httpPort' | 'wsPort']}`)
-    );
+  };
+  const args = [`-d=${db}`, `-w=${workspace}`].concat(
+    !options
+      ? []
+      : Object.keys(options)
+          .filter(key => options[key as 'httpPort' | 'wsPort'])
+          .map(
+            key =>
+              `${optionsMap[key as 'httpPort' | 'wsPort']}${
+                options[key as 'httpPort' | 'wsPort']
+              }`
+          )
+  );
 
   console.log('args:', args);
 
   const europa = childProcess.spawn(binPath, args);
 
-  europa.stdout.on('data', () => {})
+  europa.stdout.on('data', () => {});
 
-  console.log('europa.pid', europa.pid, europa)
+  console.log('europa.pid', europa.pid, europa);
 
   return europa;
-}
+};
 
 export const EuropaManageProvider = React.memo(
   ({ children }: { children: React.ReactNode }): React.ReactElement => {
-    const [ europa, setEuropa ] = useState<ChildProcess.ChildProcessWithoutNullStreams>();
+    const [europa, setEuropa] =
+      useState<ChildProcess.ChildProcessWithoutNullStreams>();
 
-    const startup = useCallback((db: string, workspace: string, options?: EuropaOptions) => {
-      const europa = startEuropa(db, workspace, options);
-      const { ipcRenderer }: typeof Electron = requireModule('electron');
+    const startup = useCallback(
+      (db: string, workspace: string, options?: EuropaOptions) => {
+        const europa = startEuropa(db, workspace, options);
+        const { ipcRenderer }: typeof Electron = requireModule('electron');
 
-      ipcRenderer.send('message:pid-change', europa.pid);
-      setEuropa(europa);
+        ipcRenderer.send('message:pid-change', europa.pid);
+        setEuropa(europa);
 
-      return europa;
-    }, []);
+        return europa;
+      },
+      []
+    );
 
-    const change = useCallback((db: string, workspace: string, options?: EuropaOptions) => {
-      europa?.kill();
+    const change = useCallback(
+      (db: string, workspace: string, options?: EuropaOptions) => {
+        europa?.kill();
 
-      return startup(db, workspace, options);
-    }, [europa, startup]);
+        return startup(db, workspace, options);
+      },
+      [europa, startup]
+    );
 
-    return <EuropaManageContext.Provider value={{
-      europa,
-      startup,
-      change,
-    }}>{children}</EuropaManageContext.Provider>;
+    return (
+      <EuropaManageContext.Provider
+        value={{
+          europa,
+          startup,
+          change,
+        }}
+      >
+        {children}
+      </EuropaManageContext.Provider>
+    );
   }
 );

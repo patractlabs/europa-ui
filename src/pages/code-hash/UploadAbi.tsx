@@ -1,4 +1,10 @@
-import React, { FC, ReactElement, useCallback, useContext, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import { Button, Modal, Upload } from 'antd';
 import { hexToU8a, isHex, u8aToString } from '@polkadot/util';
 import type { RcFile } from 'antd/lib/upload';
@@ -12,7 +18,7 @@ const BYTE_STR_0 = '0'.charCodeAt(0);
 const BYTE_STR_X = 'x'.charCodeAt(0);
 const STR_NL = '\n';
 
-function convertResult (result: ArrayBuffer): Uint8Array {
+function convertResult(result: ArrayBuffer): Uint8Array {
   const data = new Uint8Array(result);
 
   // this converts the input (if detected as hex), via the hex conversion route
@@ -66,40 +72,44 @@ export const UploadAbi: FC<{
   onCompleted: () => void;
 }> = ({ blockHeight, codeHash, onCanceled, onCompleted }): ReactElement => {
   const { genesisHash } = useContext(ApiContext);
-  const [ codeJSON, setCodeJSON ] = useState<CodeJson>();
+  const [codeJSON, setCodeJSON] = useState<CodeJson>();
 
-  const beforeUpload = useCallback(async (file: RcFile) => {
-    try {
-      const data = await file.arrayBuffer();
-      const json = u8aToString(convertResult(data));
-      const abi = new Abi(json);
-      const hash = abi.project?.source?.wasmHash?.toString();
+  const beforeUpload = useCallback(
+    async (file: RcFile) => {
+      try {
+        const data = await file.arrayBuffer();
+        const json = u8aToString(convertResult(data));
+        const abi = new Abi(json);
+        const hash = abi.project?.source?.wasmHash?.toString();
 
-      if (hash !== codeHash) {
+        if (hash !== codeHash) {
+          notification.warning({
+            message: 'Wrong file',
+            description: 'Code hash is not equal',
+          });
+        }
+
+        setCodeJSON({
+          abi: json,
+          codeHash: hash,
+          name:
+            abi.project?.contract?.name?.toString() || file.name.split('.')[0],
+          genesisHash,
+          tags: [],
+          whenCreated: blockHeight,
+        });
+      } catch (error) {
         notification.warning({
           message: 'Wrong file',
-          description: 'Code hash is not equal',
+          description: 'Please upload .contact file',
         });
+        console.error(error);
       }
 
-      setCodeJSON({
-        abi: json,
-        codeHash: hash,
-        name: abi.project?.contract?.name?.toString() || file.name.split('.')[0],
-        genesisHash,
-        tags: [],
-        whenCreated: blockHeight,
-      });
-    } catch (error) {
-      notification.warning({
-        message: 'Wrong file',
-        description: 'Please upload .contact file',
-      });
-      console.error(error);
-    }
-
-    return false;
-  }, [blockHeight, genesisHash, codeHash]);
+      return false;
+    },
+    [blockHeight, genesisHash, codeHash]
+  );
 
   const upload = useCallback(() => {
     if (!codeJSON || (codeJSON.codeHash && codeJSON.codeHash !== codeHash)) {
@@ -111,42 +121,67 @@ export const UploadAbi: FC<{
   }, [codeJSON, codeHash, onCompleted]);
 
   return (
-      <Modal
-        width={560}
-        title={null}
-        onCancel={onCanceled}
-        visible={true}
-        footer={null}
-      >
-        <Content>
-          <div className="header">
-            <h2>Upload Metadata</h2>
-          </div>
-          <div className="content">
-            <div className="upload">
-              <div>
-                <LabeledValue style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
-                  <div className="span">Contract name</div>
-                  <div>{codeJSON?.name}</div>
-                </LabeledValue>
+    <Modal
+      width={560}
+      title={null}
+      onCancel={onCanceled}
+      visible={true}
+      footer={null}
+    >
+      <Content>
+        <div className='header'>
+          <h2>Upload Metadata</h2>
+        </div>
+        <div className='content'>
+          <div className='upload'>
+            <div>
+              <LabeledValue
+                style={{
+                  marginTop: '16px',
+                  paddingRight: '16px',
+                  width: '100%',
+                  textAlign: 'left',
+                }}
+              >
+                <div className='span'>Contract name</div>
+                <div>{codeJSON?.name}</div>
+              </LabeledValue>
 
-                <LabeledValue error={!!codeJSON && !!codeJSON.codeHash && codeJSON.codeHash !== codeHash} style={{ marginTop: '16px', paddingRight: '16px', width: '100%', textAlign: 'left' }}>
-                  <div className="span">Contract code hash</div>
-                  <div className="value">{codeJSON?.codeHash}</div>
-                </LabeledValue>
-              </div>
+              <LabeledValue
+                error={
+                  !!codeJSON &&
+                  !!codeJSON.codeHash &&
+                  codeJSON.codeHash !== codeHash
+                }
+                style={{
+                  marginTop: '16px',
+                  paddingRight: '16px',
+                  width: '100%',
+                  textAlign: 'left',
+                }}
+              >
+                <div className='span'>Contract code hash</div>
+                <div className='value'>{codeJSON?.codeHash}</div>
+              </LabeledValue>
             </div>
           </div>
-          <div className="footer">
-            {
-              codeJSON ?
-                <DefaultButton type="primary" disabled={codeJSON.codeHash !== codeHash} onClick={upload}>Confirm</DefaultButton> :
-                <Upload fileList={[]} beforeUpload={beforeUpload}>
-                  <DefaultButton type="primary">Upload Metadata</DefaultButton>
-                </Upload>
-            }
-          </div>
-        </Content>
-      </Modal>
+        </div>
+        <div className='footer'>
+          {codeJSON ? (
+            <DefaultButton
+              type='primary'
+              disabled={codeJSON.codeHash !== codeHash}
+              onClick={upload}
+            >
+              Confirm
+            </DefaultButton>
+          ) : (
+            <Upload fileList={[]} beforeUpload={beforeUpload}>
+              <DefaultButton type='primary'>Upload Metadata</DefaultButton>
+            </Upload>
+          )}
+        </div>
+      </Content>
+    </Modal>
   );
 };

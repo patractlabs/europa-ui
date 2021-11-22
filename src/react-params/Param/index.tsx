@@ -10,17 +10,32 @@ import { isUndefined } from '@polkadot/util';
 
 import findComponent from './findComponent';
 import Static from './Static';
+import { api } from '../../core/provider';
 
-function Param ({ className = '', defaultValue, isDisabled, isInOption, isOptional, name, onChange, onEnter, onEscape, overrides, registry, type }: Props): React.ReactElement<Props> | null {
+function Param({
+  className = '',
+  defaultValue,
+  isDisabled,
+  isInOption,
+  isOptional,
+  name,
+  onChange,
+  onEnter,
+  onEscape,
+  overrides,
+  registry,
+  type,
+}: Props): React.ReactElement<Props> | null {
   const Component = useMemo(
     () => findComponent(registry, type, overrides),
     [registry, type, overrides]
   );
 
   const label = useMemo(
-    () => isUndefined(name)
-      ? encodeTypeDef(type)
-      : `${name}: ${encodeTypeDef(type)}`,
+    () =>
+      isUndefined(name)
+        ? encodeTypeDef(api.registry, type)
+        : `${name}: ${encodeTypeDef(api.registry, type)}`,
     [name, type]
   );
 
@@ -28,31 +43,25 @@ function Param ({ className = '', defaultValue, isDisabled, isInOption, isOption
     return null;
   }
 
-  return isOptional
-    ? (
-      <Static
-        defaultValue={defaultValue}
-        label={label}
-        type={type}
-      />
-    )
-    : (
-      <Component
-        className={`ui--Param ${className}`}
-        defaultValue={defaultValue}
-        isDisabled={isDisabled}
-        isInOption={isInOption}
-        key={`${name || 'unknown'}:${type.toString()}`}
-        label={label}
-        name={name}
-        onChange={onChange}
-        onEnter={onEnter}
-        onEscape={onEscape}
-        overrides={overrides}
-        registry={registry}
-        type={type}
-      />
-    );
+  return isOptional ? (
+    <Static defaultValue={defaultValue} label={label} type={type} />
+  ) : (
+    <Component
+      className={`ui--Param ${className}`}
+      defaultValue={defaultValue}
+      isDisabled={isDisabled}
+      isInOption={isInOption}
+      key={`${name || 'unknown'}:${type.toString()}`}
+      label={label}
+      name={name}
+      onChange={onChange}
+      onEnter={onEnter}
+      onEscape={onEscape}
+      overrides={overrides}
+      registry={registry}
+      type={type}
+    />
+  );
 }
 
 export default React.memo(Param);

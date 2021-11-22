@@ -21,11 +21,14 @@ interface Props extends BaseProps {
   childrenPre?: React.ReactNode;
 }
 
-function isDispatchError (value?: unknown): value is DispatchError {
-  return !!(value && ((value as DispatchError).isModule || (value as DispatchError).isToken));
+function isDispatchError(value?: unknown): value is DispatchError {
+  return !!(
+    value &&
+    ((value as DispatchError).isModule || (value as DispatchError).isToken)
+  );
 }
 
-function ErrorDisplay (props: Props): React.ReactElement<Props> {
+function ErrorDisplay(props: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const [{ details, type }, setDetails] = useState<Details>({});
 
@@ -36,11 +39,11 @@ function ErrorDisplay (props: Props): React.ReactElement<Props> {
       if (value.isModule) {
         try {
           const mod = value.asModule;
-          const { documentation, name, section } = mod.registry.findMetaError(mod);
+          const { docs, name, section } = mod.registry.findMetaError(mod);
 
           return setDetails({
-            details: documentation.join(', '),
-            type: `${section}.${name}`
+            details: docs.join(', '),
+            type: `${section}.${name}`,
           });
         } catch (error) {
           // Errors may not actually be exposed, in this case, just return the default representation
@@ -49,7 +52,7 @@ function ErrorDisplay (props: Props): React.ReactElement<Props> {
       } else if (value.isToken) {
         return setDetails({
           details: value.asToken.type,
-          type: value.type
+          type: value.type,
         });
       }
     }

@@ -1,11 +1,17 @@
-import React, { FC, ReactElement, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { Col, Button, Row } from 'antd';
 import styled from 'styled-components';
 import type { SubmittableExtrinsicFunction } from '@polkadot/api/types';
 import type { TypeDef } from '@polkadot/types/types';
 import { ApiRx } from '@polkadot/api';
 import { getTypeDef } from '@polkadot/types';
-import { GenericCall } from '@polkadot/types';
 import { AccountsContext, ApiContext, handleTxResults } from '../../../core';
 import Sections from '../shared/Sections';
 import Methods from '../shared/Methods';
@@ -26,7 +32,6 @@ const Wrapper = styled.div`
   padding: 20px;
   flex: 1;
   background-color: white;
-
 `;
 
 const Submit = styled.div`
@@ -46,16 +51,17 @@ interface TypeDefExt extends TypeDef {
 type ParamsType = { type: TypeDefExt }[];
 
 const createOptions = (api: ApiRx): string[] => {
-  return Object
-    .keys(api.tx)
+  return Object.keys(api.tx)
     .sort()
     .filter(name => Object.keys(api.tx[name]).length);
-}
+};
 
-function getParams ({ meta }: SubmittableExtrinsicFunction<'rxjs'>): { name: string; type: TypeDef }[] {
-  return GenericCall.filterOrigin(meta).map((arg): { name: string; type: TypeDef } => ({
+function getParams({
+  meta,
+}: SubmittableExtrinsicFunction<'rxjs'>): { name: string; type: TypeDef }[] {
+  return meta.args.map((arg): { name: string; type: TypeDef } => ({
     name: arg.name.toString(),
-    type: getTypeDef(arg.type.toString())
+    type: getTypeDef(arg.type.toString()),
   }));
 }
 
@@ -66,10 +72,9 @@ const createMethods = (api: ApiRx, sectionName: string) => {
     return [];
   }
 
-  return Object
-    .keys(section)
+  return Object.keys(section)
     .sort()
-    .map((value) => {
+    .map(value => {
       const method = section[value];
       const inputs = method.meta.args
         .filter((arg): boolean => arg.type.toString() !== 'Origin')
@@ -78,7 +83,7 @@ const createMethods = (api: ApiRx, sectionName: string) => {
 
       return {
         label: `${value}(${inputs})`,
-        desc: (method.meta.documentation[0] || value).toString(),
+        desc: (method.meta.docs[0] || value).toString(),
         value,
       };
     });
@@ -89,153 +94,182 @@ export const Submission: FC = (): ReactElement => {
   const { accounts } = useContext(AccountsContext);
   const [sender, setAccountId] = useState<string>();
   const [tip, setTip] = useState<BN>();
-  const [ section, setSection ] = useState<string>(createOptions(api)[0]);
-  const [ methods, setMethods ] = useState<{
-    value: string;
-    label: string;
-    desc: string;
-  }[]>(createMethods(api, section));
-  const [ method, setMethod ] = useState<{
+  const [section, setSection] = useState<string>(createOptions(api)[0]);
+  const [methods, setMethods] = useState<
+    {
+      value: string;
+      label: string;
+      desc: string;
+    }[]
+  >(createMethods(api, section));
+  const [method, setMethod] = useState<{
     value: string;
     label: string;
     desc: string;
   }>(methods[0]);
   const [paramValues, setParamValues] = useState<RawParamOnChangeValue[]>([]);
-  const [params, setParams] = useState<ParamsType>(getParams(api.tx[section][method.value]));
-
-  const [extrinsicHex, extrinsicHash] = useMemo(
-    (): [string, string] => {
-      const values = paramValues.map(p => p.value) as any[];
-      const exec = api.tx[section][method.value];
-
-      try {
-        const extrinsic = exec(...values);
-        const u8a = extrinsic.method.toU8a();
-  
-        // don't use the built-in hash, we only want to convert once
-        return [u8aToHex(u8a), extrinsic.registry.hash(u8a).toHex()];
-      } catch (e) {
-        return ['0x', '0x'];
-      }
-    },
-    [api.tx, section, method, paramValues],
+  const [params, setParams] = useState<ParamsType>(
+    getParams(api.tx[section][method.value])
   );
+
+  const [extrinsicHex, extrinsicHash] = useMemo((): [string, string] => {
+    const values = paramValues.map(p => p.value) as any[];
+    const exec = api.tx[section][method.value];
+
+    try {
+      const extrinsic = exec(...values);
+      const u8a = extrinsic.method.toU8a();
+
+      // don't use the built-in hash, we only want to convert once
+      return [u8aToHex(u8a), extrinsic.registry.hash(u8a).toHex()];
+    } catch (e) {
+      return ['0x', '0x'];
+    }
+  }, [api.tx, section, method, paramValues]);
 
   const onUnsignedSubmit = useCallback(async () => {
     const exec = api.tx[section][method.value];
     const values = paramValues.map(p => p.value) as any[];
 
-    exec(...values).send().pipe(
-      catchError(e => {
-        notification.fail({
-          message: 'Failed',
-          description: e.message,
-        });
-        return throwError('');
-      })
-    ).subscribe(handleTxResults({
-      success() {
-        notification.success({
-          message: 'Executed',
-          description: 'The extrinsic executed',
-        });
-      },
-      fail(status) {
-        notification.fail({
-          message: 'Failed',
-          description: <TxError metadata={metadata} error={status.dispatchError} />,
-        });
-      },
-      update(r) {
-      }
-    }, () => {}));
+    exec(...values)
+      .send()
+      .pipe(
+        catchError(e => {
+          notification.fail({
+            message: 'Failed',
+            description: e.message,
+          });
+          return throwError(() => '');
+        })
+      )
+      .subscribe(
+        handleTxResults(
+          {
+            success() {
+              notification.success({
+                message: 'Executed',
+                description: 'The extrinsic executed',
+              });
+            },
+            fail(status) {
+              notification.fail({
+                message: 'Failed',
+                description: (
+                  <TxError metadata={metadata} error={status.dispatchError} />
+                ),
+              });
+            },
+            update(r) {},
+          },
+          () => {}
+        )
+      );
   }, [api.tx, method.value, paramValues, section, metadata]);
 
   const onSignedSubmit = useCallback(async () => {
     const exec = api.tx[section][method.value];
     const account = accounts.find(account => account.address === sender);
     if (!account) {
-      return
+      return;
     }
-    const pair = account.mnemonic ? keyring.createFromUri(account.mnemonic) : keyring.getPair(account.address);
+    const pair = account.mnemonic
+      ? keyring.createFromUri(account.mnemonic)
+      : keyring.getPair(account.address);
     const values = paramValues.map(p => p.value) as any[];
 
-    exec(...values).signAndSend(pair, { tip }).pipe(
-      catchError(e => {
-        notification.fail({
-          message: 'Failed',
-          description: e.message,
-        });
-        return throwError('');
-      })
-    ).subscribe(handleTxResults({
-      success() {
-        notification.success({
-          message: 'Executed',
-          description: 'The extrinsic executed',
-        });
-      },
-      fail(status) {
-        notification.fail({
-          message: 'Failed',
-          description: <TxError metadata={metadata} error={status.dispatchError} />,
-        });
-      },
-      update(r) {
-      }
-    }, () => {}));
-  }, [accounts, api.tx, method.value, paramValues, section, sender, tip, metadata]);
+    exec(...values)
+      .signAndSend(pair, { tip })
+      .pipe(
+        catchError(e => {
+          notification.fail({
+            message: 'Failed',
+            description: e.message,
+          });
+          return throwError('');
+        })
+      )
+      .subscribe(
+        handleTxResults(
+          {
+            success() {
+              notification.success({
+                message: 'Executed',
+                description: 'The extrinsic executed',
+              });
+            },
+            fail(status) {
+              notification.fail({
+                message: 'Failed',
+                description: (
+                  <TxError metadata={metadata} error={status.dispatchError} />
+                ),
+              });
+            },
+            update(r) {},
+          },
+          () => {}
+        )
+      );
+  }, [
+    accounts,
+    api.tx,
+    method.value,
+    paramValues,
+    section,
+    sender,
+    tip,
+    metadata,
+  ]);
 
-  const onSectionChange = useCallback((sectionName: string) => {
-    const methods = createMethods(api, sectionName);
-   
-    setSection(sectionName);
-    setMethods(methods);
-    setMethod(methods[0]);
-    setParams(getParams(api.tx[sectionName][methods[0].value]));
-  }, [api]);
+  const onSectionChange = useCallback(
+    (sectionName: string) => {
+      const methods = createMethods(api, sectionName);
 
-  const onMethodChange = useCallback((method: {
-    value: string;
-    label: string;
-    desc: string;
-  }) => {
-    setMethod(method);
-    setParams(getParams(api.tx[section][method.value]));
-  }, [api, section]);
+      setSection(sectionName);
+      setMethods(methods);
+      setMethod(methods[0]);
+      setParams(getParams(api.tx[sectionName][methods[0].value]));
+    },
+    [api]
+  );
+
+  const onMethodChange = useCallback(
+    (method: { value: string; label: string; desc: string }) => {
+      setMethod(method);
+      setParams(getParams(api.tx[section][method.value]));
+    },
+    [api, section]
+  );
 
   return (
     <Wrapper>
       <LabeledInput>
-        <div className="span">Caller</div>
+        <div className='span'>Caller</div>
         <AddressInput
           bordered={false}
-          suffixIcon={<img src={MoreSvg} alt="" />}
+          suffixIcon={<img src={MoreSvg} alt='' />}
           onChange={setAccountId}
         />
       </LabeledInput>
       <Row style={{ margin: '20px 0px' }}>
         <Col span={7}>
-          <Sections span={'selected extrisnic section'} defaultValue={section} options={createOptions(api)} onChange={onSectionChange} />
+          <Sections
+            span={'selected extrisnic section'}
+            defaultValue={section}
+            options={createOptions(api)}
+            onChange={onSectionChange}
+          />
         </Col>
         <Col span={17}>
           <Methods value={method} options={methods} onChange={onMethodChange} />
         </Col>
       </Row>
-      
-      <Params
-        onChange={setParamValues}
-        params={params}
-      />
-      
-      <LabeledInput style={{  marginTop: '20px' }}>
-        <div className="span">Tip</div>
-        <InputBalance
-          siWidth={15}
-          label="Tip"
-          onChange={setTip}
-          value={tip}
-        />
+
+      <Params onChange={setParamValues} params={params} />
+
+      <LabeledInput style={{ marginTop: '20px' }}>
+        <div className='span'>Tip</div>
+        <InputBalance siWidth={15} label='Tip' onChange={setTip} value={tip} />
       </LabeledInput>
 
       <Encoded style={{ marginTop: '20px' }}>
@@ -247,8 +281,12 @@ export const Submission: FC = (): ReactElement => {
         <p>{extrinsicHash}</p>
       </Encoded>
       <Submit>
-        <Button type="primary" onClick={onUnsignedSubmit}>Submit Unsigned</Button>
-        <Button type="primary" onClick={onSignedSubmit}>Submit Transaction</Button>
+        <Button type='primary' onClick={onUnsignedSubmit}>
+          Submit Unsigned
+        </Button>
+        <Button type='primary' onClick={onSignedSubmit}>
+          Submit Transaction
+        </Button>
       </Submit>
     </Wrapper>
   );
