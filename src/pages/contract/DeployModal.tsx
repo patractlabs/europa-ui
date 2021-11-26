@@ -302,12 +302,7 @@ export const DeployModal: FC<{
                     Alive: { codeHash },
                   } = info;
 
-                  if (
-                    !store.getCode(codeHash) &&
-                    codeJSON &&
-                    codeJSON.abi &&
-                    wasm
-                  ) {
+                  if (!store.getCode(codeHash) && codeJSON && codeJSON.abi) {
                     const abi: {
                       source: {
                         _alias: {
@@ -333,7 +328,9 @@ export const DeployModal: FC<{
                       };
                     } = JSON.parse(codeJSON.abi!);
 
-                    abi.source.wasm = u8aToHex(wasm);
+                    if (wasm) {
+                      abi.source.wasm = u8aToHex(wasm);
+                    }
                     store.saveCode(codeHash, {
                       ...codeJSON!,
                       abi: JSON.stringify(abi),
