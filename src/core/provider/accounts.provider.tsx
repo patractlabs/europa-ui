@@ -51,6 +51,7 @@ export const AccountsProvider = React.memo(
     const { api, tokenDecimal } = useContext(ApiContext);
     const { connected$ } = useContext(BusContext);
     const [accounts, setAccounts] = useState<AccountInfo[]>([]);
+
     const [signal, updateSignal] = useState(0);
 
     const update = useCallback(() => updateSignal(v => v + 1), [updateSignal]);
